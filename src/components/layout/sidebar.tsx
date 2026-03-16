@@ -18,11 +18,11 @@ import { Tooltip } from "@/components/ui/tooltip";
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Inventory", href: "/inventory", icon: Package },
-  { name: "Budget & Financials", href: "/budget", icon: CircleDollarSign },
-  { name: "Inventory Analysis", href: "/ai-insights", icon: Brain },
-  { name: "Forecasting", href: "/forecasting", icon: TrendingUp },
+  { name: "AI Insights", href: "/ai-insights", icon: Brain },
+  { name: "Forecasting & OR", href: "/forecasting", icon: TrendingUp },
+  { name: "Budget & Procurement", href: "/budget", icon: CircleDollarSign },
+  { name: "Supply Chain", href: "/analytics", icon: BarChart3 },
   { name: "Compliance", href: "/compliance", icon: ShieldCheck },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {
@@ -68,7 +68,7 @@ export function Sidebar() {
             >
               <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-white" : "")} />
               {item.name}
-              {item.name === "Inventory Analysis" && (
+              {item.name === "AI Insights" && (
                 <span className="ml-auto w-2 h-2 rounded-full bg-accent-light pulse-dot" />
               )}
               {item.name === "Compliance" && (
