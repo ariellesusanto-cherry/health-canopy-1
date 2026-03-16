@@ -270,10 +270,10 @@ export const aiInsights: AIInsight[] = [
     type: "outbreak",
     severity: "high",
     title: "Flu Surge Predicted — Bay Area",
-    description: "CDC ILINet data shows 34% week-over-week increase in influenza-like illness in Contra Costa County. Wastewater surveillance confirms rising viral load. Model predicts 40-60% increase in ED respiratory visits within 7-10 days.",
+    description: "CDC ILINet data shows 34% week-over-week increase in influenza-like illness in Contra Costa County. Wastewater surveillance confirms rising viral load. Additionally, 30 flu vaccination appointments have been booked this month — a 3x increase over February — signaling heightened community awareness and demand. Model predicts 40-60% increase in ED respiratory visits within 7-10 days.",
     timestamp: "2026-03-15T08:30:00",
     actionable: true,
-    suggestedAction: "Pre-order additional Tamiflu (est. 200 units), rapid flu tests (est. 1,500 units), and N95 masks (est. 3,000 units). Auto-adjust PAR levels for respiratory supplies.",
+    suggestedAction: "Pre-order additional flu vaccine doses (est. 50 units), Tamiflu (est. 200 units), rapid flu tests (est. 1,500 units), N95 masks (est. 3,000 units), and vaccination supplies (syringes, alcohol pads). Auto-adjust PAR levels for respiratory supplies.",
     impact: "Prevents estimated $45,000 in emergency procurement costs",
   },
   {

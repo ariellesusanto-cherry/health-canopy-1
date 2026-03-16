@@ -32,7 +32,6 @@ import {
   Area,
   AreaChart,
   ReferenceLine,
-  BarChart,
   Bar,
   ComposedChart,
 } from "recharts";
@@ -42,11 +41,12 @@ const forecastInsights = aiInsights.filter(
   (i) => i.type === "prediction" || i.type === "outbreak"
 );
 
+// Semantic color system — 4 meanings, 3 tones each (bg, border, text)
 const severityConfig = {
-  high: { bg: "bg-red-50 border-red-100", iconColor: "text-red-500", badge: "bg-red-100 text-red-700", ring: "ring-red-200" },
-  medium: { bg: "bg-amber-50 border-amber-100", iconColor: "text-amber-500", badge: "bg-amber-100 text-amber-700", ring: "ring-amber-200" },
-  low: { bg: "bg-stone-100 border-stone-200", iconColor: "text-stone-500", badge: "bg-stone-200 text-stone-700", ring: "ring-stone-200" },
-  info: { bg: "bg-emerald-50 border-emerald-100", iconColor: "text-emerald-500", badge: "bg-emerald-100 text-emerald-700", ring: "ring-emerald-200" },
+  high: { bg: "bg-red-50 border-red-200", iconColor: "text-red-600", badge: "bg-red-100 text-red-700", ring: "ring-red-200" },
+  medium: { bg: "bg-amber-50 border-amber-200", iconColor: "text-amber-600", badge: "bg-amber-100 text-amber-700", ring: "ring-amber-200" },
+  low: { bg: "bg-stone-50 border-stone-200", iconColor: "text-stone-500", badge: "bg-stone-200 text-stone-600", ring: "ring-stone-200" },
+  info: { bg: "bg-accent/5 border-accent/20", iconColor: "text-accent", badge: "bg-accent/10 text-accent", ring: "ring-accent/20" },
 };
 
 export default function ForecastingPage() {
@@ -72,14 +72,14 @@ export default function ForecastingPage() {
             <p className="text-xs text-amber-600 font-medium mt-1">+10% vs. current average</p>
           </div>
           <div className="bg-white rounded-xl border border-border p-5">
-            <div className="flex items-center gap-2 mb-2"><Thermometer className="w-4 h-4 text-red-500" /><span className="text-[11px] font-medium text-muted uppercase">Outbreak Risk</span></div>
+            <div className="flex items-center gap-2 mb-2"><Thermometer className="w-4 h-4 text-red-600" /><span className="text-[11px] font-medium text-muted uppercase">Outbreak Risk</span></div>
             <p className="text-2xl font-bold text-red-600">HIGH</p>
             <p className="text-xs text-red-600 font-medium mt-1">Flu surge — 40-60% ED increase predicted</p>
           </div>
           <div className="bg-white rounded-xl border border-border p-5">
             <div className="flex items-center gap-2 mb-2"><Brain className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">April Spend Forecast</span></div>
             <p className="text-2xl font-bold text-foreground">$942K</p>
-            <p className="text-xs text-red-600 font-medium mt-1">$32K over budget — seasonal surge</p>
+            <p className="text-xs text-amber-600 font-medium mt-1">$32K over budget — seasonal surge</p>
           </div>
         </div>
 
@@ -125,8 +125,8 @@ export default function ForecastingPage() {
 
           <div className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2">
             <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="text-xs text-amber-800">
-              <span className="font-semibold">Why is demand rising?</span> (1) OR schedule shows 55% above-normal surgical volume Mar 23–27. (2) CDC flu surveillance predicts a respiratory surge increasing ED PPE/medication consumption.
+            <div className="text-xs text-amber-700">
+              <span className="font-semibold">Why is demand rising?</span> (1) Surgical volume is 55% above normal Mar 23–27. (2) CDC flu surveillance predicts a respiratory surge increasing ED PPE/medication consumption.
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function ForecastingPage() {
         </div>
 
         {/* ============================================================ */}
-        {/* SECTION 4: What-If Scenarios                                  */}
+        {/* SECTION 3: What-If Scenarios                                  */}
         {/* ============================================================ */}
         <div className="bg-white rounded-xl border border-border p-6">
           <div className="mb-5">
@@ -178,9 +178,9 @@ export default function ForecastingPage() {
 
           <div className="grid grid-cols-3 gap-4 mb-6">
             {([
-              { id: "baseline" as const, title: "Normal Operations", desc: "Current consumption continues. No disruptions.", icon: CheckCircle2, iconColor: "text-emerald-500" },
-              { id: "flu-surge" as const, title: "Flu Surge Hits Contra Costa County", desc: "What if ED respiratory visits increase 40% over the next 10 days?", icon: Thermometer, iconColor: "text-red-500" },
-              { id: "supply-disruption" as const, title: "Primary Supplier Delayed 5 Days", desc: "What if Medline and Cardinal Health shipments are delayed 5 days?", icon: AlertOctagon, iconColor: "text-amber-500" },
+              { id: "baseline" as const, title: "Normal Operations", desc: "Current consumption continues. No disruptions.", icon: CheckCircle2, iconColor: "text-accent" },
+              { id: "flu-surge" as const, title: "Flu Surge Hits Contra Costa County", desc: "What if ED respiratory visits increase 40% over the next 10 days?", icon: Thermometer, iconColor: "text-red-600" },
+              { id: "supply-disruption" as const, title: "Primary Supplier Delayed 5 Days", desc: "What if Medline and Cardinal Health shipments are delayed 5 days?", icon: AlertOctagon, iconColor: "text-amber-600" },
             ]).map((s) => (
               <button key={s.id} onClick={() => setActiveScenario(s.id)}
                 className={cn("p-5 rounded-xl border text-left transition-all", activeScenario === s.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/30 hover:bg-stone-50")}>
@@ -192,8 +192,8 @@ export default function ForecastingPage() {
           </div>
 
           {activeScenario === "baseline" && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
-              <h4 className="text-sm font-semibold text-emerald-800 mb-4">Normal Operations — No Action Needed</h4>
+            <div className="rounded-xl border border-accent/20 bg-accent/5 p-5">
+              <h4 className="text-sm font-semibold text-accent mb-4">Normal Operations — No Action Needed</h4>
               <div className="grid grid-cols-4 gap-4">
                 {[
                   { label: "PPE Burn Rate", value: "5,000", sub: "/week", note: "Stock covers 6.4 days" },
@@ -201,10 +201,10 @@ export default function ForecastingPage() {
                   { label: "Stockout Risk", value: "3", sub: "items", note: "Heparin, Vicryl 3-0, Vent Circuits" },
                   { label: "Extra Cost", value: "$0", sub: "", note: "On track — $59K under budget YTD" },
                 ].map((c) => (
-                  <div key={c.label} className="p-4 rounded-lg bg-white border border-emerald-100">
+                  <div key={c.label} className="p-4 rounded-lg bg-white border border-accent/10">
                     <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
                     <p className="text-xl font-bold text-foreground">{c.value} <span className="text-xs font-normal text-muted">{c.sub}</span></p>
-                    <p className="text-xs text-emerald-600 mt-1">{c.note}</p>
+                    <p className="text-xs text-accent mt-1">{c.note}</p>
                   </div>
                 ))}
               </div>
@@ -212,38 +212,52 @@ export default function ForecastingPage() {
           )}
 
           {activeScenario === "flu-surge" && (
-            <div className="rounded-xl border border-red-200 bg-red-50/50 p-5">
-              <h4 className="text-sm font-semibold text-red-800 mb-2">If flu surges 40% in ED → here&apos;s what changes</h4>
-              <p className="text-xs text-red-700 mb-4">Based on CDC ILINet data, the AI projects a 40-60% increase in ED respiratory visits within 7-10 days.</p>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+              <h4 className="text-sm font-semibold text-red-700 mb-2">If flu surges 40% in ED → here&apos;s what changes</h4>
+              <p className="text-xs text-red-600 mb-4">Based on CDC ILINet data, the AI projects a 40-60% increase in ED respiratory visits within 7-10 days.</p>
+
+              {/* Flu vaccination appointment signal */}
+              <div className="p-4 rounded-lg bg-red-100/50 border border-red-200 mb-4 flex items-start gap-3">
+                <Thermometer className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-red-700">
+                  <span className="font-semibold">30 flu vaccination appointments booked this month</span>
+                  <span> — a 3x increase over the previous month. This spike correlates with rising community flu activity and further validates the predicted surge. The AI has factored this demand signal into the inventory recommendations below.</span>
+                </div>
+              </div>
+
               <div className="grid grid-cols-4 gap-4 mb-4">
                 {[
-                  { label: "PPE Burn Rate", value: "7,800", extra: "+56%", note: "Stock drops to 4.1 days", color: "text-red-500" },
-                  { label: "Medication Usage", value: "4,100", extra: "+28%", note: "Tamiflu stockout in ~5 days", color: "text-red-500" },
-                  { label: "Stockout Risk", value: "11", extra: "", note: "N95s, Tamiflu, flu tests, IV fluids...", color: "text-red-600" },
-                  { label: "Extra Weekly Spend", value: "+$67,200", extra: "", note: "Pre-ordering saves $45K", color: "text-red-600" },
+                  { label: "PPE Burn Rate", value: "7,800", extra: "+56%", note: "Stock drops to 4.1 days" },
+                  { label: "Medication Usage", value: "4,100", extra: "+28%", note: "Tamiflu stockout in ~5 days" },
+                  { label: "Stockout Risk", value: "11", extra: "", note: "N95s, Tamiflu, flu tests, IV fluids..." },
+                  { label: "Extra Weekly Spend", value: "+$67,200", extra: "", note: "Pre-ordering saves $45K" },
                 ].map((c) => (
-                  <div key={c.label} className="p-4 rounded-lg bg-white border border-red-100">
+                  <div key={c.label} className="p-4 rounded-lg bg-white border border-red-200">
                     <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
-                    <p className="text-xl font-bold text-foreground">{c.value} {c.extra && <span className={cn("text-xs font-semibold", c.color)}>{c.extra}</span>}</p>
+                    <p className="text-xl font-bold text-foreground">{c.value} {c.extra && <span className="text-xs font-semibold text-red-600">{c.extra}</span>}</p>
                     <p className="text-xs text-red-600 mt-1">{c.note}</p>
                   </div>
                 ))}
               </div>
               <div className="p-4 rounded-lg bg-white border border-primary/20">
                 <h5 className="text-xs font-semibold text-primary mb-2 flex items-center gap-1.5"><Target className="w-3.5 h-3.5" /> AI-Recommended Pre-Orders</h5>
-                <div className="grid grid-cols-3 gap-3 text-xs">
+                <p className="text-[11px] text-muted mb-3">Based on the flu surge forecast and 30 upcoming vaccination appointments</p>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-2 rounded bg-stone-50"><p className="font-semibold">Flu Vaccine Doses (Fluzone Quadrivalent)</p><p className="text-muted">50 doses from Sanofi Pasteur — $750</p></div>
+                  <div className="p-2 rounded bg-stone-50"><p className="font-semibold">Syringes & Needles (25G 1&quot;)</p><p className="text-muted">60 units from BD — $42</p></div>
                   <div className="p-2 rounded bg-stone-50"><p className="font-semibold">N95 Respirator Masks</p><p className="text-muted">3,000 units from 3M — $5,550</p></div>
                   <div className="p-2 rounded bg-stone-50"><p className="font-semibold">Tamiflu (Oseltamivir)</p><p className="text-muted">200 units from McKesson — $2,400</p></div>
                   <div className="p-2 rounded bg-stone-50"><p className="font-semibold">Rapid Flu Test Kits</p><p className="text-muted">1,500 units from Abbott — $5,250</p></div>
+                  <div className="p-2 rounded bg-stone-50"><p className="font-semibold">Alcohol Prep Pads & Bandages</p><p className="text-muted">500 units from Medline — $85</p></div>
                 </div>
               </div>
             </div>
           )}
 
           {activeScenario === "supply-disruption" && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-5">
-              <h4 className="text-sm font-semibold text-amber-800 mb-2">If Medline + Cardinal Health delayed 5 days → here&apos;s what changes</h4>
-              <p className="text-xs text-amber-700 mb-4">These two suppliers = 42% of supply volume. A 5-day delay pushes multiple items past safety stock.</p>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <h4 className="text-sm font-semibold text-amber-700 mb-2">If Medline + Cardinal Health delayed 5 days → here&apos;s what changes</h4>
+              <p className="text-xs text-amber-600 mb-4">These two suppliers = 42% of supply volume. A 5-day delay pushes multiple items past safety stock.</p>
               <div className="grid grid-cols-4 gap-4 mb-4">
                 {[
                   { label: "PPE Burn Rate", value: "5,000", note: "Unchanged, but reorder point → 3,800" },
@@ -251,9 +265,9 @@ export default function ForecastingPage() {
                   { label: "OR Cases at Risk", value: "12", note: "Surgical drape kits depleted by Mar 20" },
                   { label: "Expedited Cost", value: "+$34,800", note: "Backup vendors + next-day shipping" },
                 ].map((c) => (
-                  <div key={c.label} className="p-4 rounded-lg bg-white border border-amber-100">
+                  <div key={c.label} className="p-4 rounded-lg bg-white border border-amber-200">
                     <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
-                    <p className="text-xl font-bold text-amber-600">{c.value}</p>
+                    <p className="text-xl font-bold text-foreground">{c.value}</p>
                     <p className="text-xs text-amber-600 mt-1">{c.note}</p>
                   </div>
                 ))}
@@ -272,7 +286,7 @@ export default function ForecastingPage() {
         </div>
 
         {/* ============================================================ */}
-        {/* SECTION 5: Prediction Alerts                                  */}
+        {/* SECTION 4: Prediction Alerts                                  */}
         {/* ============================================================ */}
         <div>
           <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -292,7 +306,7 @@ export default function ForecastingPage() {
                 <div key={insight.id} className={cn("rounded-xl border overflow-hidden transition-all", config.bg, isExpanded && "ring-1", isExpanded && config.ring)}>
                   <button onClick={() => setExpandedInsight(isExpanded ? null : insight.id)}
                     className="w-full flex items-start gap-4 p-5 text-left hover:bg-white/30 transition-colors">
-                    <div className={cn("p-2 rounded-lg shrink-0", insight.severity === "high" ? "bg-red-100" : insight.severity === "medium" ? "bg-amber-100" : "bg-stone-200")}>
+                    <div className={cn("p-2 rounded-lg shrink-0", insight.severity === "high" ? "bg-red-100" : insight.severity === "medium" ? "bg-amber-100" : "bg-stone-100")}>
                       <TypeIcon className={cn("w-5 h-5", config.iconColor)} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -322,18 +336,18 @@ export default function ForecastingPage() {
                           </div>
                         )}
                         {insight.impact && (
-                          <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200">
-                            <h5 className="text-xs font-semibold text-emerald-700 mb-1">Projected Impact</h5>
-                            <p className="text-xs text-emerald-600">{insight.impact}</p>
+                          <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                            <h5 className="text-xs font-semibold text-accent mb-1">Projected Impact</h5>
+                            <p className="text-xs text-accent">{insight.impact}</p>
                           </div>
                         )}
                         {actionedInsights.has(insight.id) ? (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            <span className="text-xs font-medium text-emerald-700">Action taken — assigned to relevant department</span>
+                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/5 border border-accent/20">
+                            <CheckCircle2 className="w-4 h-4 text-accent" />
+                            <span className="text-xs font-medium text-accent">Action taken — assigned to relevant department</span>
                           </div>
                         ) : snoozedInsights.has(insight.id) ? (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-100 border border-border">
+                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-50 border border-stone-200">
                             <Clock className="w-4 h-4 text-muted" />
                             <span className="text-xs font-medium text-muted">Snoozed for 24 hours</span>
                           </div>
