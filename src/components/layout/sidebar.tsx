@@ -10,9 +10,6 @@ import {
   BarChart3,
   CircleDollarSign,
   TrendingUp,
-  Settings,
-  Bell,
-  ChevronDown,
   Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -44,15 +41,14 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Organization Selector */}
+      {/* Organization */}
       <div className="px-4 py-3 border-b border-white/8">
-        <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-hover text-sm text-sidebar-text hover:text-white transition-colors">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-hover text-sm text-sidebar-text">
           <div className="w-6 h-6 rounded bg-primary/25 flex items-center justify-center text-[11px] font-bold text-primary-light">
             CC
           </div>
           <span className="flex-1 text-left text-xs truncate">Contra Costa RMC</span>
-          <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-        </button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -72,7 +68,7 @@ export function Sidebar() {
             >
               <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-white" : "")} />
               {item.name}
-              {item.name === "AI Insights" && (
+              {item.name === "Inventory Analysis" && (
                 <span className="ml-auto w-2 h-2 rounded-full bg-accent-light pulse-dot" />
               )}
               {item.name === "Compliance" && (
@@ -86,21 +82,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Bottom section */}
-      <div className="px-3 py-3 border-t border-white/8 space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-text hover:text-white hover:bg-sidebar-hover transition-colors">
-          <Bell className="w-[18px] h-[18px]" />
-          Notifications
-          <span className="ml-auto w-5 h-5 rounded-full bg-danger text-white text-[11px] font-bold flex items-center justify-center">
-            6
-          </span>
-        </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-text hover:text-white hover:bg-sidebar-hover transition-colors">
-          <Settings className="w-[18px] h-[18px]" />
-          Settings
-        </button>
-      </div>
 
       {/* User */}
       <div className="px-4 py-3 border-t border-white/8">

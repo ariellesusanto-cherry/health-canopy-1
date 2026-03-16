@@ -25,7 +25,6 @@ import {
   Bed,
   Baby,
   Warehouse,
-  MoreHorizontal,
   Eye,
   FileBarChart,
   RefreshCw,
@@ -303,7 +302,6 @@ export default function InventoryPage() {
                       </div>
                     </th>
                   ))}
-                  <th className="w-10" />
                 </tr>
               </thead>
               <tbody>
@@ -348,11 +346,6 @@ export default function InventoryPage() {
                         <span className={cn("text-[11px] font-semibold px-2 py-1 rounded-full border", sc.bg, sc.color)}>
                           {sc.label}
                         </span>
-                      </td>
-                      <td className="px-3 py-3">
-                        <button className="p-1 rounded hover:bg-stone-100" onClick={(e) => e.stopPropagation()}>
-                          <MoreHorizontal className="w-4 h-4 text-muted" />
-                        </button>
                       </td>
                     </tr>
                   );
