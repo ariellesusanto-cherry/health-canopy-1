@@ -31,12 +31,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
-import { inventoryItems, departments, itemLocations, type InventoryItem } from "@/lib/mock-data";
+import { inventoryItems, departments, itemLocations, parLocations, type InventoryItem } from "@/lib/mock-data";
 import { MapPin } from "lucide-react";
 
 const categoryFilters = ["All", "PPE", "Medication", "Supplies", "Surgical", "Controlled Substance", "Respiratory", "Testing", "Laboratory"];
 const statusFilters = ["All", "in-stock", "low-stock", "critical", "out-of-stock", "expiring-soon"];
 const departmentFilters = ["All", ...departments.map((d) => d.name)];
+const supplyChainFilters = ["All", "med-surg", "pharmacy", "surgical", "lab"];
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   "in-stock": { label: "In Stock", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
@@ -50,7 +51,7 @@ const deptIcons: Record<string, typeof Package> = {
   "Emergency Department": Siren,
   "Operating Rooms": Scissors,
   "Pharmacy": Pill,
-  "Central Supply": Warehouse,
+  "Materials Management": Warehouse,
   "Intensive Care Unit": HeartPulse,
   "Med/Surg": Bed,
   "Labor & Delivery": Baby,
@@ -90,6 +91,7 @@ export default function InventoryPage() {
   const [selectedDepartment, setSelectedDepartment] = useState("All");
   const [sortField, setSortField] = useState<keyof InventoryItem>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedSupplyChain, setSelectedSupplyChain] = useState("All");
   const [showDetail, setShowDetail] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
@@ -114,6 +116,9 @@ export default function InventoryPage() {
     if (selectedDepartment !== "All") {
       items = items.filter((i) => i.department === selectedDepartment);
     }
+    if (selectedSupplyChain !== "All") {
+      items = items.filter((i) => i.supplyChain === selectedSupplyChain);
+    }
 
     items.sort((a, b) => {
       const aVal = a[sortField];
@@ -127,7 +132,7 @@ export default function InventoryPage() {
     });
 
     return items;
-  }, [searchQuery, selectedCategory, selectedStatus, selectedDepartment, sortField, sortDir]);
+  }, [searchQuery, selectedCategory, selectedStatus, selectedDepartment, selectedSupplyChain, sortField, sortDir]);
 
   const handleSort = (field: keyof InventoryItem) => {
     if (sortField === field) {
@@ -155,12 +160,13 @@ export default function InventoryPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Total Items", value: summaryStats.total, icon: Package, color: "text-orange-700 bg-orange-50" },
+            { label: "Total SKUs", value: summaryStats.total, icon: Package, color: "text-orange-700 bg-orange-50" },
             { label: "In Stock", value: summaryStats.inStock, icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50" },
             { label: "Low Stock", value: summaryStats.lowStock, icon: AlertTriangle, color: "text-amber-600 bg-amber-50" },
             { label: "Critical / OOS", value: summaryStats.critical, icon: XCircle, color: "text-red-600 bg-red-50", tooltip: "Critical stock or completely Out of Stock" },
             { label: "Expiring Soon", value: summaryStats.expiring, icon: Clock, color: "text-orange-600 bg-orange-50" },
             { label: "Inventory Value", value: `$${(summaryStats.totalValue / 1000).toFixed(0)}K`, icon: FileBarChart, color: "text-rose-600 bg-rose-50" },
+            { label: "PAR Locations", value: parLocations.length, icon: MapPin, color: "text-primary bg-primary/10" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
               <div className={cn("p-2 rounded-lg", s.color)}>
@@ -201,6 +207,9 @@ export default function InventoryPage() {
                   <DeptIcon className={cn("w-5 h-5", isSelected ? "text-primary" : "text-muted")} />
                   <span className="text-[11px] font-medium text-foreground leading-tight">{dept.name}</span>
                   <span className="text-[11px] text-muted">{dept.itemCount.toLocaleString()} items</span>
+                  <span className="text-[11px] text-muted">
+                    {parLocations.filter((p) => p.department === dept.name).length} PAR locations
+                  </span>
                 </button>
               );
             })}
@@ -238,6 +247,16 @@ export default function InventoryPage() {
             >
               {statusFilters.map((s) => (
                 <option key={s} value={s}>{s === "All" ? "All Statuses" : statusConfig[s]?.label || s}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedSupplyChain}
+              onChange={(e) => setSelectedSupplyChain(e.target.value)}
+              className="px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+            >
+              {supplyChainFilters.map((sc) => (
+                <option key={sc} value={sc}>{sc === "All" ? "All Supply Chains" : sc === "med-surg" ? "Med/Surg" : sc === "pharmacy" ? "Pharmacy" : sc === "surgical" ? "Surgical" : "Laboratory"}</option>
               ))}
             </select>
 
@@ -398,6 +417,8 @@ export default function InventoryPage() {
                     { label: "Expiration", value: item.expirationDate || "N/A" },
                     { label: "Department", value: item.department },
                     { label: "Category", value: item.category },
+                    { label: "Supply Chain", value: item.supplyChain === "med-surg" ? "Med/Surg" : item.supplyChain === "pharmacy" ? "Pharmacy" : item.supplyChain === "surgical" ? "Surgical" : "Laboratory" },
+                    { label: "GPO Contract", value: item.gpoContract || "Off-Contract" },
                   ].map((d) => (
                     <div key={d.label}>
                       <p className="text-[11px] font-medium text-muted uppercase">
@@ -436,7 +457,7 @@ export default function InventoryPage() {
                     <div className="mt-4 p-4 rounded-xl bg-white border border-primary/20">
                       <div className="flex items-center gap-2 mb-3">
                         <MapPin className="w-4 h-4 text-primary" />
-                        <h5 className="text-sm font-semibold text-foreground">Where Is This Item?</h5>
+                        <h5 className="text-sm font-semibold text-foreground">PAR Location Distribution</h5>
                         <span className="text-[11px] text-muted">({locations.length} locations)</span>
                       </div>
                       <div className="grid grid-cols-1 gap-2">

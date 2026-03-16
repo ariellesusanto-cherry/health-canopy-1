@@ -17,7 +17,7 @@ export const departments = [
   { id: "ed", name: "Emergency Department", icon: "Siren", itemCount: 1847, location: "ccmc" },
   { id: "or", name: "Operating Rooms", icon: "Scissors", itemCount: 2341, location: "ccmc" },
   { id: "pharmacy", name: "Pharmacy", icon: "Pill", itemCount: 3215, location: "ccmc" },
-  { id: "central-supply", name: "Central Supply", icon: "Warehouse", itemCount: 5623, location: "ccmc" },
+  { id: "central-supply", name: "Materials Management", icon: "Warehouse", itemCount: 5623, location: "ccmc" },
   { id: "icu", name: "Intensive Care Unit", icon: "HeartPulse", itemCount: 1456, location: "ccmc" },
   { id: "medsurg", name: "Med/Surg", icon: "Bed", itemCount: 1234, location: "ccmc" },
   { id: "ld", name: "Labor & Delivery", icon: "Baby", itemCount: 987, location: "ccmc" },
@@ -40,24 +40,26 @@ export type InventoryItem = {
   supplier: string;
   status: "in-stock" | "low-stock" | "critical" | "out-of-stock" | "expiring-soon";
   riskLevel?: "high" | "medium" | "low";
+  supplyChain: "med-surg" | "pharmacy" | "surgical" | "lab";
+  gpoContract?: string;
 };
 
 export const inventoryItems: InventoryItem[] = [
-  { id: "INV-001", name: "Nitrile Examination Gloves (M)", category: "PPE", department: "Central Supply", sku: "PPE-GLV-NIT-M", currentStock: 12400, parLevel: 15000, reorderPoint: 8000, unitCost: 0.12, lotNumber: "LT-2026-0341", expirationDate: "2027-09-15", lastReceived: "2026-03-10", supplier: "Medline Industries", status: "in-stock" },
-  { id: "INV-002", name: "N95 Respirator Masks", category: "PPE", department: "Central Supply", sku: "PPE-MSK-N95", currentStock: 3200, parLevel: 5000, reorderPoint: 2500, unitCost: 1.85, lotNumber: "LT-2026-0287", expirationDate: "2028-01-20", lastReceived: "2026-03-08", supplier: "3M Healthcare", status: "low-stock" },
-  { id: "INV-003", name: "IV Catheter 20G", category: "Supplies", department: "Emergency Department", sku: "SUP-IVC-20G", currentStock: 450, parLevel: 600, reorderPoint: 300, unitCost: 3.45, lotNumber: "LT-2026-0512", expirationDate: "2027-06-30", lastReceived: "2026-03-12", supplier: "BD Medical", status: "low-stock" },
-  { id: "INV-004", name: "Propofol 200mg/20mL", category: "Medication", department: "Pharmacy", sku: "RX-PRO-200", currentStock: 180, parLevel: 250, reorderPoint: 100, unitCost: 12.50, lotNumber: "LT-2026-0198", expirationDate: "2026-06-15", lastReceived: "2026-03-05", supplier: "Fresenius Kabi", status: "expiring-soon" },
-  { id: "INV-005", name: "Surgical Drape Kit — Total Knee", category: "Surgical", department: "Operating Rooms", sku: "SRG-DRP-TKR", currentStock: 85, parLevel: 100, reorderPoint: 40, unitCost: 34.00, lotNumber: "LT-2026-0445", expirationDate: null, lastReceived: "2026-03-11", supplier: "Cardinal Health", status: "in-stock" },
-  { id: "INV-006", name: "Heparin Sodium 5000U/mL", category: "Medication", department: "Pharmacy", sku: "RX-HEP-5000", currentStock: 45, parLevel: 200, reorderPoint: 80, unitCost: 8.75, lotNumber: "LT-2026-0089", expirationDate: "2026-11-30", lastReceived: "2026-02-28", supplier: "Pfizer", status: "critical" },
-  { id: "INV-007", name: "Endotracheal Tube 7.5mm", category: "Respiratory", department: "ICU", sku: "RSP-ETT-75", currentStock: 120, parLevel: 150, reorderPoint: 60, unitCost: 7.20, lotNumber: "LT-2026-0334", expirationDate: "2028-03-15", lastReceived: "2026-03-09", supplier: "Medtronic", status: "in-stock" },
-  { id: "INV-008", name: "Foley Catheter 16Fr", category: "Supplies", department: "Med/Surg", sku: "SUP-FOL-16F", currentStock: 210, parLevel: 300, reorderPoint: 120, unitCost: 4.50, lotNumber: "LT-2026-0267", expirationDate: "2027-12-31", lastReceived: "2026-03-07", supplier: "Teleflex", status: "low-stock" },
-  { id: "INV-009", name: "Fentanyl Citrate 100mcg/2mL", category: "Controlled Substance", department: "Pharmacy", sku: "RX-FEN-100", currentStock: 340, parLevel: 400, reorderPoint: 150, unitCost: 2.30, lotNumber: "LT-2026-0156", expirationDate: "2027-02-28", lastReceived: "2026-03-13", supplier: "Akorn", status: "in-stock" },
-  { id: "INV-010", name: "Sterile Surgical Gown (L)", category: "PPE", department: "Operating Rooms", sku: "PPE-GWN-STR-L", currentStock: 540, parLevel: 800, reorderPoint: 400, unitCost: 6.75, lotNumber: "LT-2026-0378", expirationDate: null, lastReceived: "2026-03-06", supplier: "Halyard Health", status: "low-stock" },
-  { id: "INV-011", name: "Blood Collection Tubes (EDTA)", category: "Laboratory", department: "Laboratory", sku: "LAB-BCT-EDTA", currentStock: 8500, parLevel: 10000, reorderPoint: 5000, unitCost: 0.35, lotNumber: "LT-2026-0401", expirationDate: "2027-08-15", lastReceived: "2026-03-11", supplier: "BD Vacutainer", status: "in-stock" },
-  { id: "INV-012", name: "Oxytocin 10U/mL", category: "Medication", department: "Labor & Delivery", sku: "RX-OXY-10U", currentStock: 95, parLevel: 120, reorderPoint: 50, unitCost: 5.60, lotNumber: "LT-2026-0223", expirationDate: "2026-09-30", lastReceived: "2026-03-04", supplier: "Par Pharmaceutical", status: "in-stock" },
-  { id: "INV-013", name: "Suture — Vicryl 3-0", category: "Surgical", department: "Operating Rooms", sku: "SRG-SUT-V30", currentStock: 15, parLevel: 200, reorderPoint: 80, unitCost: 9.80, lotNumber: "LT-2026-0489", expirationDate: "2028-06-30", lastReceived: "2026-02-20", supplier: "Ethicon (J&J)", status: "critical" },
-  { id: "INV-014", name: "Rapid COVID-19 Antigen Test", category: "Testing", department: "Emergency Department", sku: "TST-COV-RAP", currentStock: 2100, parLevel: 3000, reorderPoint: 1000, unitCost: 5.25, lotNumber: "LT-2026-0567", expirationDate: "2026-04-30", lastReceived: "2026-03-01", supplier: "Abbott Diagnostics", status: "expiring-soon" },
-  { id: "INV-015", name: "Ventilator Circuit (Adult)", category: "Respiratory", department: "ICU", sku: "RSP-VCR-ADL", currentStock: 0, parLevel: 50, reorderPoint: 20, unitCost: 18.50, lotNumber: "LT-2026-0301", expirationDate: null, lastReceived: "2026-02-15", supplier: "Fisher & Paykel", status: "out-of-stock" },
+  { id: "INV-001", name: "Nitrile Examination Gloves (M)", category: "PPE", department: "Materials Management", sku: "PPE-GLV-NIT-M", currentStock: 12400, parLevel: 15000, reorderPoint: 8000, unitCost: 0.12, lotNumber: "LT-2026-0341", expirationDate: "2027-09-15", lastReceived: "2026-03-10", supplier: "Medline Industries", status: "in-stock", supplyChain: "med-surg", gpoContract: "Vizient #MS-2025-441" },
+  { id: "INV-002", name: "N95 Respirator Masks", category: "PPE", department: "Materials Management", sku: "PPE-MSK-N95", currentStock: 3200, parLevel: 5000, reorderPoint: 2500, unitCost: 1.85, lotNumber: "LT-2026-0287", expirationDate: "2028-01-20", lastReceived: "2026-03-08", supplier: "3M Healthcare", status: "low-stock", supplyChain: "med-surg", gpoContract: "Premier #PP-2025-1187" },
+  { id: "INV-003", name: "IV Catheter 20G", category: "Supplies", department: "Emergency Department", sku: "SUP-IVC-20G", currentStock: 450, parLevel: 600, reorderPoint: 300, unitCost: 3.45, lotNumber: "LT-2026-0512", expirationDate: "2027-06-30", lastReceived: "2026-03-12", supplier: "BD Medical", status: "low-stock", supplyChain: "med-surg", gpoContract: "Vizient #MS-2025-602" },
+  { id: "INV-004", name: "Propofol 200mg/20mL", category: "Medication", department: "Pharmacy", sku: "RX-PRO-200", currentStock: 180, parLevel: 250, reorderPoint: 100, unitCost: 12.50, lotNumber: "LT-2026-0198", expirationDate: "2026-06-15", lastReceived: "2026-03-05", supplier: "Fresenius Kabi", status: "expiring-soon", supplyChain: "pharmacy", gpoContract: "Vizient #RX-2025-318" },
+  { id: "INV-005", name: "Surgical Drape Kit — Total Knee", category: "Surgical", department: "Operating Rooms", sku: "SRG-DRP-TKR", currentStock: 85, parLevel: 100, reorderPoint: 40, unitCost: 34.00, lotNumber: "LT-2026-0445", expirationDate: null, lastReceived: "2026-03-11", supplier: "Cardinal Health", status: "in-stock", supplyChain: "surgical", gpoContract: "Premier #SG-2025-773" },
+  { id: "INV-006", name: "Heparin Sodium 5000U/mL", category: "Medication", department: "Pharmacy", sku: "RX-HEP-5000", currentStock: 45, parLevel: 200, reorderPoint: 80, unitCost: 8.75, lotNumber: "LT-2026-0089", expirationDate: "2026-11-30", lastReceived: "2026-02-28", supplier: "Pfizer", status: "critical", supplyChain: "pharmacy", gpoContract: "Vizient #RX-2025-105" },
+  { id: "INV-007", name: "Endotracheal Tube 7.5mm", category: "Respiratory", department: "ICU", sku: "RSP-ETT-75", currentStock: 120, parLevel: 150, reorderPoint: 60, unitCost: 7.20, lotNumber: "LT-2026-0334", expirationDate: "2028-03-15", lastReceived: "2026-03-09", supplier: "Medtronic", status: "in-stock", supplyChain: "med-surg" },
+  { id: "INV-008", name: "Foley Catheter 16Fr", category: "Supplies", department: "Med/Surg", sku: "SUP-FOL-16F", currentStock: 210, parLevel: 300, reorderPoint: 120, unitCost: 4.50, lotNumber: "LT-2026-0267", expirationDate: "2027-12-31", lastReceived: "2026-03-07", supplier: "Teleflex", status: "low-stock", supplyChain: "med-surg" },
+  { id: "INV-009", name: "Fentanyl Citrate 100mcg/2mL", category: "Controlled Substance", department: "Pharmacy", sku: "RX-FEN-100", currentStock: 340, parLevel: 400, reorderPoint: 150, unitCost: 2.30, lotNumber: "LT-2026-0156", expirationDate: "2027-02-28", lastReceived: "2026-03-13", supplier: "Akorn", status: "in-stock", supplyChain: "pharmacy", gpoContract: "Premier #CS-2025-042" },
+  { id: "INV-010", name: "Sterile Surgical Gown (L)", category: "PPE", department: "Operating Rooms", sku: "PPE-GWN-STR-L", currentStock: 540, parLevel: 800, reorderPoint: 400, unitCost: 6.75, lotNumber: "LT-2026-0378", expirationDate: null, lastReceived: "2026-03-06", supplier: "Halyard Health", status: "low-stock", supplyChain: "med-surg", gpoContract: "Vizient #MS-2025-441" },
+  { id: "INV-011", name: "Blood Collection Tubes (EDTA)", category: "Laboratory", department: "Laboratory", sku: "LAB-BCT-EDTA", currentStock: 8500, parLevel: 10000, reorderPoint: 5000, unitCost: 0.35, lotNumber: "LT-2026-0401", expirationDate: "2027-08-15", lastReceived: "2026-03-11", supplier: "BD Vacutainer", status: "in-stock", supplyChain: "lab", gpoContract: "Vizient #LB-2025-209" },
+  { id: "INV-012", name: "Oxytocin 10U/mL", category: "Medication", department: "Labor & Delivery", sku: "RX-OXY-10U", currentStock: 95, parLevel: 120, reorderPoint: 50, unitCost: 5.60, lotNumber: "LT-2026-0223", expirationDate: "2026-09-30", lastReceived: "2026-03-04", supplier: "Par Pharmaceutical", status: "in-stock", supplyChain: "pharmacy" },
+  { id: "INV-013", name: "Suture — Vicryl 3-0", category: "Surgical", department: "Operating Rooms", sku: "SRG-SUT-V30", currentStock: 15, parLevel: 200, reorderPoint: 80, unitCost: 9.80, lotNumber: "LT-2026-0489", expirationDate: "2028-06-30", lastReceived: "2026-02-20", supplier: "Ethicon (J&J)", status: "critical", supplyChain: "surgical", gpoContract: "Premier #SG-2025-891" },
+  { id: "INV-014", name: "Rapid COVID-19 Antigen Test", category: "Testing", department: "Emergency Department", sku: "TST-COV-RAP", currentStock: 2100, parLevel: 3000, reorderPoint: 1000, unitCost: 5.25, lotNumber: "LT-2026-0567", expirationDate: "2026-04-30", lastReceived: "2026-03-01", supplier: "Abbott Diagnostics", status: "expiring-soon", supplyChain: "lab" },
+  { id: "INV-015", name: "Ventilator Circuit (Adult)", category: "Respiratory", department: "ICU", sku: "RSP-VCR-ADL", currentStock: 0, parLevel: 50, reorderPoint: 20, unitCost: 18.50, lotNumber: "LT-2026-0301", expirationDate: null, lastReceived: "2026-02-15", supplier: "Fisher & Paykel", status: "out-of-stock", supplyChain: "med-surg" },
 ];
 
 // Location-level stock breakdown — where exactly each item is stored
@@ -67,11 +69,13 @@ export type StockLocation = {
   floor: string;     // Floor/building
   qty: number;
   storageType: "shelf" | "pyxis" | "cabinet" | "refrigerator" | "cage" | "cart";
+  parLevelLocal?: number;
+  lastReplenished?: string;
 };
 
 export const itemLocations: Record<string, StockLocation[]> = {
   "INV-001": [ // Nitrile Gloves
-    { location: "Central Supply — Main Storeroom", floor: "B1", qty: 8000, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 8000, storageType: "shelf" },
     { location: "ED Supply Room", floor: "1st Floor", qty: 1200, storageType: "shelf" },
     { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 800, storageType: "shelf" },
     { location: "OR Supply Core", floor: "2nd Floor", qty: 1400, storageType: "shelf" },
@@ -79,7 +83,7 @@ export const itemLocations: Record<string, StockLocation[]> = {
     { location: "L&D Supply Room", floor: "2nd Floor", qty: 400, storageType: "shelf" },
   ],
   "INV-002": [ // N95 Masks
-    { location: "Central Supply — Main Storeroom", floor: "B1", qty: 2000, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 2000, storageType: "shelf" },
     { location: "ED Supply Room", floor: "1st Floor", qty: 500, storageType: "shelf" },
     { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 300, storageType: "shelf" },
     { location: "Respiratory Therapy Office", floor: "3rd Floor", qty: 200, storageType: "cabinet" },
@@ -89,7 +93,7 @@ export const itemLocations: Record<string, StockLocation[]> = {
     { location: "ED Supply Room", floor: "1st Floor", qty: 200, storageType: "shelf" },
     { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 100, storageType: "shelf" },
     { location: "Med/Surg 4 East Supply", floor: "4th Floor", qty: 80, storageType: "shelf" },
-    { location: "Central Supply — Main Storeroom", floor: "B1", qty: 70, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 70, storageType: "shelf" },
   ],
   "INV-004": [ // Propofol
     { location: "Pharmacy — Main", floor: "1st Floor", qty: 120, storageType: "refrigerator" },
@@ -97,11 +101,29 @@ export const itemLocations: Record<string, StockLocation[]> = {
     { location: "ICU Pyxis Station", floor: "3rd Floor", qty: 15, storageType: "pyxis" },
     { location: "ED Pyxis Station", floor: "1st Floor", qty: 5, storageType: "pyxis" },
   ],
+  "INV-005": [ // Surgical Drape Kit — Total Knee
+    { location: "OR Supply Core", floor: "2nd Floor", qty: 55, storageType: "shelf" },
+    { location: "SPD — Sterile Processing", floor: "B1", qty: 20, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 10, storageType: "shelf" },
+  ],
   "INV-006": [ // Heparin
     { location: "Pharmacy — Main", floor: "1st Floor", qty: 25, storageType: "shelf" },
     { location: "ICU Pyxis Station", floor: "3rd Floor", qty: 8, storageType: "pyxis" },
     { location: "ED Pyxis Station", floor: "1st Floor", qty: 7, storageType: "pyxis" },
     { location: "Med/Surg Pyxis — 4 East", floor: "4th Floor", qty: 5, storageType: "pyxis" },
+  ],
+  "INV-007": [ // Endotracheal Tube 7.5mm
+    { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 50, storageType: "cabinet" },
+    { location: "ED Supply Room", floor: "1st Floor", qty: 30, storageType: "cabinet" },
+    { location: "Central Warehouse", floor: "B1", qty: 25, storageType: "shelf" },
+    { location: "OR Anesthesia Workroom", floor: "2nd Floor", qty: 15, storageType: "cabinet" },
+  ],
+  "INV-008": [ // Foley Catheter 16Fr
+    { location: "Med/Surg 4 East Supply", floor: "4th Floor", qty: 80, storageType: "shelf" },
+    { location: "Med/Surg 3 East Supply", floor: "3rd Floor", qty: 50, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 40, storageType: "shelf" },
+    { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 25, storageType: "shelf" },
+    { location: "ED Supply Room", floor: "1st Floor", qty: 15, storageType: "shelf" },
   ],
   "INV-009": [ // Fentanyl (Controlled Substance)
     { location: "Pharmacy — Controlled Substance Vault", floor: "1st Floor", qty: 200, storageType: "cage" },
@@ -110,6 +132,20 @@ export const itemLocations: Record<string, StockLocation[]> = {
     { location: "ED Pyxis Station", floor: "1st Floor", qty: 25, storageType: "pyxis" },
     { location: "L&D Pyxis Station", floor: "2nd Floor", qty: 15, storageType: "pyxis" },
   ],
+  "INV-010": [ // Sterile Surgical Gown (L)
+    { location: "OR Supply Core", floor: "2nd Floor", qty: 250, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 150, storageType: "shelf" },
+    { location: "SPD — Sterile Processing", floor: "B1", qty: 80, storageType: "shelf" },
+    { location: "L&D Supply Room", floor: "2nd Floor", qty: 40, storageType: "shelf" },
+    { location: "ED Supply Room", floor: "1st Floor", qty: 20, storageType: "shelf" },
+  ],
+  "INV-011": [ // Blood Collection Tubes (EDTA)
+    { location: "Lab Supply Room", floor: "1st Floor", qty: 4000, storageType: "shelf" },
+    { location: "Lab — Blood Bank", floor: "1st Floor", qty: 2000, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 1500, storageType: "shelf" },
+    { location: "ED Supply Room", floor: "1st Floor", qty: 600, storageType: "shelf" },
+    { location: "ICU Supply Alcove", floor: "3rd Floor", qty: 400, storageType: "shelf" },
+  ],
   "INV-012": [ // Oxytocin
     { location: "Pharmacy — Main", floor: "1st Floor", qty: 50, storageType: "refrigerator" },
     { location: "L&D Pyxis Station", floor: "2nd Floor", qty: 30, storageType: "pyxis" },
@@ -117,11 +153,11 @@ export const itemLocations: Record<string, StockLocation[]> = {
   ],
   "INV-013": [ // Vicryl Sutures
     { location: "OR Supply Core", floor: "2nd Floor", qty: 10, storageType: "cabinet" },
-    { location: "Central Supply — Main Storeroom", floor: "B1", qty: 5, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 5, storageType: "shelf" },
   ],
   "INV-014": [ // COVID Tests
     { location: "ED Supply Room", floor: "1st Floor", qty: 800, storageType: "shelf" },
-    { location: "Central Supply — Main Storeroom", floor: "B1", qty: 1000, storageType: "shelf" },
+    { location: "Central Warehouse", floor: "B1", qty: 1000, storageType: "shelf" },
     { location: "Lab — Testing Area", floor: "1st Floor", qty: 300, storageType: "shelf" },
   ],
   "INV-015": [ // Ventilator Circuits (OUT OF STOCK)
@@ -179,7 +215,7 @@ export const equipmentRegistry: Equipment[] = [
   { id: "EQ-004", name: "Defibrillator", model: "LIFEPAK 20e", manufacturer: "Stryker", serialNumber: "LP20E-2023-0478", department: "Emergency Department", riskLevel: "high", isLifeSupport: true, lastPM: "2026-02-28", nextPM: "2026-05-28", pmStatus: "current", aemApplied: false, status: "operational" },
   { id: "EQ-005", name: "Anesthesia Machine", model: "Aisys CS2", manufacturer: "GE Healthcare", serialNumber: "ACS2-2024-0312", department: "Operating Rooms", riskLevel: "high", isLifeSupport: true, lastPM: "2026-01-05", nextPM: "2026-04-05", pmStatus: "current", aemApplied: false, status: "operational" },
   { id: "EQ-006", name: "Ultrasound System", model: "LOGIQ E10s", manufacturer: "GE Healthcare", serialNumber: "LGE10-2024-0567", department: "Emergency Department", riskLevel: "medium", isLifeSupport: false, lastPM: "2025-10-15", nextPM: "2026-01-15", pmStatus: "overdue", aemApplied: true, status: "maintenance" },
-  { id: "EQ-007", name: "Autoclave Sterilizer", model: "AMSCO 400", manufacturer: "STERIS", serialNumber: "AM400-2022-0189", department: "Central Supply", riskLevel: "medium", isLifeSupport: false, lastPM: "2026-02-01", nextPM: "2026-05-01", pmStatus: "current", aemApplied: true, status: "operational" },
+  { id: "EQ-007", name: "Autoclave Sterilizer", model: "AMSCO 400", manufacturer: "STERIS", serialNumber: "AM400-2022-0189", department: "Materials Management", riskLevel: "medium", isLifeSupport: false, lastPM: "2026-02-01", nextPM: "2026-05-01", pmStatus: "current", aemApplied: true, status: "operational" },
   { id: "EQ-008", name: "Blood Gas Analyzer", model: "ABL90 FLEX PLUS", manufacturer: "Radiometer", serialNumber: "ABL90-2024-0723", department: "Laboratory", riskLevel: "medium", isLifeSupport: false, lastPM: "2026-03-01", nextPM: "2026-06-01", pmStatus: "current", aemApplied: false, status: "operational" },
   { id: "EQ-009", name: "Fetal Monitor", model: "Series 700", manufacturer: "GE Healthcare", serialNumber: "S700-2023-0456", department: "Labor & Delivery", riskLevel: "high", isLifeSupport: false, lastPM: "2025-12-01", nextPM: "2026-03-01", pmStatus: "overdue", aemApplied: false, status: "operational" },
   { id: "EQ-010", name: "Electrosurgical Unit", model: "Force FX-C", manufacturer: "Medtronic", serialNumber: "FFX-2024-0834", department: "Operating Rooms", riskLevel: "medium", isLifeSupport: false, lastPM: "2026-02-15", nextPM: "2026-05-15", pmStatus: "current", aemApplied: true, status: "operational" },
@@ -209,7 +245,7 @@ export const departmentConsumption = [
   { department: "OR", current: 2200, predicted: 2450, change: 11.4 },
   { department: "Pharmacy", current: 3500, predicted: 3650, change: 4.3 },
   { department: "ICU", current: 1800, predicted: 2100, change: 16.7 },
-  { department: "Central Supply", current: 5200, predicted: 5400, change: 3.8 },
+  { department: "Materials Management", current: 5200, predicted: 5400, change: 3.8 },
   { department: "Med/Surg", current: 1400, predicted: 1500, change: 7.1 },
   { department: "L&D", current: 900, predicted: 950, change: 5.6 },
   { department: "Lab", current: 2000, predicted: 2150, change: 7.5 },
@@ -320,7 +356,7 @@ export const inventoryTurnover = [
   { department: "ED", turnover: 14.2, benchmark: 12.0 },
   { department: "OR", turnover: 8.7, benchmark: 10.0 },
   { department: "Pharmacy", turnover: 18.5, benchmark: 15.0 },
-  { department: "Central Supply", turnover: 11.3, benchmark: 12.0 },
+  { department: "Materials Management", turnover: 11.3, benchmark: 12.0 },
   { department: "ICU", turnover: 16.1, benchmark: 14.0 },
   { department: "Med/Surg", turnover: 10.8, benchmark: 11.0 },
   { department: "L&D", turnover: 9.4, benchmark: 10.0 },
@@ -367,11 +403,100 @@ export const procedureSupplyProfiles: Record<string, { supply: string; qty: numb
 };
 
 export const upcomingSurgeries = [
-  { date: "Mar 17", day: "Monday", procedures: 12, types: { "Total Knee": 4, "Hip Replacement": 2, "Appendectomy": 3, "C-Section": 3 } },
-  { date: "Mar 18", day: "Tuesday", procedures: 15, types: { "Total Knee": 5, "Hip Replacement": 3, "Appendectomy": 2, "Spinal Fusion": 2, "C-Section": 3 } },
-  { date: "Mar 19", day: "Wednesday", procedures: 10, types: { "Total Knee": 3, "Appendectomy": 4, "C-Section": 3 } },
-  { date: "Mar 20", day: "Thursday", procedures: 18, types: { "Total Knee": 6, "Hip Replacement": 4, "Spinal Fusion": 3, "C-Section": 5 } },
-  { date: "Mar 21", day: "Friday", procedures: 14, types: { "Total Knee": 5, "Hip Replacement": 3, "Appendectomy": 3, "C-Section": 3 } },
+  { date: "Mar 17", day: "Monday", procedures: 12,
+    types: { "Total Knee": 4, "Hip Replacement": 2, "Appendectomy": 3, "C-Section": 3 },
+    cases: [
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "11:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Nakamura", or: "OR-3", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-5", time: "14:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "08:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "10:30" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "13:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "07:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "10:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "13:00" },
+    ],
+  },
+  { date: "Mar 18", day: "Tuesday", procedures: 15,
+    types: { "Total Knee": 5, "Hip Replacement": 3, "Appendectomy": 2, "Spinal Fusion": 2, "C-Section": 3 },
+    cases: [
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-5", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Nakamura", or: "OR-4", time: "07:30" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-4", time: "11:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "08:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "10:30" },
+      { procedure: "Spinal Fusion", surgeon: "Dr. Vasquez", or: "OR-6", time: "07:30" },
+      { procedure: "Spinal Fusion", surgeon: "Dr. Vasquez", or: "OR-6", time: "12:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "07:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "10:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "13:00" },
+    ],
+  },
+  { date: "Mar 19", day: "Wednesday", procedures: 10,
+    types: { "Total Knee": 3, "Appendectomy": 4, "C-Section": 3 },
+    cases: [
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "11:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "08:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "10:30" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "13:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "15:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "07:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "10:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "13:00" },
+    ],
+  },
+  { date: "Mar 20", day: "Thursday", procedures: 18,
+    types: { "Total Knee": 6, "Hip Replacement": 4, "Spinal Fusion": 3, "C-Section": 5 },
+    cases: [
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "14:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Nakamura", or: "OR-4", time: "07:30" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-4", time: "11:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Nakamura", or: "OR-4", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-4", time: "16:00" },
+      { procedure: "Spinal Fusion", surgeon: "Dr. Vasquez", or: "OR-6", time: "07:30" },
+      { procedure: "Spinal Fusion", surgeon: "Dr. Vasquez", or: "OR-6", time: "12:00" },
+      { procedure: "Spinal Fusion", surgeon: "Dr. Vasquez", or: "OR-6", time: "16:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "07:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "09:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "11:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "13:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "15:30" },
+    ],
+  },
+  { date: "Mar 21", day: "Friday", procedures: 14,
+    types: { "Total Knee": 5, "Hip Replacement": 3, "Appendectomy": 3, "C-Section": 3 },
+    cases: [
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "07:30" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Patel", or: "OR-5", time: "11:00" },
+      { procedure: "Total Knee", surgeon: "Dr. Nakamura", or: "OR-3", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-5", time: "14:00" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Nakamura", or: "OR-4", time: "07:30" },
+      { procedure: "Hip Replacement", surgeon: "Dr. Patel", or: "OR-4", time: "11:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "08:00" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "10:30" },
+      { procedure: "Appendectomy", surgeon: "Dr. Kim", or: "OR-1", time: "13:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "07:30" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "10:00" },
+      { procedure: "C-Section", surgeon: "Dr. Chen", or: "OR-2", time: "13:00" },
+    ],
+  },
 ];
 
 // Compliance findings for corrective action tracking
@@ -415,7 +540,7 @@ export const budgetAllocation = [
 
 // Current inventory valuation by department
 export const inventoryValuation = [
-  { department: "Central Supply", itemCount: 5623, totalValue: 487_200, avgDaysOnHand: 18.4 },
+  { department: "Materials Management", itemCount: 5623, totalValue: 487_200, avgDaysOnHand: 18.4 },
   { department: "Pharmacy", itemCount: 3215, totalValue: 892_500, avgDaysOnHand: 12.1 },
   { department: "Operating Rooms", itemCount: 2341, totalValue: 645_300, avgDaysOnHand: 8.7 },
   { department: "Emergency Department", itemCount: 1847, totalValue: 234_100, avgDaysOnHand: 6.2 },
@@ -491,7 +616,7 @@ export const upcomingPurchaseOrders: PurchaseOrder[] = [
     totalCost: 6_000,
     orderDate: "2026-03-15",
     expectedDelivery: "2026-03-18",
-    department: "Central Supply",
+    department: "Materials Management",
     triggeredBy: "ai-forecast",
   },
   {
@@ -520,7 +645,7 @@ export const upcomingPurchaseOrders: PurchaseOrder[] = [
     totalCost: 2_985,
     orderDate: "2026-03-14",
     expectedDelivery: "2026-03-17",
-    department: "Central Supply",
+    department: "Materials Management",
     triggeredBy: "auto-reorder",
   },
 ];
@@ -642,7 +767,7 @@ export const delayedShipments: DelayedShipment[] = [
     affectedDepartments: ["Med/Surg", "ICU"],
     inventoryImpact: "Foley Catheter 16Fr stock at 210 units (PAR: 300). At current usage of 18/day, stock reaches zero by Mar 26 — but delayed arrival still covers need.",
     mitigationOptions: [
-      "Transfer 50 Foley 16Fr from Central Supply surplus to Med/Surg",
+      "Transfer 50 Foley 16Fr from Materials Management surplus to Med/Surg",
       "No emergency order needed — revised ETA still within safety window",
     ],
   },
@@ -663,7 +788,7 @@ export const delayedShipments: DelayedShipment[] = [
     reason: "Production delay at Fresenius Kabi Wilson, NC plant — FDA inspection causing temporary shipping hold",
     carrierUpdate: "No shipment yet. Awaiting release from supplier. No revised ETA provided.",
     impactSeverity: "critical",
-    affectedDepartments: ["Central Supply", "Emergency Department", "ICU", "Med/Surg"],
+    affectedDepartments: ["Materials Management", "Emergency Department", "ICU", "Med/Surg"],
     inventoryImpact: "Normal Saline stock critically low across all departments. Current supply sustains operations for approximately 48 hours. This also impacts the 96-hour emergency readiness calculation (currently at 72 hours).",
     mitigationOptions: [
       "Place emergency order with Baxter International (backup contract) — 2-day expedited delivery, est. $9,800 (+$1,050 premium)",
@@ -688,7 +813,7 @@ export const delayedShipments: DelayedShipment[] = [
     reason: "Weather-related carrier delay — severe storms in Southeast US disrupting UPS Ground network",
     carrierUpdate: "Package in transit. Cleared Memphis hub Mar 15 AM. Updated ETA: Mar 17.",
     impactSeverity: "medium",
-    affectedDepartments: ["Operating Rooms", "Central Supply"],
+    affectedDepartments: ["Operating Rooms", "Materials Management"],
     inventoryImpact: "Surgical Gown (L) at 540 units (PAR: 800). Sufficient for current OR schedule through Mar 19. If Mar 20 surgical volume spike proceeds as scheduled (18 cases), gowns may fall below minimum.",
     mitigationOptions: [
       "Monitor UPS tracking — likely to arrive Mar 17 as revised",
@@ -699,12 +824,251 @@ export const delayedShipments: DelayedShipment[] = [
 
 // Activity feed
 export const recentActivity = [
-  { time: "08:45 AM", action: "Stock received", detail: "450 units of IV Catheter 20G — ED", user: "M. Rodriguez" },
+  { time: "08:45 AM", action: "Stock received", detail: "450 units of IV Catheter 20G — received at Central Warehouse, distributed to ED Supply Room A & ICU Supply Alcove", user: "M. Rodriguez" },
   { time: "08:30 AM", action: "AI Alert", detail: "Flu surge prediction — Bay Area outbreak intelligence", user: "System" },
   { time: "08:15 AM", action: "PM completed", detail: "Defibrillator LIFEPAK 20e — ED", user: "J. Chen" },
   { time: "07:50 AM", action: "Low stock alert", detail: "Vicryl 3-0 Sutures below reorder point — OR", user: "System" },
-  { time: "07:30 AM", action: "Transfer completed", detail: "200 N95 Masks: Central Supply → ED", user: "K. Patel" },
+  { time: "07:30 AM", action: "Transfer completed", detail: "200 N95 Masks: Central Warehouse → ED Supply Room A", user: "K. Patel" },
   { time: "07:00 AM", action: "Compliance scan", detail: "Daily TJC readiness check completed — Score: 88%", user: "System" },
   { time: "06:30 AM", action: "PO generated", detail: "Auto-generated PO #4521 for Heparin Sodium — Pfizer", user: "System" },
   { time: "06:00 AM", action: "Expiration alert", detail: "Propofol 200mg — 180 units expiring Jun 15, 2026", user: "System" },
+  { time: "05:45 AM", action: "Pyxis replenishment", detail: "Pyxis replenishment completed — ICU Pyxis MedStation #3, L&D Pyxis MedStation #5", user: "R. Nguyen" },
+];
+
+// ============================================================
+// PAR Locations — Physical stocking points across the facility
+// ============================================================
+
+export type ParLocation = {
+  id: string;
+  name: string;
+  floor: string;
+  department: string;
+  locationType: "warehouse" | "supply-room" | "adc" | "cart" | "sterile-core" | "satellite-pharmacy";
+  adcModel?: string;
+  managedBy: string;
+  restockCycle: "daily" | "twice-daily" | "weekly" | "as-needed" | "shift-change";
+  lastRestocked: string;
+  itemCount: number;
+  fillRate: number;
+  status: "normal" | "low" | "critical" | "overstocked";
+  supplyChain: "med-surg" | "pharmacy" | "surgical" | "lab" | "mixed";
+};
+
+export const parLocations: ParLocation[] = [
+  { id: "PAR-001", name: "Central Warehouse", floor: "B1", department: "Materials Management", locationType: "warehouse", managedBy: "Materials Management", restockCycle: "weekly", lastRestocked: "2026-03-15T06:00:00", itemCount: 2847, fillRate: 94, status: "normal", supplyChain: "mixed" },
+  { id: "PAR-002", name: "ED Supply Room A", floor: "1st Floor", department: "Emergency Department", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-16T06:15:00", itemCount: 312, fillRate: 87, status: "normal", supplyChain: "med-surg" },
+  { id: "PAR-003", name: "ED Pyxis MedStation #1", floor: "1st Floor", department: "Emergency Department", locationType: "adc", adcModel: "Pyxis MedStation ES", managedBy: "Pharmacy", restockCycle: "twice-daily", lastRestocked: "2026-03-16T05:30:00", itemCount: 142, fillRate: 78, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-004", name: "ED Trauma Bay Supply", floor: "1st Floor", department: "Emergency Department", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "shift-change", lastRestocked: "2026-03-16T07:00:00", itemCount: 85, fillRate: 91, status: "normal", supplyChain: "med-surg" },
+  { id: "PAR-005", name: "ICU Supply Alcove", floor: "3rd Floor", department: "Intensive Care Unit", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-15T14:30:00", itemCount: 245, fillRate: 72, status: "low", supplyChain: "med-surg" },
+  { id: "PAR-006", name: "ICU Pyxis MedStation #3", floor: "3rd Floor", department: "Intensive Care Unit", locationType: "adc", adcModel: "Pyxis MedStation ES", managedBy: "Pharmacy", restockCycle: "twice-daily", lastRestocked: "2026-03-16T05:45:00", itemCount: 168, fillRate: 81, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-007", name: "OR Supply Core", floor: "2nd Floor", department: "Operating Rooms", locationType: "sterile-core", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-15T16:00:00", itemCount: 891, fillRate: 79, status: "low", supplyChain: "surgical" },
+  { id: "PAR-008", name: "OR Anesthesia Cart - Room 4", floor: "2nd Floor", department: "Operating Rooms", locationType: "cart", managedBy: "Pharmacy", restockCycle: "shift-change", lastRestocked: "2026-03-15T19:00:00", itemCount: 48, fillRate: 65, status: "critical", supplyChain: "pharmacy" },
+  { id: "PAR-009", name: "Med/Surg 3 East Supply", floor: "3rd Floor", department: "Med/Surg", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-16T06:30:00", itemCount: 198, fillRate: 106, status: "overstocked", supplyChain: "med-surg" },
+  { id: "PAR-010", name: "Med/Surg 4 East Supply", floor: "4th Floor", department: "Med/Surg", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-16T06:45:00", itemCount: 204, fillRate: 82, status: "normal", supplyChain: "med-surg" },
+  { id: "PAR-011", name: "Med/Surg 4E Omnicell #1", floor: "4th Floor", department: "Med/Surg", locationType: "adc", adcModel: "Omnicell XT", managedBy: "Pharmacy", restockCycle: "twice-daily", lastRestocked: "2026-03-16T05:50:00", itemCount: 134, fillRate: 88, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-012", name: "L&D Supply Room", floor: "2nd Floor", department: "Labor & Delivery", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-16T06:20:00", itemCount: 156, fillRate: 93, status: "normal", supplyChain: "med-surg" },
+  { id: "PAR-013", name: "L&D Pyxis MedStation #5", floor: "2nd Floor", department: "Labor & Delivery", locationType: "adc", adcModel: "Pyxis MedStation ES", managedBy: "Pharmacy", restockCycle: "twice-daily", lastRestocked: "2026-03-16T05:40:00", itemCount: 98, fillRate: 85, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-014", name: "Pharmacy Main", floor: "1st Floor", department: "Pharmacy", locationType: "satellite-pharmacy", managedBy: "Pharmacy", restockCycle: "as-needed", lastRestocked: "2026-03-15T22:00:00", itemCount: 1245, fillRate: 91, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-015", name: "Pharmacy - Controlled Substance Vault", floor: "1st Floor", department: "Pharmacy", locationType: "satellite-pharmacy", managedBy: "Pharmacy", restockCycle: "as-needed", lastRestocked: "2026-03-15T20:00:00", itemCount: 87, fillRate: 95, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-016", name: "Satellite Pharmacy - ICU", floor: "3rd Floor", department: "Pharmacy", locationType: "satellite-pharmacy", managedBy: "Pharmacy", restockCycle: "daily", lastRestocked: "2026-03-16T06:00:00", itemCount: 234, fillRate: 83, status: "normal", supplyChain: "pharmacy" },
+  { id: "PAR-017", name: "Lab Supply Room", floor: "1st Floor", department: "Laboratory", locationType: "supply-room", managedBy: "Materials Management", restockCycle: "weekly", lastRestocked: "2026-03-15T10:00:00", itemCount: 367, fillRate: 96, status: "normal", supplyChain: "lab" },
+  { id: "PAR-018", name: "Lab - Blood Bank", floor: "1st Floor", department: "Laboratory", locationType: "supply-room", managedBy: "Laboratory", restockCycle: "weekly", lastRestocked: "2026-03-15T10:30:00", itemCount: 145, fillRate: 92, status: "normal", supplyChain: "lab" },
+  { id: "PAR-019", name: "SPD - Sterile Processing", floor: "B1", department: "Materials Management", locationType: "sterile-core", managedBy: "Materials Management", restockCycle: "daily", lastRestocked: "2026-03-16T05:00:00", itemCount: 423, fillRate: 88, status: "normal", supplyChain: "surgical" },
+  { id: "PAR-020", name: "Isolation Cart - 3 East", floor: "3rd Floor", department: "Med/Surg", locationType: "cart", managedBy: "Materials Management", restockCycle: "shift-change", lastRestocked: "2026-03-15T19:00:00", itemCount: 34, fillRate: 45, status: "critical", supplyChain: "med-surg" },
+];
+
+// ============================================================
+// Surgeon Preference Cards
+// ============================================================
+
+export type PreferenceCard = {
+  id: string;
+  surgeon: string;
+  credentials: string;
+  specialty: string;
+  procedure: string;
+  supplies: { item: string; qty: number; unitCost: number; required: boolean }[];
+  implants?: { item: string; vendor: string; rep: string; consignment: boolean; estimatedCost: number }[];
+  lastUpdated: string;
+  casesLast90Days: number;
+};
+
+export const preferenceCards: PreferenceCard[] = [
+  {
+    id: "PREF-001",
+    surgeon: "Dr. Nakamura",
+    credentials: "MD, FAAOS",
+    specialty: "Orthopedic Surgery",
+    procedure: "Total Knee",
+    supplies: [
+      { item: "Surgical Drape Kit — Total Knee", qty: 1, unitCost: 34.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 4, unitCost: 9.80, required: true },
+      { item: "Bone Cement 40g", qty: 1, unitCost: 45.00, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 3, unitCost: 6.75, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 10, unitCost: 0.24, required: true },
+      { item: "Hemovac Drain", qty: 1, unitCost: 22.00, required: false },
+    ],
+    implants: [
+      { item: "Zimmer Biomet NexGen Total Knee System", vendor: "Zimmer Biomet", rep: "Mike Torres", consignment: true, estimatedCost: 4200 },
+    ],
+    lastUpdated: "2026-02-18",
+    casesLast90Days: 22,
+  },
+  {
+    id: "PREF-002",
+    surgeon: "Dr. Patel",
+    credentials: "MD, FAAOS",
+    specialty: "Orthopedic Surgery",
+    procedure: "Total Knee",
+    supplies: [
+      { item: "Surgical Drape Kit — Total Knee", qty: 1, unitCost: 34.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 2, unitCost: 9.80, required: true },
+      { item: "Monocryl 3-0 Suture", qty: 2, unitCost: 11.50, required: true },
+      { item: "Bone Cement 40g", qty: 1, unitCost: 45.00, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 3, unitCost: 6.75, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 8, unitCost: 0.24, required: true },
+    ],
+    implants: [
+      { item: "Stryker Mako Total Knee System", vendor: "Stryker", rep: "Sarah Lin", consignment: true, estimatedCost: 5100 },
+    ],
+    lastUpdated: "2026-03-01",
+    casesLast90Days: 18,
+  },
+  {
+    id: "PREF-003",
+    surgeon: "Dr. Patel",
+    credentials: "MD, FAAOS",
+    specialty: "Orthopedic Surgery",
+    procedure: "Hip Replacement",
+    supplies: [
+      { item: "Surgical Drape Kit — Hip", qty: 1, unitCost: 38.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 3, unitCost: 9.80, required: true },
+      { item: "Bone Cement 40g", qty: 2, unitCost: 45.00, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 4, unitCost: 6.75, required: true },
+      { item: "Hemovac Drain", qty: 1, unitCost: 22.00, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 10, unitCost: 0.24, required: true },
+    ],
+    implants: [
+      { item: "DePuy Synthes Corail Hip System", vendor: "DePuy Synthes", rep: "James Ito", consignment: true, estimatedCost: 6800 },
+    ],
+    lastUpdated: "2026-02-25",
+    casesLast90Days: 14,
+  },
+  {
+    id: "PREF-004",
+    surgeon: "Dr. Vasquez",
+    credentials: "MD, FACS",
+    specialty: "Neurosurgery / Spine",
+    procedure: "Spinal Fusion",
+    supplies: [
+      { item: "Spinal Drape Kit", qty: 1, unitCost: 42.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 4, unitCost: 9.80, required: true },
+      { item: "Bone Graft Substitute 10cc", qty: 2, unitCost: 320.00, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 4, unitCost: 6.75, required: true },
+      { item: "Hemovac Drain", qty: 1, unitCost: 22.00, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 12, unitCost: 0.24, required: true },
+      { item: "Cell Saver Tubing Set", qty: 1, unitCost: 85.00, required: false },
+    ],
+    implants: [
+      { item: "Medtronic CD Horizon Spinal System", vendor: "Medtronic", rep: "David Park", consignment: true, estimatedCost: 12400 },
+    ],
+    lastUpdated: "2026-03-05",
+    casesLast90Days: 11,
+  },
+  {
+    id: "PREF-005",
+    surgeon: "Dr. Chen",
+    credentials: "MD, FACOG",
+    specialty: "Obstetrics & Gynecology",
+    procedure: "C-Section",
+    supplies: [
+      { item: "C-Section Drape Kit", qty: 1, unitCost: 32.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 2, unitCost: 9.80, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 3, unitCost: 6.75, required: true },
+      { item: "Oxytocin 10U/mL", qty: 2, unitCost: 5.60, required: true },
+      { item: "Infant Warmer Liner", qty: 1, unitCost: 8.50, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 8, unitCost: 0.24, required: true },
+    ],
+    lastUpdated: "2026-01-20",
+    casesLast90Days: 31,
+  },
+  {
+    id: "PREF-006",
+    surgeon: "Dr. Nakamura",
+    credentials: "MD, FAAOS",
+    specialty: "Orthopedic Surgery",
+    procedure: "Hip Replacement",
+    supplies: [
+      { item: "Surgical Drape Kit — Hip", qty: 1, unitCost: 38.00, required: true },
+      { item: "Vicryl 3-0 Suture", qty: 3, unitCost: 9.80, required: true },
+      { item: "Bone Cement 40g", qty: 2, unitCost: 45.00, required: true },
+      { item: "Sterile Surgical Gown (L)", qty: 4, unitCost: 6.75, required: true },
+      { item: "Hemovac Drain", qty: 1, unitCost: 22.00, required: true },
+      { item: "Nitrile Gloves (pair)", qty: 10, unitCost: 0.24, required: true },
+    ],
+    implants: [
+      { item: "Zimmer Biomet Taperloc Hip Stem", vendor: "Zimmer Biomet", rep: "Mike Torres", consignment: true, estimatedCost: 5900 },
+    ],
+    lastUpdated: "2026-02-10",
+    casesLast90Days: 16,
+  },
+];
+
+// ============================================================
+// Cross-Location Imbalances
+// ============================================================
+
+export type LocationImbalance = {
+  itemId: string;
+  itemName: string;
+  locations: { locationName: string; currentQty: number; parLevel: number; pctOfPar: number; status: "overstocked" | "at-par" | "below-par" | "critical" | "stockout" }[];
+  suggestedTransfer: { from: string; to: string; qty: number; reason: string };
+};
+
+export const locationImbalances: LocationImbalance[] = [
+  {
+    itemId: "INV-001",
+    itemName: "Nitrile Examination Gloves (M)",
+    locations: [
+      { locationName: "Med/Surg 3 East Supply", currentQty: 1800, parLevel: 1000, pctOfPar: 180, status: "overstocked" },
+      { locationName: "ICU Supply Alcove", currentQty: 336, parLevel: 800, pctOfPar: 42, status: "critical" },
+      { locationName: "ED Supply Room A", currentQty: 1200, parLevel: 1200, pctOfPar: 100, status: "at-par" },
+      { locationName: "Central Warehouse", currentQty: 8000, parLevel: 9000, pctOfPar: 89, status: "below-par" },
+    ],
+    suggestedTransfer: { from: "Med/Surg 3 East Supply", to: "ICU Supply Alcove", qty: 400, reason: "ICU at 42% of PAR while Med/Surg 3E is overstocked at 180% — likely hoarding after flu surge alert" },
+  },
+  {
+    itemId: "INV-006",
+    itemName: "Heparin Sodium 5000U/mL",
+    locations: [
+      { locationName: "Pharmacy Main", currentQty: 25, parLevel: 60, pctOfPar: 42, status: "below-par" },
+      { locationName: "ICU Pyxis MedStation #3", currentQty: 8, parLevel: 20, pctOfPar: 40, status: "critical" },
+      { locationName: "Med/Surg 4E Omnicell #1", currentQty: 5, parLevel: 15, pctOfPar: 33, status: "critical" },
+      { locationName: "ED Pyxis MedStation #1", currentQty: 7, parLevel: 15, pctOfPar: 47, status: "below-par" },
+    ],
+    suggestedTransfer: { from: "Pharmacy Main", to: "ICU Pyxis MedStation #3", qty: 12, reason: "ICU Pyxis below ADC par of 20 — redistribute from Pharmacy pending PO-4521 arrival (ETA Mar 20)" },
+  },
+  {
+    itemId: "INV-002",
+    itemName: "N95 Respirator Masks",
+    locations: [
+      { locationName: "ED Supply Room A", currentQty: 500, parLevel: 500, pctOfPar: 100, status: "at-par" },
+      { locationName: "Isolation Cart - 3 East", currentQty: 18, parLevel: 40, pctOfPar: 45, status: "critical" },
+      { locationName: "Central Warehouse", currentQty: 2000, parLevel: 2500, pctOfPar: 80, status: "below-par" },
+      { locationName: "ICU Supply Alcove", currentQty: 300, parLevel: 350, pctOfPar: 86, status: "below-par" },
+    ],
+    suggestedTransfer: { from: "ED Supply Room A", to: "Isolation Cart - 3 East", qty: 20, reason: "Isolation Cart at 45% of PAR — compliance finding FND-005 requires 48-hour coverage. Transfer 20 from ED (at full PAR) to close gap" },
+  },
+  {
+    itemId: "INV-004",
+    itemName: "Propofol 200mg/20mL",
+    locations: [
+      { locationName: "OR Anesthesia Cart - Room 4", currentQty: 40, parLevel: 20, pctOfPar: 200, status: "overstocked" },
+      { locationName: "ED Pyxis MedStation #1", currentQty: 5, parLevel: 20, pctOfPar: 25, status: "critical" },
+      { locationName: "Pharmacy Main", currentQty: 120, parLevel: 120, pctOfPar: 100, status: "at-par" },
+      { locationName: "ICU Pyxis MedStation #3", currentQty: 15, parLevel: 20, pctOfPar: 75, status: "below-par" },
+    ],
+    suggestedTransfer: { from: "OR Anesthesia Cart - Room 4", to: "ED Pyxis MedStation #1", qty: 10, reason: "OR Anesthesia at 200% of typical par while ED Pyxis critically low at 25% — rebalance to avoid ED procedural sedation delays" },
+  },
 ];

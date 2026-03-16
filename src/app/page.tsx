@@ -19,8 +19,10 @@ import {
   Boxes,
   Truck,
   FileText,
+  ArrowRightLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 import {
   inventoryItems,
   aiInsights,
@@ -29,6 +31,8 @@ import {
   upcomingPurchaseOrders,
   upcomingDeliveries,
   delayedShipments,
+  parLocations,
+  locationImbalances,
 } from "@/lib/mock-data";
 import {
   BarChart,
@@ -52,9 +56,9 @@ const metrics = [
     color: "bg-orange-50 text-orange-700",
   },
   {
-    label: "Active Locations",
-    value: "4",
-    change: "All synced",
+    label: "PAR Locations",
+    value: "62",
+    change: "across 4 facilities",
     trend: "neutral" as const,
     icon: MapPin,
     color: "bg-rose-50 text-rose-600",
@@ -129,6 +133,7 @@ const poStatusLabels: Record<string, string> = {
 };
 
 export default function Dashboard() {
+  const { showToast } = useToast();
   const criticalItems = inventoryItems.filter(
     (i) => i.status === "critical" || i.status === "out-of-stock"
   );
@@ -166,6 +171,30 @@ export default function Dashboard() {
                 <div className={cn("p-2.5 rounded-lg", m.color)}>
                   <m.icon className="w-5 h-5" />
                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Supply Chain Status */}
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            { chain: "Med/Surg", fill: 91, locations: 8, status: "normal" },
+            { chain: "Pharmacy & ADC", fill: 84, locations: 7, status: "low" },
+            { chain: "Surgical / OR", fill: 76, locations: 3, status: "critical" },
+            { chain: "Laboratory", fill: 96, locations: 2, status: "normal" },
+          ].map((sc) => (
+            <div key={sc.chain} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+              <div className={cn("w-3 h-3 rounded-full shrink-0", sc.status === "normal" ? "bg-emerald-500" : sc.status === "low" ? "bg-amber-400" : "bg-red-500")} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground">{sc.chain}</span>
+                  <span className={cn("text-xs font-bold", sc.fill >= 90 ? "text-emerald-600" : sc.fill >= 80 ? "text-amber-600" : "text-red-600")}>{sc.fill}%</span>
+                </div>
+                <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden mt-1.5">
+                  <div className={cn("h-full rounded-full", sc.fill >= 90 ? "bg-emerald-500" : sc.fill >= 80 ? "bg-amber-400" : "bg-red-500")} style={{ width: `${sc.fill}%` }} />
+                </div>
+                <span className="text-[11px] text-muted mt-1">{sc.locations} PAR locations</span>
               </div>
             </div>
           ))}
@@ -239,6 +268,37 @@ export default function Dashboard() {
               </div>
               <Link href="/budget" className="flex items-center gap-1 text-xs text-primary hover:underline mt-3">
                 View all orders <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* Cross-Location Imbalances */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <ArrowRightLeft className="w-4 h-4 text-amber-500" />
+                Cross-Location Imbalances
+              </h3>
+              <div className="space-y-3">
+                {locationImbalances.slice(0, 3).map((imb) => {
+                  const over = imb.locations.find((l) => l.status === "overstocked" || l.pctOfPar > 100);
+                  const under = imb.locations.find((l) => l.status === "critical" || l.status === "stockout" || l.pctOfPar < 50);
+                  if (!over || !under) return null;
+                  return (
+                    <div key={imb.itemId} className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                      <p className="text-xs font-semibold text-foreground">{imb.itemName}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[11px]">
+                        <span className="text-amber-700 font-medium">{over.locationName}: {over.pctOfPar}% of PAR</span>
+                        <ArrowRight className="w-3 h-3 text-muted" />
+                        <span className="text-red-600 font-medium">{under.locationName}: {under.pctOfPar}% of PAR</span>
+                      </div>
+                      <p className="text-[11px] text-accent mt-1.5">
+                        Suggested: Transfer {imb.suggestedTransfer.qty} units
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              <Link href="/inventory" className="flex items-center gap-1 text-xs text-primary hover:underline mt-3">
+                View all locations <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
           </div>

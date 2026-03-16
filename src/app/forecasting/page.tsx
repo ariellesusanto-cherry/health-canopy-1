@@ -21,6 +21,8 @@ import {
   ExternalLink,
   Activity,
   Sparkles,
+  User,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -29,6 +31,7 @@ import {
   upcomingSurgeries,
   procedureSupplyProfiles,
   monthlySpendForecast,
+  preferenceCards,
 } from "@/lib/mock-data";
 import {
   Line,
@@ -117,8 +120,9 @@ export default function ForecastingPage() {
         {/* Overview cards */}
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-border p-5">
-            <div className="flex items-center gap-2 mb-2"><Calendar className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">Next 5 Operating Days</span></div>
+            <div className="flex items-center gap-2 mb-2"><Calendar className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">OR Schedule — Next 5 Days</span></div>
             <p className="text-2xl font-bold text-foreground">{totalProcedures} <span className="text-xs font-normal text-muted">surgeries</span></p>
+            <p className="text-[11px] text-muted">across 6 ORs</p>
             <p className="text-xs text-primary font-semibold mt-1">${weeklySupplyCost.toLocaleString()} in supplies needed</p>
           </div>
           <div className="bg-white rounded-xl border border-border p-5">
@@ -224,11 +228,10 @@ export default function ForecastingPage() {
           <div className="mb-5">
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
               <Calendar className="w-5 h-5 text-accent" />
-              Scheduled Surgeries → Supplies Needed This Week
+              OR Schedule & Preference Cards
             </h3>
             <p className="text-xs text-muted mt-1 max-w-3xl leading-relaxed">
-              Each surgery type requires specific supplies. The AI maps the OR schedule to supply consumption profiles
-              and calculates exactly what must be on hand for each operating day. Click a day to see the breakdown.
+              Each surgeon&apos;s preference card defines the exact supplies and implants needed. Click a day to see the case-by-case breakdown.
             </p>
           </div>
 
@@ -272,6 +275,33 @@ export default function ForecastingPage() {
                   <p className="text-[11px] text-muted">Total supply cost</p>
                 </div>
               </div>
+              {/* Case List */}
+              {(() => {
+                const day = upcomingSurgeries.find((s) => s.date === expandedDay);
+                if (!day || !("cases" in day)) return null;
+                const cases = (day as any).cases as { procedure: string; surgeon: string; or: string; time: string }[];
+                return (
+                  <div className="mb-4">
+                    <h5 className="text-xs font-semibold text-muted uppercase mb-2">Case Schedule</h5>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {cases.map((c, i) => {
+                        const card = preferenceCards.find((pc) => pc.surgeon === c.surgeon && pc.procedure === c.procedure);
+                        return (
+                          <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-border text-xs">
+                            <span className="font-mono text-muted w-12">{c.time}</span>
+                            <span className="font-mono text-muted w-12">{c.or}</span>
+                            <span className="font-semibold text-foreground flex-1">{c.procedure}</span>
+                            <span className="text-foreground">{c.surgeon}</span>
+                            {card && (
+                              <span className="text-[11px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Pref Card</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
@@ -300,6 +330,45 @@ export default function ForecastingPage() {
                   </div>
                 </div>
               </div>
+              {/* Consignment Implants */}
+              {(() => {
+                const day = upcomingSurgeries.find((s) => s.date === expandedDay);
+                if (!day || !("cases" in day)) return null;
+                const cases = (day as any).cases as { procedure: string; surgeon: string; or: string; time: string }[];
+                const implants: { item: string; vendor: string; rep: string; cost: number; surgeon: string; procedure: string }[] = [];
+                for (const c of cases) {
+                  const card = preferenceCards.find((pc) => pc.surgeon === c.surgeon && pc.procedure === c.procedure);
+                  if (card?.implants) {
+                    for (const imp of card.implants) {
+                      implants.push({ item: imp.item, vendor: imp.vendor, rep: imp.rep, cost: imp.estimatedCost, surgeon: c.surgeon, procedure: c.procedure });
+                    }
+                  }
+                }
+                if (implants.length === 0) return null;
+                return (
+                  <div className="mt-4 p-4 rounded-xl border border-amber-200 bg-amber-50/50">
+                    <h5 className="text-xs font-semibold text-amber-800 uppercase mb-3 flex items-center gap-1.5">
+                      Consignment Implants Required — {implants.length} devices, {new Set(implants.map((i) => i.rep)).size} vendor reps to coordinate
+                    </h5>
+                    <div className="space-y-2">
+                      {implants.map((imp, i) => (
+                        <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-amber-100 text-xs">
+                          <div className="flex-1">
+                            <span className="font-semibold text-foreground">{imp.item}</span>
+                            <span className="text-muted ml-2">for {imp.surgeon} — {imp.procedure}</span>
+                          </div>
+                          <span className="text-muted">{imp.vendor}</span>
+                          <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">Rep: {imp.rep}</span>
+                          <span className="font-semibold text-foreground">${imp.cost.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-amber-200">
+                      <span className="text-xs text-amber-700 font-medium">Total consignment value: ${implants.reduce((s, i) => s + i.cost, 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
