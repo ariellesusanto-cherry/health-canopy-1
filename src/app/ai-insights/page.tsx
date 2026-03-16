@@ -88,7 +88,7 @@ export default function AIInsightsPage() {
 
       <div className="p-8 space-y-6">
         {/* Status Summary */}
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {[
             { label: "In Stock", value: inventoryItems.filter((i) => i.status === "in-stock").length, color: "bg-emerald-50 text-emerald-600", icon: CheckCircle2 },
             { label: "Low Stock", value: lowStockItems.length, color: "bg-amber-50 text-amber-600", icon: AlertTriangle },
@@ -101,7 +101,7 @@ export default function AIInsightsPage() {
               <div className={cn("p-2 rounded-lg", s.color)}><s.icon className="w-4 h-4" /></div>
               <div>
                 <p className="text-lg font-bold text-foreground">{s.value}</p>
-                <p className="text-[10px] font-medium text-muted uppercase">{s.label}</p>
+                <p className="text-[11px] font-medium text-muted uppercase">{s.label}</p>
               </div>
             </div>
           ))}
@@ -141,9 +141,9 @@ export default function AIInsightsPage() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={demandForecastData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#8a7e72" }}
+                  tick={{ fontSize: 11, fill: "#6b6057" }}
                   axisLine={{ stroke: "#e6ddd0" }}
                   label={{ value: "Items consumed / day", angle: -90, position: "insideLeft", style: { fontSize: 11, fill: "#b8a898" }, offset: 10 }}
                 />
@@ -175,7 +175,7 @@ export default function AIInsightsPage() {
                 How many items each department consumes per day. Red predicted bars mean the AI expects a &gt;10% increase — usually driven by scheduling or seasonal factors.
               </p>
             </div>
-            <div className="flex items-center gap-4 mb-3 text-[10px]">
+            <div className="flex items-center gap-4 mb-3 text-[11px]">
               <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-primary" /><span className="text-muted">Current daily usage</span></div>
               <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-accent" /><span className="text-muted">AI predicted (next 7 days)</span></div>
               <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-red-500" /><span className="text-muted">&gt;10% increase expected</span></div>
@@ -184,8 +184,8 @@ export default function AIInsightsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={departmentConsumption} barGap={2}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
+                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e6ddd0" }} />
                   <Bar dataKey="current" fill="#b5654a" radius={[4, 4, 0, 0]} barSize={24} name="Current" />
                   <Bar dataKey="predicted" radius={[4, 4, 0, 0]} barSize={24} name="AI Predicted">
@@ -216,7 +216,7 @@ export default function AIInsightsPage() {
                     </div>
                     <span className="text-xs font-semibold text-foreground w-14 text-right">${(v.totalValue / 1000).toFixed(0)}K</span>
                     <span className={cn(
-                      "text-[10px] w-12 text-right",
+                      "text-[11px] w-12 text-right",
                       v.avgDaysOnHand < 7 ? "text-red-600 font-semibold" : v.avgDaysOnHand > 15 ? "text-amber-600" : "text-muted"
                     )}>
                       {v.avgDaysOnHand}d
@@ -243,10 +243,10 @@ export default function AIInsightsPage() {
               {criticalItems.map((item) => (
                 <div key={item.id} className="p-3 rounded-lg bg-red-50 border border-red-100">
                   <p className="text-xs font-semibold text-foreground">{item.name}</p>
-                  <p className="text-[10px] text-muted mt-0.5">{item.department} — {item.supplier}</p>
+                  <p className="text-[11px] text-muted mt-0.5">{item.department} — {item.supplier}</p>
                   <div className="flex items-center justify-between mt-1.5">
-                    <span className="text-[10px] font-bold text-red-600">{item.currentStock} / {item.parLevel}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
+                    <span className="text-[11px] font-bold text-red-600">{item.currentStock} / {item.parLevel}</span>
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
                       {item.status === "out-of-stock" ? "OUT OF STOCK" : "CRITICAL"}
                     </span>
                   </div>
@@ -262,10 +262,10 @@ export default function AIInsightsPage() {
               {lowStockItems.map((item) => (
                 <div key={item.id} className="p-3 rounded-lg bg-amber-50 border border-amber-100">
                   <p className="text-xs font-semibold text-foreground">{item.name}</p>
-                  <p className="text-[10px] text-muted mt-0.5">{item.department} — {item.supplier}</p>
+                  <p className="text-[11px] text-muted mt-0.5">{item.department} — {item.supplier}</p>
                   <div className="flex items-center justify-between mt-1.5">
-                    <span className="text-[10px] font-bold text-amber-600">{item.currentStock} / {item.parLevel}</span>
-                    <span className="text-[10px] text-muted">Reorder at {item.reorderPoint}</span>
+                    <span className="text-[11px] font-bold text-amber-600">{item.currentStock} / {item.parLevel}</span>
+                    <span className="text-[11px] text-muted">Reorder at {item.reorderPoint}</span>
                   </div>
                 </div>
               ))}
@@ -279,10 +279,10 @@ export default function AIInsightsPage() {
               {expiringItems.map((item) => (
                 <div key={item.id} className="p-3 rounded-lg bg-orange-50 border border-orange-100">
                   <p className="text-xs font-semibold text-foreground">{item.name}</p>
-                  <p className="text-[10px] text-muted mt-0.5">{item.department} — {item.currentStock} units</p>
+                  <p className="text-[11px] text-muted mt-0.5">{item.department} — {item.currentStock} units</p>
                   <div className="flex items-center justify-between mt-1.5">
-                    <span className="text-[10px] font-bold text-orange-600">Expires: {item.expirationDate}</span>
-                    <span className="text-[10px] text-muted">${(item.currentStock * item.unitCost).toLocaleString()} at risk</span>
+                    <span className="text-[11px] font-bold text-orange-600">Expires: {item.expirationDate}</span>
+                    <span className="text-[11px] text-muted">${(item.currentStock * item.unitCost).toLocaleString()} at risk</span>
                   </div>
                 </div>
               ))}
@@ -318,8 +318,8 @@ export default function AIInsightsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={cn("text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>{typeLabels[insight.type]}</span>
-                        <span className="text-[10px] text-muted">{new Date(insight.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+                        <span className={cn("text-[11px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>{typeLabels[insight.type]}</span>
+                        <span className="text-[11px] text-muted">{new Date(insight.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
                       </div>
                       <h4 className="text-sm font-semibold text-foreground">{insight.title}</h4>
                       <p className="text-xs text-muted mt-1 line-clamp-2">{insight.description}</p>

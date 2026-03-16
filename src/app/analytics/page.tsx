@@ -96,16 +96,16 @@ export default function AnalyticsPage() {
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {kpiCards.map((kpi) => (
-            <div key={kpi.label} className="bg-white rounded-xl border border-border p-4 card-hover">
+            <div key={kpi.label} className="bg-white rounded-xl border border-border p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className={cn("p-2 rounded-lg", kpi.color)}>
                   <kpi.icon className="w-4 h-4" />
                 </div>
                 {kpi.trend !== "neutral" && (
                   <div className={cn(
-                    "flex items-center gap-0.5 text-[10px] font-semibold",
+                    "flex items-center gap-0.5 text-[11px] font-semibold",
                     kpi.trend === "up" ? "text-emerald-600" : "text-red-600"
                   )}>
                     {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -114,14 +114,14 @@ export default function AnalyticsPage() {
                 )}
               </div>
               <p className="text-lg font-bold text-foreground">{kpi.value}</p>
-              <p className="text-[10px] text-muted mt-0.5">
+              <p className="text-[11px] text-muted mt-0.5">
                 {"tooltip" in kpi && kpi.tooltip ? (
                   <InfoTooltip content={kpi.tooltip as string} position="bottom" wide>
-                    <span className="cursor-help border-b border-dotted border-muted/40">{kpi.label}</span>
+                    <span className="cursor-help border-b border-dotted border-muted/60">{kpi.label}</span>
                   </InfoTooltip>
                 ) : kpi.label}
               </p>
-              {kpi.detail && <p className="text-[10px] text-muted/60 mt-0.5">{kpi.detail}</p>}
+              {kpi.detail && <p className="text-[11px] text-muted mt-0.5">{kpi.detail}</p>}
             </div>
           ))}
         </div>
@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
                 <h3 className="text-sm font-semibold text-foreground">Monthly Spend vs. Budget</h3>
                 <p className="text-xs text-muted mt-0.5">Tracking actual spend against allocated budget</p>
               </div>
-              <div className="flex items-center gap-4 text-[10px]">
+              <div className="flex items-center gap-4 text-[11px]">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded bg-primary" />
                   <span className="text-muted">Actual</span>
@@ -149,9 +149,9 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyCostTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                   <YAxis
-                    tick={{ fontSize: 11, fill: "#8a7e72" }}
+                    tick={{ fontSize: 11, fill: "#6b6057" }}
                     axisLine={{ stroke: "#e6ddd0" }}
                     tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
                   />
@@ -191,7 +191,7 @@ export default function AnalyticsPage() {
                   <span className="text-xs font-semibold text-foreground w-16 text-right">
                     ${(item.value / 1000).toFixed(1)}K
                   </span>
-                  <span className="text-[10px] text-muted w-8 text-right">{item.pct}%</span>
+                  <span className="text-[11px] text-muted w-8 text-right">{item.pct}%</span>
                 </div>
               ))}
             </div>
@@ -226,10 +226,10 @@ export default function AnalyticsPage() {
                     { label: "Orders" },
                     { label: "Spend" },
                   ].map((h) => (
-                    <th key={h.label} className="text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
+                    <th key={h.label} className="text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
                       {h.tooltip ? (
                         <InfoTooltip content={h.tooltip} position="bottom" wide>
-                          <span className="cursor-help border-b border-dotted border-muted/50">{h.label}</span>
+                          <span className="cursor-help border-b border-dotted border-muted/60">{h.label}</span>
                         </InfoTooltip>
                       ) : h.label}
                     </th>
@@ -238,7 +238,7 @@ export default function AnalyticsPage() {
               </thead>
               <tbody>
                 {supplierPerformance.map((s) => (
-                  <tr key={s.name} className="border-b border-border/50 hover:bg-stone-50/50">
+                  <tr key={s.name} className="border-b border-border/50">
                     <td className="px-4 py-3 text-sm font-medium text-foreground">{s.name}</td>
                     <td className="px-4 py-3">
                       <span className={cn(
@@ -282,7 +282,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={inventoryTurnover}>
                   <PolarGrid stroke="#e6ddd0" />
-                  <PolarAngleAxis dataKey="department" tick={{ fontSize: 10, fill: "#8a7e72" }} />
+                  <PolarAngleAxis dataKey="department" tick={{ fontSize: 10, fill: "#6b6057" }} />
                   <PolarRadiusAxis tick={{ fontSize: 9, fill: "#b8a898" }} />
                   <Radar name="Actual" dataKey="turnover" stroke="#b5654a" fill="#b5654a" fillOpacity={0.2} strokeWidth={2} />
                   <Radar name="Benchmark" dataKey="benchmark" stroke="#b8a898" fill="none" strokeDasharray="4 4" strokeWidth={1.5} />

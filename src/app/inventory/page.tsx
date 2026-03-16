@@ -73,9 +73,9 @@ function StockBar({ current, par, reorder }: { current: number; par: number; reo
         />
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-muted">{current.toLocaleString()} units</span>
+        <span className="text-[11px] text-muted">{current.toLocaleString()} units</span>
         <Tooltip content="Periodic Automatic Replenishment — target stock level" wide>
-          <span className="text-[10px] text-muted cursor-help border-b border-dotted border-muted/40">PAR: {par.toLocaleString()}</span>
+          <span className="text-[11px] text-muted cursor-help border-b border-dotted border-muted/60">PAR: {par.toLocaleString()}</span>
         </Tooltip>
       </div>
     </div>
@@ -152,7 +152,7 @@ export default function InventoryPage() {
 
       <div className="p-8 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {[
             { label: "Total Items", value: summaryStats.total, icon: Package, color: "text-orange-700 bg-orange-50" },
             { label: "In Stock", value: summaryStats.inStock, icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50" },
@@ -166,10 +166,10 @@ export default function InventoryPage() {
                 <s.icon className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[10px] font-medium text-muted uppercase">
+                <p className="text-[11px] font-medium text-muted uppercase">
                   {"tooltip" in s && s.tooltip ? (
                     <Tooltip content={s.tooltip as string} position="bottom" wide>
-                      <span className="cursor-help border-b border-dotted border-muted/40">{s.label}</span>
+                      <span className="cursor-help border-b border-dotted border-muted/60">{s.label}</span>
                     </Tooltip>
                   ) : s.label}
                 </p>
@@ -182,7 +182,7 @@ export default function InventoryPage() {
         {/* Department Quick View */}
         <div className="bg-white rounded-xl border border-border p-5">
           <h3 className="text-sm font-semibold text-foreground mb-3">Department Overview</h3>
-          <div className="grid grid-cols-8 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {departments.map((dept) => {
               const DeptIcon = deptIcons[dept.name] || Package;
               const isSelected = selectedDepartment === dept.name;
@@ -198,8 +198,8 @@ export default function InventoryPage() {
                   )}
                 >
                   <DeptIcon className={cn("w-5 h-5", isSelected ? "text-primary" : "text-muted")} />
-                  <span className="text-[10px] font-medium text-foreground leading-tight">{dept.name}</span>
-                  <span className="text-[10px] text-muted">{dept.itemCount.toLocaleString()} items</span>
+                  <span className="text-[11px] font-medium text-foreground leading-tight">{dept.name}</span>
+                  <span className="text-[11px] text-muted">{dept.itemCount.toLocaleString()} items</span>
                 </button>
               );
             })}
@@ -271,7 +271,7 @@ export default function InventoryPage() {
                   ].map((col) => (
                     <th
                       key={col.field}
-                      className={cn("text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-3 py-3 cursor-pointer hover:text-foreground", col.width)}
+                      className={cn("text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-3 py-3 cursor-pointer hover:text-foreground", col.width)}
                       onClick={() => handleSort(col.field)}
                     >
                       <div className="flex items-center gap-1">
@@ -297,7 +297,7 @@ export default function InventoryPage() {
                       <td className="px-3 py-3">
                         <div>
                           <p className="text-sm font-medium text-foreground">{item.name}</p>
-                          <p className="text-[10px] text-muted font-mono">{item.sku}</p>
+                          <p className="text-[11px] text-muted font-mono">{item.sku}</p>
                         </div>
                       </td>
                       <td className="px-3 py-3">
@@ -322,7 +322,7 @@ export default function InventoryPage() {
                         <span className="text-xs text-foreground">{item.supplier}</span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className={cn("text-[10px] font-semibold px-2 py-1 rounded-full border", sc.bg, sc.color)}>
+                        <span className={cn("text-[11px] font-semibold px-2 py-1 rounded-full border", sc.bg, sc.color)}>
                           {sc.label}
                         </span>
                       </td>
@@ -375,10 +375,10 @@ export default function InventoryPage() {
                     { label: "Category", value: item.category },
                   ].map((d) => (
                     <div key={d.label}>
-                      <p className="text-[10px] font-medium text-muted uppercase">
+                      <p className="text-[11px] font-medium text-muted uppercase">
                         {"tooltip" in d && d.tooltip ? (
                           <Tooltip content={d.tooltip} position="bottom" wide>
-                            <span className="cursor-help border-b border-dotted border-muted/40">{d.label}</span>
+                            <span className="cursor-help border-b border-dotted border-muted/60">{d.label}</span>
                           </Tooltip>
                         ) : d.label}
                       </p>
@@ -392,7 +392,7 @@ export default function InventoryPage() {
                       <ShieldAlert className="w-4 h-4 text-rose-600" />
                       <span className="text-xs font-semibold text-rose-700">Controlled Substance — Chain of Custody Active</span>
                     </div>
-                    <p className="text-[10px] text-rose-600 mt-1">
+                    <p className="text-[11px] text-rose-600 mt-1">
                       Full receipt/disposition tracking per MM 13.01.01. Last audit: Mar 13, 2026.
                       DSCSA serial verification: Verified.
                     </p>
@@ -412,7 +412,7 @@ export default function InventoryPage() {
                       <div className="flex items-center gap-2 mb-3">
                         <MapPin className="w-4 h-4 text-primary" />
                         <h5 className="text-sm font-semibold text-foreground">Where Is This Item?</h5>
-                        <span className="text-[10px] text-muted">({locations.length} locations)</span>
+                        <span className="text-[11px] text-muted">({locations.length} locations)</span>
                       </div>
                       <div className="grid grid-cols-1 gap-2">
                         {locations.map((loc, i) => {
@@ -425,8 +425,8 @@ export default function InventoryPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-foreground">{loc.location}</span>
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{loc.floor}</span>
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-600">{storageIcons[loc.storageType]}</span>
+                                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{loc.floor}</span>
+                                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-600">{storageIcons[loc.storageType]}</span>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 shrink-0">

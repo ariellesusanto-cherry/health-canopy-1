@@ -661,7 +661,7 @@ export function AIAssistant() {
               }}
               placeholder="Ask about inventory, orders, compliance..."
               disabled={!!typing}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted/60 outline-none disabled:opacity-50"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted/70 outline-none disabled:opacity-50"
             />
             <button
               onClick={() => handleSend()}
@@ -672,13 +672,13 @@ export function AIAssistant() {
                 "transition-all duration-150",
                 input.trim() && !typing
                   ? "bg-primary text-white hover:bg-primary-dark"
-                  : "bg-border/50 text-muted/40 cursor-not-allowed",
+                  : "bg-border/50 text-muted cursor-not-allowed",
               )}
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-[10px] text-muted/50 text-center mt-2">
+          <p className="text-[11px] text-muted text-center mt-2">
             AI assistant with live inventory system access
           </p>
         </div>
@@ -764,7 +764,7 @@ function ToolBadge({ tool }: { tool: ToolCall }) {
   const Icon = IconMap[tool.name] ?? Search;
 
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/8 border border-accent/15 text-[10px] font-medium text-accent">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/8 border border-accent/15 text-[11px] font-medium text-accent">
       <Icon className="w-3 h-3" />
       {tool.name}
     </span>

@@ -112,23 +112,23 @@ export default function ForecastingPage() {
       <div className="p-8 space-y-6">
         {/* Overview cards */}
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-border p-5 card-hover">
-            <div className="flex items-center gap-2 mb-2"><Calendar className="w-4 h-4 text-accent" /><span className="text-[10px] font-medium text-muted uppercase">Next 5 Operating Days</span></div>
+          <div className="bg-white rounded-xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-2"><Calendar className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">Next 5 Operating Days</span></div>
             <p className="text-2xl font-bold text-foreground">{totalProcedures} <span className="text-xs font-normal text-muted">surgeries</span></p>
             <p className="text-xs text-primary font-semibold mt-1">${weeklySupplyCost.toLocaleString()} in supplies needed</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-5 card-hover">
-            <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-primary" /><span className="text-[10px] font-medium text-muted uppercase">Predicted Daily Consumption</span></div>
+          <div className="bg-white rounded-xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-primary" /><span className="text-[11px] font-medium text-muted uppercase">Predicted Daily Consumption</span></div>
             <p className="text-2xl font-bold text-foreground">3,050 <span className="text-xs font-normal text-muted">items/day by Mar 29</span></p>
             <p className="text-xs text-amber-600 font-medium mt-1">+10% vs. current average</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-5 card-hover">
-            <div className="flex items-center gap-2 mb-2"><Thermometer className="w-4 h-4 text-red-500" /><span className="text-[10px] font-medium text-muted uppercase">Outbreak Risk</span></div>
+          <div className="bg-white rounded-xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-2"><Thermometer className="w-4 h-4 text-red-500" /><span className="text-[11px] font-medium text-muted uppercase">Outbreak Risk</span></div>
             <p className="text-2xl font-bold text-red-600">HIGH</p>
             <p className="text-xs text-red-600 font-medium mt-1">Flu surge — 40-60% ED increase predicted</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-5 card-hover">
-            <div className="flex items-center gap-2 mb-2"><Brain className="w-4 h-4 text-accent" /><span className="text-[10px] font-medium text-muted uppercase">April Spend Forecast</span></div>
+          <div className="bg-white rounded-xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-2"><Brain className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">April Spend Forecast</span></div>
             <p className="text-2xl font-bold text-foreground">$942K</p>
             <p className="text-xs text-red-600 font-medium mt-1">$32K over budget — flu surge + OR volume</p>
           </div>
@@ -159,8 +159,8 @@ export default function ForecastingPage() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={demandForecastData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
-                <YAxis tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} label={{ value: "Items / day", angle: -90, position: "insideLeft", style: { fontSize: 11, fill: "#b8a898" }, offset: 10 }} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} label={{ value: "Items / day", angle: -90, position: "insideLeft", style: { fontSize: 11, fill: "#b8a898" }, offset: 10 }} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e6ddd0" }} formatter={(value, name) => {
                   const labels: Record<string, string> = { actual: "Actual", predicted: "Forecast", upper: "Upper bound", lower: "Lower bound" };
                   return [value ? `${Number(value).toLocaleString()} items` : "—", labels[name as string] || name];
@@ -202,8 +202,8 @@ export default function ForecastingPage() {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={monthlySpendForecast}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
-                <YAxis tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e6ddd0" }} formatter={(value) => value ? [`$${(Number(value) / 1000).toFixed(0)}K`, ""] : ["—", ""]} />
                 <Bar dataKey="actual" fill="#b5654a" radius={[4, 4, 0, 0]} barSize={24} name="Actual" />
                 <Bar dataKey="forecast" fill="#6b8f71" radius={[4, 4, 0, 0]} barSize={24} name="AI Forecast" />
@@ -242,13 +242,13 @@ export default function ForecastingPage() {
                   className={cn("p-4 rounded-xl border text-left transition-all", isExpanded ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border hover:border-primary/30 hover:bg-stone-50")}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-foreground">{day.date}</span>
-                    <span className="text-[10px] text-muted">{day.day}</span>
+                    <span className="text-[11px] text-muted">{day.day}</span>
                   </div>
                   <p className="text-lg font-bold text-foreground">{day.procedures} <span className="text-xs font-normal text-muted">surgeries</span></p>
-                  <p className="text-xs font-semibold text-primary mt-1">${dayCost.toLocaleString()} <span className="text-[10px] font-normal text-muted">in supplies</span></p>
+                  <p className="text-xs font-semibold text-primary mt-1">${dayCost.toLocaleString()} <span className="text-[11px] font-normal text-muted">in supplies</span></p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {Object.entries(day.types).map(([type, count]) => (
-                      <span key={type} className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{count}x {type}</span>
+                      <span key={type} className="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{count}x {type}</span>
                     ))}
                   </div>
                 </button>
@@ -265,16 +265,16 @@ export default function ForecastingPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-primary">${daySupplyBreakdown.grandTotal.toLocaleString()}</p>
-                  <p className="text-[10px] text-muted">Total supply cost</p>
+                  <p className="text-[11px] text-muted">Total supply cost</p>
                 </div>
               </div>
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left text-[10px] font-semibold text-muted uppercase px-3 py-2">Supply Item</th>
-                    <th className="text-right text-[10px] font-semibold text-muted uppercase px-3 py-2">Qty Needed</th>
-                    <th className="text-right text-[10px] font-semibold text-muted uppercase px-3 py-2">Unit Cost</th>
-                    <th className="text-right text-[10px] font-semibold text-muted uppercase px-3 py-2">Line Total</th>
+                    <th className="text-left text-[11px] font-semibold text-muted uppercase px-3 py-2">Supply Item</th>
+                    <th className="text-right text-[11px] font-semibold text-muted uppercase px-3 py-2">Qty Needed</th>
+                    <th className="text-right text-[11px] font-semibold text-muted uppercase px-3 py-2">Unit Cost</th>
+                    <th className="text-right text-[11px] font-semibold text-muted uppercase px-3 py-2">Line Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -340,7 +340,7 @@ export default function ForecastingPage() {
                   { label: "Extra Cost", value: "$0", sub: "", note: "On track — $59K under budget YTD" },
                 ].map((c) => (
                   <div key={c.label} className="p-4 rounded-lg bg-white border border-emerald-100">
-                    <p className="text-[10px] text-muted uppercase font-semibold mb-1">{c.label}</p>
+                    <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
                     <p className="text-xl font-bold text-foreground">{c.value} <span className="text-xs font-normal text-muted">{c.sub}</span></p>
                     <p className="text-xs text-emerald-600 mt-1">{c.note}</p>
                   </div>
@@ -361,7 +361,7 @@ export default function ForecastingPage() {
                   { label: "Extra Weekly Spend", value: "+$67,200", extra: "", note: "Pre-ordering saves $45K", color: "text-red-600" },
                 ].map((c) => (
                   <div key={c.label} className="p-4 rounded-lg bg-white border border-red-100">
-                    <p className="text-[10px] text-muted uppercase font-semibold mb-1">{c.label}</p>
+                    <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
                     <p className="text-xl font-bold text-foreground">{c.value} {c.extra && <span className={cn("text-xs font-semibold", c.color)}>{c.extra}</span>}</p>
                     <p className="text-xs text-red-600 mt-1">{c.note}</p>
                   </div>
@@ -390,7 +390,7 @@ export default function ForecastingPage() {
                   { label: "Expedited Cost", value: "+$34,800", note: "Backup vendors + next-day shipping" },
                 ].map((c) => (
                   <div key={c.label} className="p-4 rounded-lg bg-white border border-amber-100">
-                    <p className="text-[10px] text-muted uppercase font-semibold mb-1">{c.label}</p>
+                    <p className="text-[11px] text-muted uppercase font-semibold mb-1">{c.label}</p>
                     <p className="text-xl font-bold text-amber-600">{c.value}</p>
                     <p className="text-xs text-amber-600 mt-1">{c.note}</p>
                   </div>
@@ -435,10 +435,10 @@ export default function ForecastingPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={cn("text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>
+                        <span className={cn("text-[11px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>
                           {insight.type === "outbreak" ? "Outbreak Intel" : "Prediction"}
                         </span>
-                        <span className="text-[10px] text-muted">{new Date(insight.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+                        <span className="text-[11px] text-muted">{new Date(insight.timestamp).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
                       </div>
                       <h4 className="text-sm font-semibold text-foreground">{insight.title}</h4>
                       <p className="text-xs text-muted mt-1 line-clamp-2">{insight.description}</p>

@@ -130,15 +130,15 @@ export default function BudgetPage() {
               color: "bg-teal-50 text-teal-700",
             },
           ].map((kpi) => (
-            <div key={kpi.label} className="bg-white rounded-xl border border-border p-5 card-hover">
+            <div key={kpi.label} className="bg-white rounded-xl border border-border p-5">
               <div className="flex items-start justify-between mb-3">
                 <div className={cn("p-2 rounded-lg", kpi.color)}>
                   <kpi.icon className="w-5 h-5" />
                 </div>
               </div>
               <p className="text-xl font-bold text-foreground">{kpi.value}</p>
-              <p className="text-[10px] font-medium text-muted uppercase mt-1">{kpi.label}</p>
-              <p className={cn("text-[10px] mt-1", "detailColor" in kpi ? kpi.detailColor : "text-muted")}>{kpi.detail}</p>
+              <p className="text-[11px] font-medium text-muted uppercase mt-1">{kpi.label}</p>
+              <p className={cn("text-[11px] mt-1", "detailColor" in kpi ? kpi.detailColor : "text-muted")}>{kpi.detail}</p>
             </div>
           ))}
         </div>
@@ -198,9 +198,9 @@ export default function BudgetPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={monthlySpendForecast}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                     <YAxis
-                      tick={{ fontSize: 11, fill: "#8a7e72" }}
+                      tick={{ fontSize: 11, fill: "#6b6057" }}
                       axisLine={{ stroke: "#e6ddd0" }}
                       tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
                     />
@@ -245,10 +245,10 @@ export default function BudgetPage() {
                       { label: "AI Full-Year Forecast", tooltip: "AI-projected total spend by end of fiscal year, based on trends and scheduled procedures" },
                       { label: "vs. Budget" },
                     ].map((h) => (
-                      <th key={h.label} className="text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
+                      <th key={h.label} className="text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
                         {h.tooltip ? (
                           <InfoTooltip content={h.tooltip} position="bottom" wide>
-                            <span className="cursor-help border-b border-dotted border-muted/50">{h.label}</span>
+                            <span className="cursor-help border-b border-dotted border-muted/60">{h.label}</span>
                           </InfoTooltip>
                         ) : h.label}
                       </th>
@@ -260,7 +260,7 @@ export default function BudgetPage() {
                     const variance = b.ytdSpend - b.ytdBudget;
                     const forecastVariance = b.forecast - b.annualBudget;
                     return (
-                      <tr key={b.category} className="border-b border-border/50 hover:bg-stone-50/50">
+                      <tr key={b.category} className="border-b border-border/50">
                         <td className="px-4 py-3 text-sm font-medium text-foreground">{b.category}</td>
                         <td className="px-4 py-3 text-sm text-foreground">${(b.annualBudget / 1000).toLocaleString()}K</td>
                         <td className="px-4 py-3 text-sm font-medium text-foreground">${(b.ytdSpend / 1000).toLocaleString()}K</td>
@@ -327,10 +327,10 @@ export default function BudgetPage() {
                       { label: "Avg Days on Hand", tooltip: "Average number of days current stock will last at the current consumption rate" },
                       { label: "Value / Item" },
                     ].map((h) => (
-                      <th key={h.label} className="text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
+                      <th key={h.label} className="text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
                         {h.tooltip ? (
                           <InfoTooltip content={h.tooltip} position="bottom" wide>
-                            <span className="cursor-help border-b border-dotted border-muted/50">{h.label}</span>
+                            <span className="cursor-help border-b border-dotted border-muted/60">{h.label}</span>
                           </InfoTooltip>
                         ) : h.label}
                       </th>
@@ -339,7 +339,7 @@ export default function BudgetPage() {
                 </thead>
                 <tbody>
                   {inventoryValuation.map((v) => (
-                    <tr key={v.department} className="border-b border-border/50 hover:bg-stone-50/50">
+                    <tr key={v.department} className="border-b border-border/50">
                       <td className="px-4 py-3 text-sm font-medium text-foreground">{v.department}</td>
                       <td className="px-4 py-3 text-sm text-foreground">{v.itemCount.toLocaleString()}</td>
                       <td className="px-4 py-3 text-sm font-semibold text-foreground">${(v.totalValue / 1000).toFixed(0)}K</td>
@@ -348,8 +348,8 @@ export default function BudgetPage() {
                           <span className={cn("text-sm", v.avgDaysOnHand < 7 ? "text-red-600 font-medium" : v.avgDaysOnHand > 15 ? "text-amber-600" : "text-foreground")}>
                             {v.avgDaysOnHand}
                           </span>
-                          {v.avgDaysOnHand < 7 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-50 text-red-600 font-medium">LOW</span>}
-                          {v.avgDaysOnHand > 15 && <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">HIGH</span>}
+                          {v.avgDaysOnHand < 7 && <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-50 text-red-600 font-medium">LOW</span>}
+                          {v.avgDaysOnHand > 15 && <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">HIGH</span>}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-muted">${(v.totalValue / v.itemCount).toFixed(2)}</td>
@@ -399,21 +399,21 @@ export default function BudgetPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-mono font-bold text-foreground">{po.id}</span>
-                        <span className={cn("text-[10px] font-semibold px-2 py-1 rounded-full border", sc.bg, sc.color)}>
+                        <span className={cn("text-[11px] font-semibold px-2 py-1 rounded-full border", sc.bg, sc.color)}>
                           {sc.label}
                         </span>
                         {isAI && (
-                          <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-accent/10 text-accent border border-accent/20 flex items-center gap-1">
+                          <span className="text-[11px] font-medium px-2 py-1 rounded-full bg-accent/10 text-accent border border-accent/20 flex items-center gap-1">
                             <Brain className="w-3 h-3" /> AI Generated
                           </span>
                         )}
-                        <span className="text-[10px] text-muted">
+                        <span className="text-[11px] text-muted">
                           Triggered by: {po.triggeredBy === "par-trigger" ? "PAR level alert" : po.triggeredBy === "ai-forecast" ? "AI demand forecast" : po.triggeredBy === "auto-reorder" ? "Auto-reorder rule" : "Manual"}
                         </span>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-foreground">${po.totalCost.toLocaleString()}</p>
-                        <p className="text-[10px] text-muted">Order total</p>
+                        <p className="text-[11px] text-muted">Order total</p>
                       </div>
                     </div>
 
@@ -428,10 +428,10 @@ export default function BudgetPage() {
                       <table className="w-full">
                         <thead>
                           <tr>
-                            <th className="text-left text-[10px] font-semibold text-muted uppercase px-2 py-1">Item</th>
-                            <th className="text-right text-[10px] font-semibold text-muted uppercase px-2 py-1">Qty</th>
-                            <th className="text-right text-[10px] font-semibold text-muted uppercase px-2 py-1">Unit Cost</th>
-                            <th className="text-right text-[10px] font-semibold text-muted uppercase px-2 py-1">Line Total</th>
+                            <th className="text-left text-[11px] font-semibold text-muted uppercase px-2 py-1">Item</th>
+                            <th className="text-right text-[11px] font-semibold text-muted uppercase px-2 py-1">Qty</th>
+                            <th className="text-right text-[11px] font-semibold text-muted uppercase px-2 py-1">Unit Cost</th>
+                            <th className="text-right text-[11px] font-semibold text-muted uppercase px-2 py-1">Line Total</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -514,9 +514,9 @@ export default function BudgetPage() {
                       )}>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-mono font-bold text-foreground">{ds.id}</span>
-                          <span className="text-[10px] text-muted">PO: {ds.poId}</span>
+                          <span className="text-[11px] text-muted">PO: {ds.poId}</span>
                           <span className={cn(
-                            "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                            "text-[11px] font-bold px-2 py-0.5 rounded-full",
                             ds.impactSeverity === "critical" ? "bg-red-200 text-red-800" : ds.impactSeverity === "high" ? "bg-amber-200 text-amber-800" : "bg-stone-200 text-stone-700"
                           )}>
                             {ds.impactSeverity.toUpperCase()} — {ds.delayDays} DAY DELAY
@@ -536,15 +536,15 @@ export default function BudgetPage() {
 
                         {/* Delay reason */}
                         <div className="p-3 rounded-lg bg-white border border-border">
-                          <p className="text-[10px] font-semibold text-muted uppercase mb-1">Delay Reason</p>
+                          <p className="text-[11px] font-semibold text-muted uppercase mb-1">Delay Reason</p>
                           <p className="text-xs text-foreground">{ds.reason}</p>
-                          <p className="text-[10px] text-muted mt-1.5">{ds.carrierUpdate}</p>
+                          <p className="text-[11px] text-muted mt-1.5">{ds.carrierUpdate}</p>
                         </div>
 
                         {/* Items + affected departments */}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-[10px] font-semibold text-muted uppercase mb-2">Items in Shipment</p>
+                            <p className="text-[11px] font-semibold text-muted uppercase mb-2">Items in Shipment</p>
                             <div className="flex flex-wrap gap-2">
                               {ds.items.map((item, i) => (
                                 <span key={i} className="text-xs px-3 py-1.5 rounded-lg bg-white border border-border text-foreground">
@@ -554,7 +554,7 @@ export default function BudgetPage() {
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] font-semibold text-muted uppercase mb-2">Affected Departments</p>
+                            <p className="text-[11px] font-semibold text-muted uppercase mb-2">Affected Departments</p>
                             <div className="flex flex-wrap gap-2">
                               {ds.affectedDepartments.map((dept) => (
                                 <span key={dept} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium">
@@ -570,13 +570,13 @@ export default function BudgetPage() {
                           "p-3 rounded-lg border",
                           ds.impactSeverity === "critical" ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"
                         )}>
-                          <p className="text-[10px] font-semibold text-muted uppercase mb-1">Inventory Impact</p>
+                          <p className="text-[11px] font-semibold text-muted uppercase mb-1">Inventory Impact</p>
                           <p className="text-xs text-foreground leading-relaxed">{ds.inventoryImpact}</p>
                         </div>
 
                         {/* Mitigation options */}
                         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                          <p className="text-[10px] font-semibold text-primary uppercase mb-2 flex items-center gap-1">
+                          <p className="text-[11px] font-semibold text-primary uppercase mb-2 flex items-center gap-1">
                             <ArrowRightLeft className="w-3 h-3" /> Mitigation Options
                           </p>
                           <ul className="space-y-1.5">
@@ -623,7 +623,7 @@ export default function BudgetPage() {
                     <div>
                       <div className="flex items-center gap-3 mb-1">
                         <span className="text-sm font-mono font-bold text-foreground">{del.id}</span>
-                        <span className="text-[10px] text-muted">PO: {del.poId}</span>
+                        <span className="text-[11px] text-muted">PO: {del.poId}</span>
                         <div className={cn("flex items-center gap-1 text-xs font-semibold", status.color)}>
                           <StatusIcon className="w-3.5 h-3.5" />
                           {status.label}
@@ -633,7 +633,7 @@ export default function BudgetPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-foreground">${del.totalCost.toLocaleString()}</p>
-                      <p className="text-[10px] text-muted">+ ${del.shippingCost} shipping</p>
+                      <p className="text-[11px] text-muted">+ ${del.shippingCost} shipping</p>
                     </div>
                   </div>
 
@@ -659,7 +659,7 @@ export default function BudgetPage() {
                       );
                     })}
                   </div>
-                  <div className="flex justify-between text-[9px] text-muted mb-4 px-1">
+                  <div className="flex justify-between text-[11px] text-muted mb-4 px-1">
                     <span>Label</span>
                     <span>Picked Up</span>
                     <span>In Transit</span>
@@ -673,7 +673,7 @@ export default function BudgetPage() {
                   </div>
 
                   <div className="bg-stone-50 rounded-lg p-3">
-                    <p className="text-[10px] font-semibold text-muted uppercase mb-2">Items in this shipment</p>
+                    <p className="text-[11px] font-semibold text-muted uppercase mb-2">Items in this shipment</p>
                     <div className="flex flex-wrap gap-2">
                       {del.items.map((item, i) => (
                         <span key={i} className="text-xs px-3 py-1.5 rounded-lg bg-white border border-border text-foreground">
@@ -703,7 +703,7 @@ export default function BudgetPage() {
                 ].map((proj) => (
                   <div key={proj.supplier} className="p-4 rounded-xl border border-accent/20 bg-accent/[0.03]">
                     <p className="text-xs font-bold text-foreground mb-1">{proj.supplier}</p>
-                    <p className="text-[10px] text-muted">{proj.items}</p>
+                    <p className="text-[11px] text-muted">{proj.items}</p>
                     <div className="mt-3 space-y-1.5">
                       <div className="flex justify-between text-xs">
                         <span className="text-muted">Est. order cost</span>
@@ -718,7 +718,7 @@ export default function BudgetPage() {
                         <span className="font-semibold text-primary">{proj.deliveryEta}</span>
                       </div>
                     </div>
-                    <p className="text-[10px] text-accent mt-3 leading-relaxed">
+                    <p className="text-[11px] text-accent mt-3 leading-relaxed">
                       <span className="font-semibold">Why:</span> {proj.reason}
                     </p>
                   </div>

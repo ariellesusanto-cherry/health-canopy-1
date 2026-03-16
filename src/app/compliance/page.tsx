@@ -89,7 +89,7 @@ function ChapterCard({ chapter, expanded, onToggle }: { chapter: ComplianceChapt
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-foreground">{chapter.name}</h4>
-            <div className={cn("flex items-center gap-1 text-[10px] font-medium", trend.color)}>
+            <div className={cn("flex items-center gap-1 text-[11px] font-medium", trend.color)}>
               <TrendIcon className="w-3 h-3" />
               {trend.label}
             </div>
@@ -100,7 +100,7 @@ function ChapterCard({ chapter, expanded, onToggle }: { chapter: ComplianceChapt
             </div>
             <span className={cn("text-sm font-bold w-12 text-right", scoreColor)}>{chapter.score}%</span>
           </div>
-          <div className="flex items-center gap-4 mt-1.5 text-[10px] text-muted">
+          <div className="flex items-center gap-4 mt-1.5 text-[11px] text-muted">
             <span>{chapter.metRequirements}/{chapter.totalRequirements} requirements met</span>
             <span>{chapter.findings} open findings</span>
             <span>Assessed: {chapter.lastAssessed}</span>
@@ -124,16 +124,16 @@ function ChapterCard({ chapter, expanded, onToggle }: { chapter: ComplianceChapt
                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold text-muted">{f.standard}</span>
+                      <span className="text-[11px] font-mono font-bold text-muted">{f.standard}</span>
                       <span className={cn(
-                        "text-[10px] px-1.5 py-0.5 rounded font-medium",
+                        "text-[11px] px-1.5 py-0.5 rounded font-medium",
                         f.status === "open" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
                       )}>
                         {f.status === "open" ? "OPEN" : "IN PROGRESS"}
                       </span>
                     </div>
                     <p className="text-xs text-foreground mt-1">{f.description}</p>
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-muted">
+                    <div className="flex items-center gap-3 mt-2 text-[11px] text-muted">
                       <span>Assigned: {f.assignedTo}</span>
                       <span>Due: {f.dueDate}</span>
                     </div>
@@ -176,11 +176,11 @@ export default function CompliancePage() {
             <div className="w-full mt-6 grid grid-cols-2 gap-3">
               <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-center">
                 <p className="text-lg font-bold text-red-600">{openFindings}</p>
-                <p className="text-[10px] text-red-600 font-medium">Open Findings</p>
+                <p className="text-[11px] text-red-600 font-medium">Open Findings</p>
               </div>
               <div className="p-3 rounded-lg bg-amber-50 border border-amber-100 text-center">
                 <p className="text-lg font-bold text-amber-600">{inProgressFindings}</p>
-                <p className="text-[10px] text-amber-600 font-medium">In Progress</p>
+                <p className="text-[11px] text-amber-600 font-medium">In Progress</p>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function CompliancePage() {
                   <action.icon className="w-5 h-5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold">{action.label}</p>
-                    <p className="text-[10px] opacity-70">{action.desc}</p>
+                    <p className="text-[11px] text-white/80">{action.desc}</p>
                   </div>
                 </button>
               ))}
@@ -212,7 +212,7 @@ export default function CompliancePage() {
                   Equipment & Preventive Maintenance — EC.02.04.01
                 </h3>
               </div>
-              <div className="grid grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: "Total Equipment", value: pmStats.total, color: "text-foreground" },
                   { label: "PM Current", value: pmStats.current, color: "text-emerald-600" },
@@ -223,7 +223,7 @@ export default function CompliancePage() {
                 ].map((stat) => (
                   <div key={stat.label} className="text-center p-3 rounded-lg bg-stone-50">
                     <p className={cn("text-xl font-bold", stat.color)}>{stat.value}</p>
-                    <p className="text-[10px] text-muted font-medium mt-0.5">{stat.label}</p>
+                    <p className="text-[11px] text-muted font-medium mt-0.5">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -294,10 +294,10 @@ export default function CompliancePage() {
                     { label: "AEM", tooltip: "Alternative Equipment Maintenance — risk-based PM scheduling per EC.02.04.01 EP 4" },
                     { label: "Status" },
                   ].map((h) => (
-                    <th key={h.label} className="text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
+                    <th key={h.label} className="text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-4 py-3">
                       {h.tooltip ? (
                         <Tooltip content={h.tooltip} position="bottom" wide>
-                          <span className="cursor-help border-b border-dotted border-muted/50">{h.label}</span>
+                          <span className="cursor-help border-b border-dotted border-muted/60">{h.label}</span>
                         </Tooltip>
                       ) : h.label}
                     </th>
@@ -306,17 +306,17 @@ export default function CompliancePage() {
               </thead>
               <tbody>
                 {equipmentRegistry.map((eq) => (
-                  <tr key={eq.id} className="border-b border-border/50 hover:bg-stone-50/50">
+                  <tr key={eq.id} className="border-b border-border/50">
                     <td className="px-4 py-3 text-xs font-mono text-muted">{eq.id}</td>
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-foreground">{eq.name}</p>
-                      <p className="text-[10px] text-muted">{eq.manufacturer} — {eq.model}</p>
-                      <p className="text-[10px] text-muted font-mono">S/N: {eq.serialNumber}</p>
+                      <p className="text-[11px] text-muted">{eq.manufacturer} — {eq.model}</p>
+                      <p className="text-[11px] text-muted font-mono">S/N: {eq.serialNumber}</p>
                     </td>
                     <td className="px-4 py-3 text-xs text-foreground">{eq.department}</td>
                     <td className="px-4 py-3">
                       <span className={cn(
-                        "text-[10px] font-semibold px-2 py-1 rounded-full",
+                        "text-[11px] font-semibold px-2 py-1 rounded-full",
                         eq.riskLevel === "high" ? "bg-red-50 text-red-700 border border-red-200" :
                         eq.riskLevel === "medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
                         "bg-green-50 text-green-700 border border-green-200"
@@ -326,7 +326,7 @@ export default function CompliancePage() {
                     </td>
                     <td className="px-4 py-3">
                       {eq.isLifeSupport ? (
-                        <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                        <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                           LIFE SUPPORT
                         </span>
                       ) : (
@@ -335,7 +335,7 @@ export default function CompliancePage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={cn(
-                        "text-[10px] font-semibold px-2 py-1 rounded-full",
+                        "text-[11px] font-semibold px-2 py-1 rounded-full",
                         eq.pmStatus === "current" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
                         eq.pmStatus === "due-soon" ? "bg-amber-50 text-amber-700 border border-amber-200" :
                         "bg-red-50 text-red-700 border border-red-200"
@@ -354,17 +354,17 @@ export default function CompliancePage() {
                     <td className="px-4 py-3">
                       {eq.aemApplied ? (
                         <Tooltip content="Alternative Equipment Maintenance schedule in use">
-                          <span className="text-[10px] font-medium text-orange-600 cursor-help border-b border-dotted border-orange-300">AEM</span>
+                          <span className="text-[11px] font-medium text-orange-600 cursor-help border-b border-dotted border-orange-300">AEM</span>
                         </Tooltip>
                       ) : (
                         <Tooltip content="Manufacturer-recommended maintenance schedule">
-                          <span className="text-xs text-muted cursor-help border-b border-dotted border-muted/40">MFR</span>
+                          <span className="text-xs text-muted cursor-help border-b border-dotted border-muted/60">MFR</span>
                         </Tooltip>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={cn(
-                        "text-[10px] font-medium",
+                        "text-[11px] font-medium",
                         eq.status === "operational" ? "text-emerald-600" :
                         eq.status === "maintenance" ? "text-amber-600" : "text-red-600"
                       )}>
@@ -415,13 +415,13 @@ export default function CompliancePage() {
                 <thead>
                   <tr className="border-b border-border bg-stone-50">
                     {["ID", "Standard", "Description", "Severity", "Status", "Assigned To", "Due Date"].map((h) => (
-                      <th key={h} className="text-left text-[10px] font-semibold text-muted uppercase tracking-wider px-4 py-3">{h}</th>
+                      <th key={h} className="text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-4 py-3">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {complianceFindings.map((f) => (
-                    <tr key={f.id} className="border-b border-border/50 hover:bg-stone-50/50">
+                    <tr key={f.id} className="border-b border-border/50">
                       <td className="px-4 py-3 text-xs font-mono text-muted">{f.id}</td>
                       <td className="px-4 py-3">
                         <span className="text-xs font-mono font-medium text-foreground">{f.standard}</span>
@@ -431,7 +431,7 @@ export default function CompliancePage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(
-                          "text-[10px] font-semibold px-2 py-1 rounded-full border",
+                          "text-[11px] font-semibold px-2 py-1 rounded-full border",
                           f.severity === "high" ? "bg-red-50 text-red-700 border-red-200" : "bg-amber-50 text-amber-700 border-amber-200"
                         )}>
                           {f.severity.toUpperCase()}
@@ -439,7 +439,7 @@ export default function CompliancePage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(
-                          "text-[10px] font-semibold px-2 py-1 rounded-full border",
+                          "text-[11px] font-semibold px-2 py-1 rounded-full border",
                           f.status === "open" ? "bg-red-50 text-red-700 border-red-200" :
                           f.status === "in-progress" ? "bg-amber-50 text-amber-700 border-amber-200" :
                           "bg-emerald-50 text-emerald-700 border-emerald-200"
@@ -476,7 +476,7 @@ export default function CompliancePage() {
               { title: "Compliance Gap Analysis", desc: "Current gaps across all TJC chapters with corrective action status", format: "PDF / Excel", icon: ListChecks },
               { title: "Survey Readiness Summary", desc: "Executive-level readiness overview aligned with SPG 2026 modules", format: "PDF", icon: CalendarDays },
             ].map((report) => (
-              <div key={report.title} className="bg-white rounded-xl border border-border p-5 flex items-start gap-4 card-hover">
+              <div key={report.title} className="bg-white rounded-xl border border-border p-5 flex items-start gap-4">
                 <div className="p-2.5 rounded-lg bg-primary/5">
                   <report.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -487,7 +487,7 @@ export default function CompliancePage() {
                     <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors">
                       <Download className="w-3.5 h-3.5" /> Generate
                     </button>
-                    <span className="text-[10px] text-muted">Format: {report.format}</span>
+                    <span className="text-[11px] text-muted">Format: {report.format}</span>
                   </div>
                 </div>
               </div>

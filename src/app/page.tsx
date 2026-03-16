@@ -94,10 +94,10 @@ function InsightCard({ insight }: { insight: (typeof aiInsights)[0] }) {
         <Icon className={cn("w-5 h-5 mt-0.5 shrink-0", config.iconColor)} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={cn("text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>
+            <span className={cn("text-[11px] font-semibold uppercase px-1.5 py-0.5 rounded", config.badge)}>
               {typeLabels[insight.type]}
             </span>
-            <span className="text-[10px] text-muted">
+            <span className="text-[11px] text-muted">
               {new Date(insight.timestamp).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
             </span>
           </div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
         {/* Metrics Row */}
         <div className="grid grid-cols-4 gap-5">
           {metrics.map((m) => (
-            <div key={m.label} className="bg-white rounded-xl border border-border p-5 card-hover">
+            <div key={m.label} className="bg-white rounded-xl border border-border p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted uppercase tracking-wide">{m.label}</p>
@@ -185,12 +185,12 @@ export default function Dashboard() {
                 {criticalItems.map((item) => (
                   <div key={item.id} className="p-3 rounded-lg bg-red-50 border border-red-100">
                     <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-[10px] text-muted mt-0.5">{item.department}</p>
+                    <p className="text-[11px] text-muted mt-0.5">{item.department}</p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[10px] font-bold text-red-600">
+                      <span className="text-[11px] font-bold text-red-600">
                         {item.currentStock} / {item.parLevel} units
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
+                      <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
                         {item.status === "out-of-stock" ? "OUT OF STOCK" : "CRITICAL"}
                       </span>
                     </div>
@@ -199,10 +199,10 @@ export default function Dashboard() {
                 {expiringItems.map((item) => (
                   <div key={item.id} className="p-3 rounded-lg bg-amber-50 border border-amber-100">
                     <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-[10px] text-muted mt-0.5">{item.department}</p>
+                    <p className="text-[11px] text-muted mt-0.5">{item.department}</p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[10px] font-bold text-amber-600">Expires: {item.expirationDate}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
+                      <span className="text-[11px] font-bold text-amber-600">Expires: {item.expirationDate}</span>
+                      <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
                         EXPIRING SOON
                       </span>
                     </div>
@@ -225,14 +225,14 @@ export default function Dashboard() {
                   <div key={po.id} className="p-3 rounded-lg border border-border hover:bg-stone-50/50 transition-colors">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-mono font-bold text-foreground">{po.id}</span>
-                      <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", poStatusColors[po.status])}>
+                      <span className={cn("text-[11px] font-semibold px-1.5 py-0.5 rounded-full border", poStatusColors[po.status])}>
                         {poStatusLabels[po.status]}
                       </span>
                     </div>
-                    <p className="text-[10px] text-muted">{po.supplier} — {po.department}</p>
+                    <p className="text-[11px] text-muted">{po.supplier} — {po.department}</p>
                     <div className="flex items-center justify-between mt-1.5">
                       <span className="text-xs font-semibold text-foreground">${po.totalCost.toLocaleString()}</span>
-                      <span className="text-[10px] text-muted">Delivery: {po.expectedDelivery}</span>
+                      <span className="text-[11px] text-muted">Delivery: {po.expectedDelivery}</span>
                     </div>
                   </div>
                 ))}
@@ -280,18 +280,18 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-foreground">{ds.supplier}</span>
                       <span className={cn(
-                        "text-[9px] font-bold px-1.5 py-0.5 rounded",
+                        "text-[11px] font-bold px-1.5 py-0.5 rounded",
                         ds.impactSeverity === "critical" ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"
                       )}>
                         DELAYED {ds.delayDays}d
                       </span>
                     </div>
-                    <p className="text-[10px] text-muted truncate">
+                    <p className="text-[11px] text-muted truncate">
                       {ds.items.map((i) => i.name).join(", ")}
                     </p>
                     <div className="flex items-center justify-between mt-1.5">
                       <span className="text-xs font-semibold text-foreground">${ds.totalCost.toLocaleString()}</span>
-                      <span className="text-[10px]">
+                      <span className="text-[11px]">
                         {ds.revisedEta
                           ? <span className="text-amber-600 font-medium">Revised: {ds.revisedEta}</span>
                           : <span className="text-red-600 font-medium">No ETA</span>
@@ -319,16 +319,16 @@ export default function Dashboard() {
                     <div key={del.id} className="p-3 rounded-lg border border-border">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-semibold text-foreground">{del.supplier}</span>
-                        <span className={cn("text-[10px]", statusColors[del.trackingStatus] || "text-muted")}>
+                        <span className={cn("text-[11px]", statusColors[del.trackingStatus] || "text-muted")}>
                           {statusLabels[del.trackingStatus]}
                         </span>
                       </div>
-                      <p className="text-[10px] text-muted truncate">
+                      <p className="text-[11px] text-muted truncate">
                         {del.items.map((i) => i.name).join(", ")}
                       </p>
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-xs font-semibold text-foreground">${del.totalCost.toLocaleString()}</span>
-                        <span className="text-[10px] text-primary font-medium">ETA: {del.estimatedArrival}</span>
+                        <span className="text-[11px] text-primary font-medium">ETA: {del.estimatedArrival}</span>
                       </div>
                     </div>
                   );
@@ -352,7 +352,7 @@ export default function Dashboard() {
                 </h3>
                 <p className="text-xs text-muted mt-0.5">Supply items consumed per day by department. Red bars = AI predicts &gt;10% increase.</p>
               </div>
-              <div className="flex items-center gap-4 text-[10px]">
+              <div className="flex items-center gap-4 text-[11px]">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded bg-primary" />
                   <span className="text-muted">Current</span>
@@ -367,8 +367,8 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={departmentConsumption} barGap={2}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
-                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#8a7e72" }} axisLine={{ stroke: "#e6ddd0" }} />
+                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e6ddd0" }} />
                   <Bar dataKey="current" fill="#b5654a" radius={[4, 4, 0, 0]} barSize={24} name="Current" />
                   <Bar dataKey="predicted" radius={[4, 4, 0, 0]} barSize={24} name="AI Predicted">
@@ -405,10 +405,10 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-foreground">{a.action}</span>
-                      <span className="text-[10px] text-muted">{a.time}</span>
+                      <span className="text-[11px] text-muted">{a.time}</span>
                     </div>
-                    <p className="text-[10px] text-muted mt-0.5 truncate">{a.detail}</p>
-                    <p className="text-[10px] text-muted/60">{a.user}</p>
+                    <p className="text-[11px] text-muted mt-0.5 truncate">{a.detail}</p>
+                    <p className="text-[11px] text-muted">{a.user}</p>
                   </div>
                 </div>
               ))}

@@ -12,7 +12,7 @@
   --accent: #6b8f71;
   --accent-light: #8ab590;
   --border: #e6ddd0;
-  --muted: #8a7e72;
+  --muted: #6b6057;
   --success: #5a9e6f;
   --warning: #d4943e;
   --danger: #c44840;
@@ -56,17 +56,6 @@ body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
-/* Warm paper texture overlay */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.018;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
@@ -96,8 +85,7 @@ body::before {
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-hover:hover {
-  box-shadow: 0 6px 20px rgba(44, 24, 16, 0.06), 0 2px 6px rgba(44, 24, 16, 0.04);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 24, 16, 0.06);
 }
 
 /* Pulse animation for alerts */

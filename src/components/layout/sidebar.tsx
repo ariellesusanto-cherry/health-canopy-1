@@ -47,7 +47,7 @@ export function Sidebar() {
       {/* Organization Selector */}
       <div className="px-4 py-3 border-b border-white/8">
         <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-hover text-sm text-sidebar-text hover:text-white transition-colors">
-          <div className="w-6 h-6 rounded bg-primary/25 flex items-center justify-center text-[10px] font-bold text-primary-light">
+          <div className="w-6 h-6 rounded bg-primary/25 flex items-center justify-center text-[11px] font-bold text-primary-light">
             CC
           </div>
           <span className="flex-1 text-left text-xs truncate">Contra Costa RMC</span>
@@ -77,7 +77,7 @@ export function Sidebar() {
               )}
               {item.name === "Compliance" && (
                 <Tooltip content="Compliance readiness score" position="right" className="ml-auto">
-                  <span className="text-[10px] font-bold bg-warning/20 text-warning px-1.5 py-0.5 rounded cursor-help">
+                  <span className="text-[11px] font-bold bg-warning/20 text-warning px-1.5 py-0.5 rounded cursor-help">
                     88%
                   </span>
                 </Tooltip>
@@ -92,7 +92,7 @@ export function Sidebar() {
         <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-text hover:text-white hover:bg-sidebar-hover transition-colors">
           <Bell className="w-[18px] h-[18px]" />
           Notifications
-          <span className="ml-auto w-5 h-5 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="ml-auto w-5 h-5 rounded-full bg-danger text-white text-[11px] font-bold flex items-center justify-center">
             6
           </span>
         </button>
@@ -110,7 +110,7 @@ export function Sidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-medium truncate">Kartik Aggarwal</p>
-            <p className="text-sidebar-text text-[10px] truncate">System Administrator</p>
+            <p className="text-sidebar-text text-[11px] truncate">System Administrator</p>
           </div>
         </div>
       </div>
