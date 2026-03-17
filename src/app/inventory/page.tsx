@@ -310,13 +310,14 @@ export default function InventoryPage() {
               <thead>
                 <tr className="border-b border-border">
                   {[
-                    { field: "name" as const, label: "Item / SKU", width: "w-[260px]" },
-                    { field: "category" as const, label: "Category", width: "w-[120px]" },
-                    { field: "department" as const, label: "Department", width: "w-[140px]" },
-                    { field: "currentStock" as const, label: "Stock Level", width: "w-[200px]" },
+                    { field: "name" as const, label: "Item / SKU", width: "w-[240px]" },
+                    { field: "category" as const, label: "Category", width: "w-[110px]" },
+                    { field: "department" as const, label: "Department", width: "w-[130px]" },
+                    { field: "currentStock" as const, label: "Stock Level", width: "w-[180px]" },
+                    { field: "name" as const, label: "Locations", width: "w-[90px]" },
                     { field: "expirationDate" as const, label: "Expiration", width: "w-[100px]" },
-                    { field: "supplier" as const, label: "Supplier", width: "w-[140px]" },
-                    { field: "status" as const, label: "Status", width: "w-[120px]" },
+                    { field: "supplier" as const, label: "Supplier", width: "w-[130px]" },
+                    { field: "status" as const, label: "Status", width: "w-[110px]" },
                   ].map((col) => (
                     <th
                       key={col.field}
@@ -356,6 +357,18 @@ export default function InventoryPage() {
                       </td>
                       <td className="px-3 py-3">
                         <StockBar current={item.currentStock} par={item.parLevel} reorder={item.reorderPoint} />
+                      </td>
+                      <td className="px-3 py-3">
+                        {(() => {
+                          const locs = itemLocations[item.id];
+                          if (!locs) return <span className="text-[11px] text-muted">—</span>;
+                          return (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-primary" />
+                              <span className="text-xs font-medium text-foreground">{locs.length}</span>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-3 py-3">
                         {item.expirationDate ? (
@@ -504,46 +517,74 @@ export default function InventoryPage() {
                     shelf: "Shelf", pyxis: "Pyxis", cabinet: "Cabinet",
                     refrigerator: "Fridge", cage: "Secure Cage", cart: "Cart",
                   };
+                  const centralLocs = locations.filter((l) => l.location.includes("Warehouse") || l.location.includes("Central") || l.location.includes("SPD"));
+                  const floorLocs = locations.filter((l) => !l.location.includes("Warehouse") && !l.location.includes("Central") && !l.location.includes("SPD"));
+                  const centralTotal = centralLocs.reduce((s, l) => s + l.qty, 0);
+                  const floorTotal = floorLocs.reduce((s, l) => s + l.qty, 0);
+
+                  const renderLocationRow = (loc: typeof locations[0], i: number) => {
+                    const pct = item.currentStock > 0 ? (loc.qty / item.currentStock) * 100 : 0;
+                    return (
+                      <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-stone-50 transition-colors">
+                        <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
+                          <MapPin className="w-3.5 h-3.5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-foreground">{loc.location}</span>
+                            <span className="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{loc.floor}</span>
+                            <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{storageIcons[loc.storageType]}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
+                            <div
+                              className={cn("h-full rounded-full", loc.qty === 0 ? "bg-red-400" : pct > 30 ? "bg-primary" : "bg-amber-400")}
+                              style={{ width: `${Math.max(pct, 2)}%` }}
+                            />
+                          </div>
+                          <span className={cn(
+                            "text-sm font-bold w-16 text-right",
+                            loc.qty === 0 ? "text-red-600" : "text-foreground"
+                          )}>
+                            {loc.qty.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  };
+
                   return (
                     <div className="mt-4 p-4 rounded-xl bg-white border border-primary/20">
-                      <div className="flex items-center gap-2 mb-3">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <h5 className="text-sm font-semibold text-foreground">PAR Location Distribution</h5>
-                        <span className="text-[11px] text-muted">({locations.length} locations)</span>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          <h5 className="text-sm font-semibold text-foreground">Stock by Location</h5>
+                          <span className="text-[11px] text-muted">({locations.length} locations)</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[11px]">
+                          <span className="text-muted">Central Inventory: <span className="font-bold text-foreground">{centralTotal.toLocaleString()}</span></span>
+                          <span className="text-muted">Floor / Unit Level: <span className="font-bold text-foreground">{floorTotal.toLocaleString()}</span></span>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-2">
-                        {locations.map((loc, i) => {
-                          const pct = item.currentStock > 0 ? (loc.qty / item.currentStock) * 100 : 0;
-                          return (
-                            <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-stone-50 transition-colors">
-                              <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
-                                <MapPin className="w-3.5 h-3.5 text-primary" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-semibold text-foreground">{loc.location}</span>
-                                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-muted">{loc.floor}</span>
-                                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{storageIcons[loc.storageType]}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3 shrink-0">
-                                <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
-                                  <div
-                                    className={cn("h-full rounded-full", loc.qty === 0 ? "bg-red-400" : pct > 30 ? "bg-primary" : "bg-amber-400")}
-                                    style={{ width: `${Math.max(pct, 2)}%` }}
-                                  />
-                                </div>
-                                <span className={cn(
-                                  "text-sm font-bold w-16 text-right",
-                                  loc.qty === 0 ? "text-red-600" : "text-foreground"
-                                )}>
-                                  {loc.qty.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+
+                      {centralLocs.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-1.5 px-2">Central Inventory</p>
+                          <div className="grid grid-cols-1 gap-1">
+                            {centralLocs.map((loc, i) => renderLocationRow(loc, i))}
+                          </div>
+                        </div>
+                      )}
+
+                      {floorLocs.length > 0 && (
+                        <div>
+                          <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-1.5 px-2">Floor / Unit Level</p>
+                          <div className="grid grid-cols-1 gap-1">
+                            {floorLocs.map((loc, i) => renderLocationRow(loc, i + centralLocs.length))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
