@@ -6,7 +6,7 @@
 
 Health Canopy replaces the 3-5 disconnected software systems hospitals use today with a single platform that connects every supply chain — Med/Surg, Pharmacy/ADC, Surgical/OR, and Lab — into one unified view. It combines real-time inventory tracking with AI-powered demand forecasting, Joint Commission compliance monitoring, and automated procurement workflows.
 
-The demo is configured for **Contra Costa Regional Medical Center** (UCSF Contra Costa Healthcare system), a mid-sized community hospital with 4 facilities, 8 departments, 62 PAR locations, and ~18,800 tracked SKUs.
+The demo is configured for **UCSF Medical Center** (UCSF Health system), a major academic medical center with 5 campuses (Parnassus Heights, Mission Bay, Mount Zion, Benioff Children's SF, Benioff Children's Oakland), 12 departments, ~148 PAR locations, and ~41,300 tracked SKUs.
 
 ---
 
@@ -16,11 +16,11 @@ The demo is configured for **Contra Costa Regional Medical Center** (UCSF Contra
 
 **The "single pane of glass" for hospital operations.**
 
-- **KPI Row**: Total SKUs (18,812), PAR locations monitored (62 across 4 facilities), active alerts (14, 3 critical), monthly spend vs. budget ($856K, -6.5%)
+- **KPI Row**: Total SKUs (41,333), PAR locations monitored (148 across 5 campuses), active alerts (14, 3 critical), monthly spend vs. budget ($2.57M, -6.5%)
 - **Supply Chain Status Strip**: Real-time fill rates across all 4 parallel supply chains (Med/Surg 91%, Pharmacy/ADC 84%, Surgical/OR 76% — critical, Lab 96%)
 - **Items Needing Attention**: Critical/out-of-stock items (Heparin at 23% of PAR, Vicryl sutures critical, ventilator circuits out of stock) plus expiring items
 - **Orders Needing Action**: Pending purchase orders with status badges (AI Recommended, Pending Approval, Approved, Submitted, In Transit) — shows supplier, cost, expected delivery
-- **Cross-Location Imbalances**: Shows when one floor is hoarding supplies while another runs out. Example: Med/Surg 3E has nitrile gloves at 180% of PAR while ICU is at 42%. Suggested transfer: move 400 units
+- **Cross-Location Imbalances**: Shows when one floor is hoarding supplies while another runs out. Example: Med/Surg Long 11th has nitrile gloves at 180% of PAR while Moffitt ICU is at 42%. Suggested transfer: move 800 units
 - **AI Insights**: Top 3 forward-looking alerts with severity coloring — flu surge predicted (CDC data), unusual fentanyl consumption (diversion risk), surgical volume spike
 - **Incoming Deliveries**: Delayed shipments with severity indicators, on-track deliveries with tracking timeline status
 - **Department Consumption**: Dual bar chart comparing current usage vs. AI-predicted across all departments
@@ -31,7 +31,7 @@ The demo is configured for **Contra Costa Regional Medical Center** (UCSF Contra
 **Every item across every PAR location — searchable, filterable, actionable.**
 
 - **Summary Cards**: Total SKUs, in-stock count, low stock, critical/OOS, expiring soon, inventory value ($), PAR location count
-- **Department Quick View**: 8 clickable department buttons — each shows item count and PAR location count. Click to filter the table
+- **Department Quick View**: 12 clickable department buttons (including Transplant, Oncology, Neurosciences, Cardiology) — each shows item count and PAR location count. Click to filter the table
 - **Filters**: Search by name/SKU/lot/supplier. Filter by category, status, and supply chain (Med/Surg, Pharmacy, Surgical, Lab)
 - **Click any row** to expand the detail panel showing:
   - Full item metadata (PAR level, reorder point, unit cost, supplier)
@@ -69,7 +69,7 @@ The demo is configured for **Contra Costa Regional Medical Center** (UCSF Contra
 
 **Financial tracking from budget allocation through delivery.**
 
-- **KPIs**: Annual budget ($4.2M), YTD spend vs. budget (variance tracking), current inventory value ($2.18M on shelves), pending POs, in-transit shipments
+- **KPIs**: Annual budget ($34.2M), YTD spend vs. budget (variance tracking), current inventory value ($5.06M on shelves), pending POs, in-transit shipments
 - **Tab: Budget & Valuation**: Monthly spend vs. budget chart with AI forecast overlay. Budget allocation table by supply category (PPE, medications, surgical, lab, etc.) with AI full-year projections and variance analysis. Export button
 - **Tab: Purchase Orders**: Every PO with status (AI-recommended, pending, approved, submitted, in-transit). Shows trigger reason (PAR alert, AI forecast, auto-reorder). **Approve & Submit buttons work** — click to approve a PO
 - **Tab: Deliveries**: Delayed shipments with delay reason, carrier updates, inventory impact analysis, and mitigation options. On-track deliveries with visual tracking timeline. AI-projected next orders with cost estimates. Emergency order and contact supplier buttons for critical delays
@@ -79,7 +79,7 @@ The demo is configured for **Contra Costa Regional Medical Center** (UCSF Contra
 
 **Vendor performance, cost optimization, and operational efficiency.**
 
-- **KPIs**: Monthly spend ($856K), inventory turnover (12.8x), avg lead time (3.2 days), fill rate (96.8%), waste/expiration ($90K YTD, -12%), active vendors (24, 3 underperforming)
+- **KPIs**: Monthly spend ($2.57M), inventory turnover (12.8x), avg lead time (3.2 days), fill rate (96.8%), waste/expiration ($270K YTD, -12%), active vendors (24, 3 underperforming)
 - **Time range toggle**: 30 Days, 90 Days, 12 Months
 - **Cost trend chart**: Monthly spend vs. budget with over-budget months highlighted
 - **Waste breakdown**: Expired meds (38%), damaged supplies (14%), overstocked items (32%), recalled (10%). AI recommendation for FEFO enforcement saving $18.2K/year
@@ -130,7 +130,7 @@ The app uses a consistent semantic color system:
 
 2. **Cross-location visibility solves hoarding**: The imbalance alerts detect when one floor has excess while another is critical — and suggests specific transfers with quantities.
 
-3. **62 PAR locations monitored**: Every supply room, Pyxis MedStation, Omnicell cabinet, isolation cart, and satellite pharmacy is tracked from one dashboard.
+3. **148 PAR locations monitored across 5 campuses**: Every supply room, Pyxis MedStation, Omnicell cabinet, isolation cart, and satellite pharmacy — from Parnassus to Benioff Oakland — is tracked from one dashboard.
 
 4. **AI-powered demand forecasting**: Consumption predictions combine historical patterns, scheduled procedures, patient census, and CDC surveillance data. The flu surge scenario shows proactive vs. reactive procurement — including real-time signals like the 3x spike in flu vaccination appointments.
 

@@ -45,10 +45,10 @@ type TypingPhase =
 // ---------------------------------------------------------------------------
 
 const SUGGESTIONS = [
-  { text: "What's running low right now?", icon: AlertTriangle },
-  { text: "Show me pending purchase orders", icon: Truck },
-  { text: "How's our flu preparedness?", icon: TrendingUp },
+  { text: "What items are critically low right now?", icon: AlertTriangle },
+  { text: "Show me the flu surge impact on our supplies", icon: TrendingUp },
   { text: "What equipment has overdue maintenance?", icon: Wrench },
+  { text: "How's our Joint Commission readiness?", icon: Package },
 ];
 
 // ---------------------------------------------------------------------------
@@ -604,8 +604,9 @@ export function AIAssistant() {
                   Hi! I&apos;m your inventory AI assistant.
                 </p>
                 <p className="text-xs text-muted mt-1 leading-relaxed max-w-[280px] mx-auto">
-                  I have real-time access to inventory levels, purchase orders,
-                  equipment maintenance, compliance data, and more.
+                  I have real-time access to UCSF&apos;s inventory across all 5
+                  campuses, purchase orders, equipment maintenance, compliance
+                  data, and AI forecasts.
                 </p>
               </div>
             </div>
@@ -679,7 +680,7 @@ export function AIAssistant() {
             </button>
           </div>
           <p className="text-[11px] text-muted text-center mt-2">
-            AI assistant with live inventory system access
+            Scripted demo — responses reflect UCSF inventory data
           </p>
         </div>
       </div>
