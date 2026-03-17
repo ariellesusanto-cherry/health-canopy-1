@@ -167,11 +167,11 @@ export default function InventoryPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Total SKUs", value: summaryStats.total, icon: Package, color: "text-primary bg-primary/10" },
-            { label: "In Stock", value: summaryStats.inStock, icon: CheckCircle2, color: "text-accent bg-accent/10" },
-            { label: "Low Stock", value: summaryStats.lowStock, icon: AlertTriangle, color: "text-amber-600 bg-amber-50" },
-            { label: "Critical / OOS", value: summaryStats.critical, icon: XCircle, color: "text-red-600 bg-red-50", tooltip: "Critical stock or completely Out of Stock" },
-            { label: "Expiring Soon", value: summaryStats.expiring, icon: Clock, color: "text-amber-600 bg-amber-50" },
+            { label: "Total SKUs", value: summaryStats.total.toLocaleString(), icon: Package, color: "text-primary bg-primary/10" },
+            { label: "In Stock", value: summaryStats.inStock.toLocaleString(), icon: CheckCircle2, color: "text-accent bg-accent/10" },
+            { label: "Low Stock", value: summaryStats.lowStock.toLocaleString(), icon: AlertTriangle, color: "text-amber-600 bg-amber-50" },
+            { label: "Critical / OOS", value: summaryStats.critical.toLocaleString(), icon: XCircle, color: "text-red-600 bg-red-50", tooltip: "Critical stock or completely Out of Stock" },
+            { label: "Expiring Soon", value: summaryStats.expiring.toLocaleString(), icon: Clock, color: "text-amber-600 bg-amber-50" },
             { label: "Inventory Value", value: `$${(summaryStats.totalValue / 1000).toFixed(0)}K`, icon: FileBarChart, color: "text-primary bg-primary/10" },
             { label: "PAR Locations", value: parLocations.length, icon: MapPin, color: "text-primary bg-primary/10" },
           ].map((s) => (
