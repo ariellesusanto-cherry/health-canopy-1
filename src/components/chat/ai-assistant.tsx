@@ -17,6 +17,8 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTenant } from "@/lib/tenant-context";
+import type { Tenant } from "@/lib/tenants";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,7 +64,7 @@ type MockResponse = {
   toolMs: number;
 };
 
-function matchResponse(input: string): MockResponse {
+function matchResponse(input: string, tenant: Tenant): MockResponse {
   const q = input.toLowerCase();
 
   // Low stock / running low
@@ -156,9 +158,9 @@ Total pending value: **$16,720**. Want me to approve PO-4522 or convert the AI-r
       ],
       thinkingMs: 900,
       toolMs: 2000,
-      content: `**Flu Surge Intelligence Report**
+      content: `**Respiratory Surge Intelligence Report**
 
-CDC ILINet data shows a **34% week-over-week increase** in influenza-like illness (ILI) across San Francisco County. Wastewater surveillance confirms rising viral load. Our model predicts a **40\u201360% increase in ED respiratory visits** within 7\u201310 days.
+${tenant.localHealthDept} and CDC ILINet data show a sharp week-over-week increase in influenza-like illness (ILI) across ${tenant.county}. Wastewater surveillance confirms rising viral load. Our model predicts a **significant increase in ED respiratory visits** within 7\u201310 days.
 
 **Current Respiratory Supply Status:**
 | Item | On Hand | PAR | Status |
@@ -463,6 +465,7 @@ Try asking me something specific, like "What items are critically low?" or "Show
 // ---------------------------------------------------------------------------
 
 export function AIAssistant() {
+  const { tenant } = useTenant();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -484,7 +487,7 @@ export function AIAssistant() {
   }, [isOpen]);
 
   const simulateResponse = useCallback(async (userText: string) => {
-    const mock = matchResponse(userText);
+    const mock = matchResponse(userText, tenant);
 
     // Phase 1: thinking
     setTyping({ stage: "thinking" });
@@ -514,7 +517,7 @@ export function AIAssistant() {
         timestamp: new Date(),
       },
     ]);
-  }, []);
+  }, [tenant]);
 
   const handleSend = useCallback(
     (text?: string) => {
@@ -604,8 +607,8 @@ export function AIAssistant() {
                   Hi! I&apos;m your inventory AI agent.
                 </p>
                 <p className="text-xs text-muted mt-1 leading-relaxed max-w-[280px] mx-auto">
-                  I have real-time access to UCSF&apos;s inventory across all 5
-                  campuses, purchase orders, equipment maintenance, compliance
+                  I have real-time access to {tenant.shortName}&apos;s inventory across all {tenant.campusCount}{" "}
+                  {tenant.campusLabel}, purchase orders, equipment maintenance, compliance
                   data, and AI forecasts.
                 </p>
               </div>
@@ -680,7 +683,7 @@ export function AIAssistant() {
             </button>
           </div>
           <p className="text-[11px] text-muted text-center mt-2">
-            Scripted demo — responses reflect UCSF inventory data
+            Scripted demo — responses reflect {tenant.shortName} inventory data
           </p>
         </div>
       </div>

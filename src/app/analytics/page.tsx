@@ -25,6 +25,8 @@ import {
   inventoryTurnover,
   departmentConsumption,
 } from "@/lib/mock-data";
+import { useTenant } from "@/lib/tenant-context";
+import type { Tenant } from "@/lib/tenants";
 import {
   BarChart,
   Bar,
@@ -52,18 +54,23 @@ const wasteData = [
   { category: "Other", value: 5600, pct: 6 },
 ];
 
-const kpiCards = [
-  { label: "Total Monthly Spend", value: "$856K", change: "-6.5%", trend: "down" as const, detail: "vs. $915K budget", icon: DollarSign, color: "bg-accent/10 text-accent" },
-  { label: "Inventory Turnover", value: "12.8x", change: "+0.6", trend: "up" as const, detail: "Annual average", icon: RotateCcw, color: "bg-primary/10 text-primary", tooltip: "How many times inventory cycles through per year — higher means more efficient use of capital" },
-  { label: "Avg Lead Time", value: "3.2 days", change: "-0.4", trend: "up" as const, detail: "Across all vendors", icon: Clock, color: "bg-primary/10 text-primary" },
-  { label: "Fill Rate", value: "96.8%", change: "+1.2%", trend: "up" as const, detail: "Last 30 days", icon: Target, color: "bg-amber-50 text-amber-600", tooltip: "Percentage of orders delivered complete on first shipment" },
-  { label: "Waste & Expiration", value: "$90K", change: "-12%", trend: "up" as const, detail: "YTD savings vs. prior", icon: TrendingDown, color: "bg-red-50 text-red-600" },
-  { label: "Active Vendors", value: "24", change: "3 underperforming", trend: "neutral" as const, detail: "", icon: Truck, color: "bg-stone-50 text-stone-600" },
-];
+function buildKpiCards(tenant: Tenant) {
+  const m = tenant.analyticsMetrics;
+  return [
+    { label: "Total Monthly Spend", value: m.monthlySpend, change: m.monthlySpendChange, trend: "down" as const, detail: m.monthlySpendBudget, icon: DollarSign, color: "bg-accent/10 text-accent" },
+    { label: "Inventory Turnover", value: m.inventoryTurnover, change: m.inventoryTurnoverChange, trend: "up" as const, detail: "Annual average", icon: RotateCcw, color: "bg-primary/10 text-primary", tooltip: "How many times inventory cycles through per year — higher means more efficient use of capital" },
+    { label: "Avg Lead Time", value: m.leadTime, change: m.leadTimeChange, trend: "up" as const, detail: "Across all vendors", icon: Clock, color: "bg-primary/10 text-primary" },
+    { label: "Fill Rate", value: m.fillRate, change: m.fillRateChange, trend: "up" as const, detail: "Last 30 days", icon: Target, color: "bg-amber-50 text-amber-600", tooltip: "Percentage of orders delivered complete on first shipment" },
+    { label: "Waste & Expiration", value: m.wasteExpiration, change: m.wasteExpirationChange, trend: "up" as const, detail: "YTD savings vs. prior", icon: TrendingDown, color: "bg-red-50 text-red-600" },
+    { label: "Active Vendors", value: m.activeVendors, change: m.activeVendorsContext, trend: "neutral" as const, detail: "", icon: Truck, color: "bg-stone-50 text-stone-600" },
+  ];
+}
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<"30d" | "90d" | "12m">("12m");
   const { showToast } = useToast();
+  const { tenant } = useTenant();
+  const kpiCards = buildKpiCards(tenant);
 
   return (
     <div className="min-h-screen">

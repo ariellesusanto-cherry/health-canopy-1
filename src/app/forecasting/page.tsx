@@ -22,6 +22,7 @@ import {
   demandForecastData,
   monthlySpendForecast,
 } from "@/lib/mock-data";
+import { useTenant } from "@/lib/tenant-context";
 import {
   Line,
   XAxis,
@@ -36,9 +37,10 @@ import {
   ComposedChart,
 } from "recharts";
 
-// Forward-looking insights only (predictions, outbreak intel)
-const forecastInsights = aiInsights.filter(
-  (i) => i.type === "prediction" || i.type === "outbreak"
+// Forward-looking insights only (predictions, outbreak intel) — excludes the surge insight
+// because we replace it with the tenant-specific version at render time.
+const baseForecastInsights = aiInsights.filter(
+  (i) => (i.type === "prediction" || i.type === "outbreak") && i.id !== "AI-001"
 );
 
 // Semantic color system — 4 meanings, 3 tones each (bg, border, text)
@@ -55,6 +57,8 @@ export default function ForecastingPage() {
   const [actionedInsights, setActionedInsights] = useState<Set<string>>(new Set());
   const [snoozedInsights, setSnoozedInsights] = useState<Set<string>>(new Set());
   const { showToast } = useToast();
+  const { tenant } = useTenant();
+  const forecastInsights = [tenant.surgeInsight, ...baseForecastInsights];
 
   return (
     <div className="min-h-screen">
@@ -68,18 +72,18 @@ export default function ForecastingPage() {
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white rounded-xl border border-border p-5">
             <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-primary" /><span className="text-[11px] font-medium text-muted uppercase">Predicted Daily Consumption</span></div>
-            <p className="text-2xl font-bold text-foreground">3,050 <span className="text-xs font-normal text-muted">items/day by Mar 29</span></p>
-            <p className="text-xs text-amber-600 font-medium mt-1">+10% vs. current average</p>
+            <p className="text-2xl font-bold text-foreground">{tenant.forecastingOverview.predictedDailyConsumption} <span className="text-xs font-normal text-muted">{tenant.forecastingOverview.predictedDailyContext}</span></p>
+            <p className="text-xs text-amber-600 font-medium mt-1">{tenant.forecastingOverview.predictedDailyChange}</p>
           </div>
           <div className="bg-white rounded-xl border border-border p-5">
             <div className="flex items-center gap-2 mb-2"><Thermometer className="w-4 h-4 text-red-600" /><span className="text-[11px] font-medium text-muted uppercase">Outbreak Risk</span></div>
-            <p className="text-2xl font-bold text-red-600">HIGH</p>
-            <p className="text-xs text-red-600 font-medium mt-1">Flu surge — 40-60% ED increase predicted</p>
+            <p className="text-2xl font-bold text-red-600">{tenant.forecastingOverview.outbreakRisk}</p>
+            <p className="text-xs text-red-600 font-medium mt-1">{tenant.forecastingOverview.outbreakNote}</p>
           </div>
           <div className="bg-white rounded-xl border border-border p-5">
             <div className="flex items-center gap-2 mb-2"><Brain className="w-4 h-4 text-accent" /><span className="text-[11px] font-medium text-muted uppercase">April Spend Forecast</span></div>
-            <p className="text-2xl font-bold text-foreground">$942K</p>
-            <p className="text-xs text-amber-600 font-medium mt-1">$32K over budget — seasonal surge</p>
+            <p className="text-2xl font-bold text-foreground">{tenant.forecastingOverview.monthlyForecast}</p>
+            <p className="text-xs text-amber-600 font-medium mt-1">{tenant.forecastingOverview.monthlyForecastNote}</p>
           </div>
         </div>
 
@@ -94,7 +98,7 @@ export default function ForecastingPage() {
             <p className="text-xs text-muted mt-1 max-w-3xl leading-relaxed">
               How many supply items the hospital is expected to consume each day over the next two weeks.
               The forecast combines: historical usage patterns, scheduled surgeries, patient census projections,
-              and the incoming flu surge from CDC surveillance data.
+              and the incoming respiratory surge from {tenant.localHealthDept} and CDC surveillance data.
             </p>
           </div>
 
@@ -126,7 +130,7 @@ export default function ForecastingPage() {
           <div className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2">
             <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div className="text-xs text-amber-700">
-              <span className="font-semibold">Why is demand rising?</span> (1) Surgical volume is 55% above normal Mar 23–27. (2) CDC flu surveillance predicts a respiratory surge increasing ED PPE/medication consumption.
+              <span className="font-semibold">Why is demand rising?</span> (1) Surgical volume is 55% above normal Mar 23–27. (2) {tenant.localHealthDept} + CDC surveillance predict a respiratory surge in {tenant.county} increasing ED PPE/medication consumption.
             </div>
           </div>
         </div>
@@ -179,7 +183,7 @@ export default function ForecastingPage() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             {([
               { id: "baseline" as const, title: "Normal Operations", desc: "Current consumption continues. No disruptions.", icon: CheckCircle2, iconColor: "text-accent" },
-              { id: "flu-surge" as const, title: "Flu Surge Hits San Francisco", desc: "What if ED respiratory visits increase 40% over the next 10 days?", icon: Thermometer, iconColor: "text-red-600" },
+              { id: "flu-surge" as const, title: tenant.surgeScenarioTitle, desc: tenant.surgeScenarioDesc, icon: Thermometer, iconColor: "text-red-600" },
               { id: "supply-disruption" as const, title: "Primary Supplier Delayed 5 Days", desc: "What if Medline and Cardinal Health shipments are delayed 5 days?", icon: AlertOctagon, iconColor: "text-amber-600" },
             ]).map((s) => (
               <button key={s.id} onClick={() => setActiveScenario(s.id)}
@@ -214,7 +218,7 @@ export default function ForecastingPage() {
           {activeScenario === "flu-surge" && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-5">
               <h4 className="text-sm font-semibold text-red-700 mb-2">If flu surges 40% in ED → here&apos;s what changes</h4>
-              <p className="text-xs text-red-600 mb-4">Based on CDC ILINet data, the AI projects a 40-60% increase in ED respiratory visits within 7-10 days.</p>
+              <p className="text-xs text-red-600 mb-4">Based on {tenant.localHealthDept} and CDC ILINet data, the AI projects a significant increase in ED respiratory visits across {tenant.county} within 7-10 days.</p>
 
               {/* Flu vaccination appointment signal */}
               <div className="p-4 rounded-lg bg-red-100/50 border border-red-200 mb-4 flex items-start gap-3">
@@ -277,7 +281,7 @@ export default function ForecastingPage() {
                 <ul className="text-xs text-foreground space-y-1.5 list-disc list-inside">
                   <li>Switch gloves to <span className="font-semibold">McKesson backup contract</span> — 2-day lead, +$0.02/unit</li>
                   <li>Redirect drape POs to <span className="font-semibold">Halyard Health</span> — covers OR through Mar 25</li>
-                  <li>Transfer 100 gowns from <span className="font-semibold">Mount Zion campus</span> (surplus)</li>
+                  <li>Transfer 100 gowns from <span className="font-semibold">{tenant.transferSourceLocation}</span> (surplus)</li>
                   <li>Increase PAR levels 20% on Medline/Cardinal items temporarily</li>
                 </ul>
               </div>

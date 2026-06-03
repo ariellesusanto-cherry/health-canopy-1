@@ -36,6 +36,7 @@ import {
   delayedShipments,
   monthlySpendForecast,
 } from "@/lib/mock-data";
+import { useTenant } from "@/lib/tenant-context";
 import {
   BarChart,
   Bar,
@@ -81,15 +82,17 @@ export default function BudgetPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "orders" | "deliveries">("overview");
   const [approvedPOs, setApprovedPOs] = useState<Set<string>>(new Set());
   const { showToast } = useToast();
+  const { tenant } = useTenant();
+  const scale = tenant.financialScale;
 
-  // Summary calculations
-  const totalAnnualBudget = budgetAllocation.reduce((s, b) => s + b.annualBudget, 0);
-  const totalYtdSpend = budgetAllocation.reduce((s, b) => s + b.ytdSpend, 0);
-  const totalYtdBudget = budgetAllocation.reduce((s, b) => s + b.ytdBudget, 0);
-  const totalForecast = budgetAllocation.reduce((s, b) => s + b.forecast, 0);
-  const totalInventoryValue = inventoryValuation.reduce((s, v) => s + v.totalValue, 0);
-  const pendingPOTotal = upcomingPurchaseOrders.reduce((s, po) => s + po.totalCost, 0);
-  const inTransitTotal = upcomingDeliveries.reduce((s, d) => s + d.totalCost, 0);
+  // Summary calculations — scaled to active tenant so headline numbers match the dashboard
+  const totalAnnualBudget = budgetAllocation.reduce((s, b) => s + b.annualBudget, 0) * scale;
+  const totalYtdSpend = budgetAllocation.reduce((s, b) => s + b.ytdSpend, 0) * scale;
+  const totalYtdBudget = budgetAllocation.reduce((s, b) => s + b.ytdBudget, 0) * scale;
+  const totalForecast = budgetAllocation.reduce((s, b) => s + b.forecast, 0) * scale;
+  const totalInventoryValue = inventoryValuation.reduce((s, v) => s + v.totalValue, 0) * scale;
+  const pendingPOTotal = upcomingPurchaseOrders.reduce((s, po) => s + po.totalCost, 0) * scale;
+  const inTransitTotal = upcomingDeliveries.reduce((s, d) => s + d.totalCost, 0) * scale;
 
   const budgetVariance = totalYtdSpend - totalYtdBudget;
   const budgetVariancePct = ((budgetVariance / totalYtdBudget) * 100);

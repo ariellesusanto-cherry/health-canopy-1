@@ -28,10 +28,15 @@ import {
   Eye,
   FileBarChart,
   RefreshCw,
+  Building2,
+  Stethoscope,
+  Snowflake,
+  Syringe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 import { inventoryItems, departments, itemLocations, parLocations, type InventoryItem } from "@/lib/mock-data";
+import { useTenant } from "@/lib/tenant-context";
 import { MapPin } from "lucide-react";
 
 const categoryFilters = ["All", "PPE", "Medication", "Supplies", "Surgical", "Controlled Substance", "Respiratory", "Testing", "Laboratory"];
@@ -85,6 +90,7 @@ function StockBar({ current, par, reorder }: { current: number; par: number; reo
 
 export default function InventoryPage() {
   const { showToast } = useToast();
+  const { tenant } = useTenant();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -92,6 +98,10 @@ export default function InventoryPage() {
   const [sortField, setSortField] = useState<keyof InventoryItem>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selectedSupplyChain, setSelectedSupplyChain] = useState("All");
+  const [selectedSiteId, setSelectedSiteId] = useState<string>("all");
+  const selectedSite = selectedSiteId === "all"
+    ? null
+    : tenant.sitesInventory.find((s) => s.siteId === selectedSiteId) ?? null;
   const [showDetail, setShowDetail] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
@@ -150,14 +160,24 @@ export default function InventoryPage() {
     }
   };
 
-  const summaryStats = useMemo(() => ({
-    total: 41333,
-    inStock: 38247,
-    lowStock: 1842,
-    critical: 847,
-    expiring: 397,
-    totalValue: inventoryItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0),
-  }), []);
+  const summaryStats = useMemo(() => {
+    const ucsfRawValue = inventoryItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0);
+    if (selectedSite) {
+      const siteShare = selectedSite.totalItems / tenant.inventoryBreakdown.total;
+      return {
+        total: selectedSite.totalItems,
+        inStock: Math.round(tenant.inventoryBreakdown.inStock * siteShare),
+        lowStock: Math.round(tenant.inventoryBreakdown.lowStock * siteShare),
+        critical: selectedSite.criticalAlerts,
+        expiring: selectedSite.expiringSoon,
+        totalValue: ucsfRawValue * tenant.financialScale * siteShare,
+      };
+    }
+    return {
+      ...tenant.inventoryBreakdown,
+      totalValue: ucsfRawValue * tenant.financialScale,
+    };
+  }, [tenant, selectedSite]);
 
   return (
     <div className="min-h-screen">
@@ -173,7 +193,7 @@ export default function InventoryPage() {
             { label: "Critical / OOS", value: summaryStats.critical.toLocaleString(), icon: XCircle, color: "text-red-600 bg-red-50", tooltip: "Critical stock or completely Out of Stock" },
             { label: "Expiring Soon", value: summaryStats.expiring.toLocaleString(), icon: Clock, color: "text-amber-600 bg-amber-50" },
             { label: "Inventory Value", value: `$${(summaryStats.totalValue / 1000).toFixed(0)}K`, icon: FileBarChart, color: "text-primary bg-primary/10" },
-            { label: "PAR Locations", value: parLocations.length, icon: MapPin, color: "text-primary bg-primary/10" },
+            { label: "PAR Locations", value: selectedSite ? selectedSite.parLocations : tenant.metrics.parLocationCount, icon: MapPin, color: "text-primary bg-primary/10" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
               <div className={cn("p-2 rounded-lg", s.color)}>
@@ -194,12 +214,170 @@ export default function InventoryPage() {
         </div>
 
         {/* Department Quick View */}
+        {/* Site Overview — click a site to filter the view */}
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              Site Overview
+              {selectedSite && (
+                <span className="ml-2 text-xs text-muted font-normal">
+                  · viewing <span className="text-primary font-medium">{selectedSite.siteName}</span>
+                </span>
+              )}
+            </h3>
+            <div className="flex items-center gap-3">
+              {selectedSite && (
+                <button
+                  onClick={() => setSelectedSiteId("all")}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Clear filter
+                </button>
+              )}
+              <span className="text-[11px] text-muted">
+                {tenant.sitesInventory.length} {tenant.sitesInventory.length === 1 ? "site" : "sites"} · rolls up to {tenant.metrics.totalSKUs} items
+              </span>
+            </div>
+          </div>
+          <div className={cn(
+            "grid gap-3",
+            // +1 for the "All sites" card
+            tenant.sitesInventory.length + 1 <= 4 ? "grid-cols-4" : "grid-cols-6"
+          )}>
+            {/* All sites card */}
+            <button
+              type="button"
+              onClick={() => setSelectedSiteId("all")}
+              className={cn(
+                "rounded-xl border p-4 text-left transition-all",
+                selectedSiteId === "all"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                  : "border-border bg-stone-50/40 hover:border-primary/30 hover:bg-stone-50"
+              )}
+            >
+              <div className="flex items-start gap-2 mb-3">
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                  selectedSiteId === "all" ? "bg-primary/15" : "bg-primary/10"
+                )}>
+                  <Building2 className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-foreground leading-tight">All Sites</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted mt-0.5">{tenant.shortName} · system view</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div>
+                  <p className="text-muted text-[10px] uppercase">Items</p>
+                  <p className="font-bold text-foreground">{tenant.metrics.totalSKUs}</p>
+                </div>
+                <div>
+                  <p className="text-muted text-[10px] uppercase">PAR Locs</p>
+                  <p className="font-bold text-foreground">{tenant.metrics.parLocationCount}</p>
+                </div>
+                <div>
+                  <p className="text-muted text-[10px] uppercase flex items-center gap-1">
+                    <Snowflake className="w-2.5 h-2.5" /> Fridges
+                  </p>
+                  <p className="font-medium text-foreground">
+                    <span className="text-primary">{tenant.sitesInventory.reduce((s, x) => s + x.vfcFridges, 0)} VFC</span>
+                    {" · "}
+                    <span className="text-muted">{tenant.sitesInventory.reduce((s, x) => s + x.privateFridges, 0)} Priv</span>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted text-[10px] uppercase">Alerts</p>
+                  <p className="font-medium text-foreground">
+                    <span className="text-red-600">{tenant.sitesInventory.reduce((s, x) => s + x.criticalAlerts, 0)} crit</span>
+                    {" · "}
+                    <span className="text-amber-600">{tenant.sitesInventory.reduce((s, x) => s + x.expiringSoon, 0)} exp</span>
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {tenant.sitesInventory.map((site) => {
+              const SiteIcon = site.type === "hospital" ? Building2 : Stethoscope;
+              const isSelected = selectedSiteId === site.siteId;
+              return (
+                <button
+                  type="button"
+                  key={site.siteId}
+                  onClick={() => setSelectedSiteId(isSelected ? "all" : site.siteId)}
+                  className={cn(
+                    "rounded-xl border p-4 text-left transition-all",
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                      : "border-border bg-stone-50/40 hover:border-primary/30 hover:bg-stone-50"
+                  )}
+                >
+                  <div className="flex items-start gap-2 mb-3">
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                      isSelected ? "bg-primary/15" : "bg-primary/10"
+                    )}>
+                      <SiteIcon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground leading-tight" title={site.siteName}>
+                        {site.siteName}
+                      </p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted mt-0.5">{site.type}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <p className="text-muted text-[10px] uppercase">Items</p>
+                      <p className="font-bold text-foreground">{site.totalItems.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted text-[10px] uppercase">PAR Locs</p>
+                      <p className="font-bold text-foreground">{site.parLocations}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted text-[10px] uppercase flex items-center gap-1">
+                        <Snowflake className="w-2.5 h-2.5" /> Fridges
+                      </p>
+                      <p className="font-medium text-foreground">
+                        <span className="text-primary">{site.vfcFridges} VFC</span>
+                        {" · "}
+                        <span className="text-muted">{site.privateFridges} Priv</span>
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted text-[10px] uppercase">Alerts</p>
+                      <p className="font-medium text-foreground">
+                        {site.criticalAlerts > 0 && <span className="text-red-600">{site.criticalAlerts} crit</span>}
+                        {site.criticalAlerts > 0 && site.expiringSoon > 0 && " · "}
+                        {site.expiringSoon > 0 && <span className="text-amber-600">{site.expiringSoon} exp</span>}
+                        {site.criticalAlerts === 0 && site.expiringSoon === 0 && <span className="text-accent">None</span>}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl border border-border p-5">
           <h3 className="text-sm font-semibold text-foreground mb-3">Department Overview</h3>
           <div className="grid grid-cols-4 gap-3">
             {departments.map((dept) => {
               const DeptIcon = deptIcons[dept.name] || Package;
               const isSelected = selectedDepartment === dept.name;
+              // Scale per-department counts so they roll up to tenant (or site) totals
+              const siteShare = selectedSite
+                ? selectedSite.totalItems / tenant.inventoryBreakdown.total
+                : 1;
+              const scaledItemCount = Math.max(1, Math.round(dept.itemCount * tenant.financialScale * siteShare));
+              const ucsfTotalPars = 148;
+              const tenantTotalPars = selectedSite ? selectedSite.parLocations : parseInt(tenant.metrics.parLocationCount, 10);
+              const parScale = tenantTotalPars / ucsfTotalPars;
+              const ucsfDeptPars = parLocations.filter((p) => p.department === dept.name).length;
+              const scaledDeptPars = Math.max(1, Math.round(ucsfDeptPars * parScale));
               return (
                 <button
                   key={dept.id}
@@ -213,9 +391,9 @@ export default function InventoryPage() {
                 >
                   <DeptIcon className={cn("w-5 h-5", isSelected ? "text-primary" : "text-muted")} />
                   <span className="text-[11px] font-medium text-foreground leading-tight">{dept.name}</span>
-                  <span className="text-[11px] text-muted">{dept.itemCount.toLocaleString()} items</span>
+                  <span className="text-[11px] text-muted">{scaledItemCount.toLocaleString()} items</span>
                   <span className="text-[11px] text-muted">
-                    {parLocations.filter((p) => p.department === dept.name).length} PAR locations
+                    {scaledDeptPars} PAR locations
                   </span>
                 </button>
               );
@@ -299,9 +477,13 @@ export default function InventoryPage() {
           </div>
 
           <p className="text-xs text-muted mb-3">
-            Showing {filtered.length} of 41,333 items
+            Showing {filtered.length} of {selectedSite ? selectedSite.totalItems.toLocaleString() : tenant.metrics.totalSKUs} items
             {selectedDepartment !== "All" && <span className="font-medium"> in {selectedDepartment}</span>}
-            <span className="text-muted ml-1">— filtered view across 5 UCSF campuses</span>
+            <span className="text-muted ml-1">
+              — {selectedSite
+                ? <>scoped to <span className="font-medium text-primary">{selectedSite.siteName}</span></>
+                : <>across {tenant.campusCount} {tenant.shortName} {tenant.campusLabel}</>}
+            </span>
           </p>
 
           {/* Table */}
@@ -397,7 +579,7 @@ export default function InventoryPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
             <p className="text-xs text-muted">
-              Page {safeCurrentPage} of {Math.ceil(41333 / perPage).toLocaleString()} — showing items {((safeCurrentPage - 1) * perPage) + 1}–{Math.min(safeCurrentPage * perPage, filtered.length)}
+              Page {safeCurrentPage} of {Math.ceil(tenant.inventoryBreakdown.total / perPage).toLocaleString()} — showing items {((safeCurrentPage - 1) * perPage) + 1}–{Math.min(safeCurrentPage * perPage, filtered.length)}
             </p>
             <div className="flex items-center gap-1">
               <button
@@ -415,7 +597,7 @@ export default function InventoryPage() {
               {totalPages > 4 && <span className="px-2 text-xs text-muted">...</span>}
               {totalPages > 3 && (
                 <button onClick={() => setCurrentPage(totalPages)} className={cn("px-3 py-1.5 text-xs font-medium rounded-lg", safeCurrentPage === totalPages ? "text-white bg-primary" : "text-foreground border border-border hover:bg-stone-50")}>
-                  {Math.ceil(41333 / perPage).toLocaleString()}
+                  {Math.ceil(tenant.inventoryBreakdown.total / perPage).toLocaleString()}
                 </button>
               )}
               <button

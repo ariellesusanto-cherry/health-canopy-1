@@ -20,11 +20,13 @@ import {
   Truck,
   FileText,
   ArrowRightLeft,
+  Syringe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
+import { useTenant } from "@/lib/tenant-context";
+import type { Tenant } from "@/lib/tenants";
 import {
-  inventoryItems,
   aiInsights,
   recentActivity,
   departmentConsumption,
@@ -32,7 +34,6 @@ import {
   upcomingDeliveries,
   delayedShipments,
   parLocations,
-  locationImbalances,
 } from "@/lib/mock-data";
 import {
   BarChart,
@@ -46,40 +47,42 @@ import {
 } from "recharts";
 import Link from "next/link";
 
-const metrics = [
-  {
-    label: "Total SKUs Tracked",
-    value: "41,333",
-    change: "+124 this month",
-    trend: "up" as const,
-    icon: Package,
-    color: "bg-primary/10 text-primary",
-  },
-  {
-    label: "PAR Locations",
-    value: "148",
-    change: "across 5 campuses",
-    trend: "neutral" as const,
-    icon: MapPin,
-    color: "bg-primary/10 text-primary",
-  },
-  {
-    label: "Active Alerts",
-    value: "14",
-    change: "3 critical",
-    trend: "down" as const,
-    icon: AlertTriangle,
-    color: "bg-amber-50 text-amber-600",
-  },
-  {
-    label: "Monthly Spend",
-    value: "$2.57M",
-    change: "-6.5% vs budget",
-    trend: "up" as const,
-    icon: CircleDollarSign,
-    color: "bg-accent/10 text-accent",
-  },
-];
+function buildMetrics(tenant: Tenant) {
+  return [
+    {
+      label: "Total SKUs Tracked",
+      value: tenant.metrics.totalSKUs,
+      change: tenant.metrics.skuChange,
+      trend: "up" as const,
+      icon: Package,
+      color: "bg-primary/10 text-primary",
+    },
+    {
+      label: "PAR Locations",
+      value: tenant.metrics.parLocationCount,
+      change: tenant.metrics.parLocationContext,
+      trend: "neutral" as const,
+      icon: MapPin,
+      color: "bg-primary/10 text-primary",
+    },
+    {
+      label: "Active Alerts",
+      value: tenant.metrics.activeAlerts,
+      change: tenant.metrics.alertsContext,
+      trend: "down" as const,
+      icon: AlertTriangle,
+      color: "bg-amber-50 text-amber-600",
+    },
+    {
+      label: "Monthly Spend",
+      value: tenant.metrics.monthlySpend,
+      change: tenant.metrics.spendChange,
+      trend: "up" as const,
+      icon: CircleDollarSign,
+      color: "bg-accent/10 text-accent",
+    },
+  ];
+}
 
 function InsightCard({ insight }: { insight: (typeof aiInsights)[0] }) {
   const severityConfig = {
@@ -134,13 +137,17 @@ const poStatusLabels: Record<string, string> = {
 
 export default function Dashboard() {
   const { showToast } = useToast();
-  const criticalItems = inventoryItems.filter(
-    (i) => i.status === "critical" || i.status === "out-of-stock"
-  );
-  const expiringItems = inventoryItems.filter(
-    (i) => i.status === "expiring-soon"
-  );
-  const topInsights = aiInsights.slice(0, 3);
+  const { tenant } = useTenant();
+  const metrics = buildMetrics(tenant);
+  const topInsights = [tenant.surgeInsight, ...aiInsights.filter((i) => i.id !== "AI-001").slice(0, 2)];
+
+  const vfcActivities = tenant.vfcScans.map((s) => ({
+    time: new Date(s.timestamp).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+    action: "VFC dose scanned",
+    detail: `${s.vaccine} (${s.brand}) → ${s.site} → Patient ${s.patientId}${s.registrySubmitted ? ` → ${tenant.vfcCompliance.registry} submitted` : ""}`,
+    user: s.fridge === "VFC" ? "VFC fridge scan" : "Private fridge scan",
+  }));
+  const activities = [...vfcActivities, ...recentActivity];
 
   const pendingPOs = upcomingPurchaseOrders.filter(
     (po) => po.status === "pending-approval" || po.status === "ai-recommended"
@@ -150,7 +157,7 @@ export default function Dashboard() {
     <div className="min-h-screen">
       <Header
         title="Operations Dashboard"
-        subtitle="UCSF Medical Center at Parnassus Heights — Real-time supply chain status"
+        subtitle={tenant.dashboardSubtitle}
       />
 
       <div className="p-8 space-y-6">
@@ -178,12 +185,7 @@ export default function Dashboard() {
 
         {/* Supply Chain Status */}
         <div className="grid grid-cols-4 gap-4">
-          {[
-            { chain: "Med/Surg", fill: 91, locations: 42, status: "normal" },
-            { chain: "Pharmacy & ADC", fill: 84, locations: 38, status: "low" },
-            { chain: "Surgical / OR", fill: 76, locations: 18, status: "critical" },
-            { chain: "Laboratory", fill: 96, locations: 12, status: "normal" },
-          ].map((sc) => (
+          {tenant.supplyChains.map((sc) => (
             <div key={sc.chain} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
               <div className={cn("w-3 h-3 rounded-full shrink-0", sc.status === "normal" ? "bg-accent" : sc.status === "low" ? "bg-amber-400" : "bg-red-500")} />
               <div className="flex-1 min-w-0">
@@ -211,32 +213,56 @@ export default function Dashboard() {
                 Items Needing Attention
               </h3>
               <div className="space-y-3">
-                {criticalItems.map((item) => (
-                  <div key={item.id} className="p-3 rounded-lg bg-red-50 border border-red-200">
-                    <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-[11px] text-muted mt-0.5">{item.department}</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[11px] font-bold text-red-600">
-                        {item.currentStock} / {item.parLevel} units
-                      </span>
-                      <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
-                        {item.status === "out-of-stock" ? "OUT OF STOCK" : "CRITICAL"}
-                      </span>
+                {tenant.itemsNeedingAttention.map((item) => {
+                  const isExpiring = item.status === "expiring-soon";
+                  const isVaccine = !!item.fridge;
+                  const containerCls = isExpiring
+                    ? "p-3 rounded-lg bg-amber-50 border border-amber-200"
+                    : "p-3 rounded-lg bg-red-50 border border-red-200";
+                  const statusBadge = isExpiring
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-red-100 text-red-700";
+                  const statusLabel =
+                    item.status === "out-of-stock" ? "OUT OF STOCK" :
+                    item.status === "critical" ? "CRITICAL" : "EXPIRING SOON";
+                  return (
+                    <div key={item.id} className={containerCls}>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
+                        {isVaccine && (
+                          <span className={cn(
+                            "text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border shrink-0",
+                            item.fridge === "VFC"
+                              ? "bg-primary/10 text-primary border-primary/20"
+                              : "bg-stone-100 text-stone-600 border-stone-200"
+                          )}>
+                            {item.fridge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted mt-0.5">
+                        {item.department}{item.site ? ` · ${item.site}` : ""}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        {isExpiring ? (
+                          <span className="text-[11px] font-bold text-amber-600">
+                            Expires: {item.expirationDate}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-bold text-red-600">
+                            {item.currentStock} / {item.parLevel} units
+                          </span>
+                        )}
+                        <span className={cn("text-[11px] px-1.5 py-0.5 rounded font-medium", statusBadge)}>
+                          {statusLabel}
+                        </span>
+                      </div>
+                      {item.action && (
+                        <p className="text-[11px] text-primary mt-1.5 leading-snug">→ {item.action}</p>
+                      )}
                     </div>
-                  </div>
-                ))}
-                {expiringItems.map((item) => (
-                  <div key={item.id} className="p-3 rounded-lg bg-amber-50 border border-amber-200">
-                    <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-[11px] text-muted mt-0.5">{item.department}</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[11px] font-bold text-amber-600">Expires: {item.expirationDate}</span>
-                      <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
-                        EXPIRING SOON
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <Link href="/inventory" className="flex items-center gap-1 text-xs text-primary hover:underline mt-3">
                 View full inventory <ArrowRight className="w-3 h-3" />
@@ -278,24 +304,19 @@ export default function Dashboard() {
                 Cross-Location Imbalances
               </h3>
               <div className="space-y-3">
-                {locationImbalances.slice(0, 3).map((imb) => {
-                  const over = imb.locations.find((l) => l.status === "overstocked" || l.pctOfPar > 100);
-                  const under = imb.locations.find((l) => l.status === "critical" || l.status === "stockout" || l.pctOfPar < 50);
-                  if (!over || !under) return null;
-                  return (
-                    <div key={imb.itemId} className="p-3 rounded-lg bg-amber-50 border border-amber-200">
-                      <p className="text-xs font-semibold text-foreground">{imb.itemName}</p>
-                      <div className="flex items-center gap-2 mt-1.5 text-[11px]">
-                        <span className="text-amber-700 font-medium">{over.locationName}: {over.pctOfPar}% of PAR</span>
-                        <ArrowRight className="w-3 h-3 text-muted" />
-                        <span className="text-red-600 font-medium">{under.locationName}: {under.pctOfPar}% of PAR</span>
-                      </div>
-                      <p className="text-[11px] text-accent mt-1.5">
-                        Suggested: Transfer {imb.suggestedTransfer.qty} units
-                      </p>
+                {tenant.locationImbalances.slice(0, 3).map((imb) => (
+                  <div key={imb.itemId} className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="text-xs font-semibold text-foreground">{imb.itemName}</p>
+                    <div className="flex items-center gap-2 mt-1.5 text-[11px]">
+                      <span className="text-amber-700 font-medium">{imb.fromLocation}: {imb.fromPctOfPar}% of PAR</span>
+                      <ArrowRight className="w-3 h-3 text-muted shrink-0" />
+                      <span className="text-red-600 font-medium">{imb.toLocation}: {imb.toPctOfPar}% of PAR</span>
                     </div>
-                  );
-                })}
+                    <p className="text-[11px] text-accent mt-1.5">
+                      Suggested: Transfer {imb.suggestedQty} units
+                    </p>
+                  </div>
+                ))}
               </div>
               <Link href="/inventory" className="flex items-center gap-1 text-xs text-primary hover:underline mt-3">
                 View all locations <ArrowRight className="w-3 h-3" />
@@ -448,15 +469,17 @@ export default function Dashboard() {
               Recent Activity
             </h3>
             <div className="space-y-3">
-              {recentActivity.map((a, i) => (
+              {activities.map((a, i) => (
                 <div key={i} className="flex items-start gap-3 pb-3 border-b border-border last:border-0 last:pb-0">
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                    a.action === "VFC dose scanned" ? "bg-primary/10" :
                     a.action === "AI Alert" ? "bg-red-50" :
                     a.action.includes("alert") ? "bg-amber-50" :
                     a.action.includes("Compliance") ? "bg-amber-50" : "bg-stone-50"
                   )}>
-                    {a.action === "AI Alert" ? <Brain className="w-4 h-4 text-red-600" /> :
+                    {a.action === "VFC dose scanned" ? <Syringe className="w-4 h-4 text-primary" /> :
+                     a.action === "AI Alert" ? <Brain className="w-4 h-4 text-red-600" /> :
                      a.action.includes("alert") ? <AlertTriangle className="w-4 h-4 text-amber-500" /> :
                      a.action.includes("completed") || a.action.includes("received") ? <CheckCircle2 className="w-4 h-4 text-accent" /> :
                      a.action.includes("PO") ? <Boxes className="w-4 h-4 text-amber-600" /> :
