@@ -12,16 +12,10 @@ import {
   CircleDollarSign,
   TrendingUp,
   Leaf,
-  LogIn,
   Check,
   ChevronsUpDown,
   Syringe,
 } from "lucide-react";
-import {
-  SignInButton,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useTenant } from "@/lib/tenant-context";
@@ -100,16 +94,16 @@ export function Sidebar() {
 }
 
 function UserSlot() {
-  const { isSignedIn, isLoaded } = useUser();
-  if (!isLoaded) return null;
-  if (isSignedIn) return <SignedInUser />;
   return (
-    <SignInButton mode="modal">
-      <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-text hover:text-white hover:bg-sidebar-hover transition-colors">
-        <LogIn className="w-[18px] h-[18px]" />
-        <span className="font-medium">Sign in</span>
-      </button>
-    </SignInButton>
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-semibold shrink-0">
+        CC
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-white text-xs font-medium truncate">Demo User</p>
+        <p className="text-sidebar-text text-[11px] truncate">Contra Costa Health</p>
+      </div>
+    </div>
   );
 }
 
@@ -175,31 +169,6 @@ function TenantSwitcher() {
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-function SignedInUser() {
-  const { user } = useUser();
-  const name = user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? "Account";
-  const role =
-    (user?.publicMetadata?.role as string | undefined) ??
-    user?.primaryEmailAddress?.emailAddress ??
-    "Signed in";
-
-  return (
-    <div className="flex items-center gap-3">
-      <UserButton
-        appearance={{
-          elements: {
-            avatarBox: "w-8 h-8",
-          },
-        }}
-      />
-      <div className="flex-1 min-w-0">
-        <p className="text-white text-xs font-medium truncate">{name}</p>
-        <p className="text-sidebar-text text-[11px] truncate">{role}</p>
-      </div>
     </div>
   );
 }

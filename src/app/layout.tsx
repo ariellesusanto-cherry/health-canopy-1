@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Outfit, Fraunces, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AIAssistant } from "@/components/chat/ai-assistant";
@@ -39,17 +38,15 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${fraunces.variable} ${geistMono.variable} antialiased`}
       >
-        <ClerkProvider>
-          <TenantProvider>
-            <ToastProvider>
-              <Sidebar />
-              <main className="ml-64 min-h-screen bg-background">
-                {children}
-              </main>
-              <AIAssistant />
-            </ToastProvider>
-          </TenantProvider>
-        </ClerkProvider>
+        <TenantProvider>
+          <ToastProvider>
+            <Sidebar />
+            <main className="ml-64 min-h-screen bg-background">
+              {children}
+            </main>
+            <AIAssistant />
+          </ToastProvider>
+        </TenantProvider>
       </body>
     </html>
   );
