@@ -201,27 +201,35 @@ Want me to generate the additional POs for Tamiflu and flu tests?`,
       toolMs: 1300,
       content: `**Equipment Maintenance Summary**
 
-Found **3 items with overdue preventive maintenance:**
+Found **4 items with overdue preventive maintenance:**
 
-| Equipment | Model | Dept | Last PM | Overdue By | Risk |
+| Equipment | Model | Dept / Site | Last PM | Overdue By | Risk |
 |---|---|---|---|---|---|
+| **VFC Vaccine Refrigerator** | Follett REF-VAC-25 | ${tenant.shortName === "Contra Costa" ? "Martinez Wellness \u00b7 Vaccine Rm" : "Benioff SF \u00b7 Peds Room A"} | Dec 14, 2025 | 22 days | **High** \u2014 calibration expired, blocks ${tenant.vfcCompliance.registry} dose reporting |
 | Infusion Pump | Alaris 8015 | Med/Surg | Nov 10, 2025 | 33 days | High |
 | Ultrasound System | LOGIQ E10s | ED | Oct 15, 2025 | 60 days | Medium |
 | Fetal Monitor | Series 700 | L&D | Dec 1, 2025 | 14 days | High |
 
+**VFC Refrigerator Detail:**
+- Data logger (LogTag UTRIX-16, serial LT-88311) calibration certificate **expired** \u2014 CDPH requires NIST-traceable calibration before continued vaccine storage
+- Authorized service vendor: **Follett Service (800-523-9361)** \u2014 see Section 1 emergency contacts
+- Risk to compliance: a CDPH Field Representative unannounced visit during this window would flag the unit. Vaccines must be moved to the backup VFC fridge until recalibration is confirmed.
+
 **Compliance Impact:**
-- Finding FND-001: 3 infusion pumps in Med/Surg not in equipment inventory registry (assigned to Biomed Engineering, due Mar 22)
+- Finding FND-001: 3 infusion pumps not in equipment inventory registry (Biomed Engineering, due Mar 22)
 - Finding FND-002: Ultrasound PM overdue 60 days (due Mar 20)
-- Finding FND-007: Fetal Monitor not classified as high-risk despite continuous intrapartum monitoring use (due Mar 23)
+- Finding FND-007: Fetal Monitor not classified as high-risk despite continuous intrapartum use (due Mar 23)
+- Finding FND-VFC-01: VFC fridge calibration overdue \u2014 escalate to Vaccine Coordinator (${tenant.vfcCompliance.vaccineCoordinator})
 
 **Due Soon (next 30 days):**
+- VFC Freezer Calibration (CCRMC Pharmacy) \u2014 due in 9 days
 - Patient Monitor (IntelliVue MX800) \u2014 ICU, due Mar 20
 - Anesthesia Machine (Aisys CS2) \u2014 OR, due Apr 5
 - Ventilator (Puritan Bennett 980) \u2014 ICU, due Apr 15
 
-The 3 overdue items are contributing to the Environment of Care (EC) compliance score being at 87%. Resolving these could improve it by an estimated 4\u20135 points.
+The 4 overdue items pull the Environment of Care (EC) score down to 87%. Resolving the VFC refrigerator alone also protects the VFC enrollment status.
 
-Should I generate work orders for the overdue items?`,
+Should I generate work orders + page Follett Service for the VFC fridge?`,
     };
   }
 
