@@ -205,7 +205,7 @@ Found **4 items with overdue preventive maintenance:**
 
 | Equipment | Model | Dept / Site | Last PM | Overdue By | Risk |
 |---|---|---|---|---|---|
-| **VFC Vaccine Refrigerator** | Follett REF-VAC-25 | ${tenant.shortName === "Contra Costa" ? "Martinez Wellness \u00b7 Vaccine Rm" : "Benioff SF \u00b7 Peds Room A"} | Dec 14, 2025 | 22 days | **High** \u2014 calibration expired, blocks ${tenant.vfcCompliance.registry} dose reporting |
+| **VFC Vaccine Refrigerator** | Follett REF-VAC-25 | Martinez Wellness \u00b7 Vaccine Rm | Dec 14, 2025 | 22 days | **High** \u2014 calibration expired, blocks ${tenant.vfcCompliance.registry} dose reporting |
 | Infusion Pump | Alaris 8015 | Med/Surg | Nov 10, 2025 | 33 days | High |
 | Ultrasound System | LOGIQ E10s | ED | Oct 15, 2025 | 60 days | Medium |
 | Fetal Monitor | Series 700 | L&D | Dec 1, 2025 | 14 days | High |
@@ -410,7 +410,7 @@ Want me to model an alternative scenario or drill into a specific department?`,
 **COVID Test Waste Risk:**
 At current consumption (~45 tests/day), approximately **1,075 tests will expire unused**. Potential waste: $5,644.
 
-**AI Recommendation:** Redistribute excess COVID tests to Mission Bay, Mount Zion, and Benioff campuses, or coordinate with SF Dept of Public Health for community testing events.
+**AI Recommendation:** Redistribute excess COVID tests to Martinez Health Center and Martinez Wellness Center, or coordinate with Contra Costa Public Health for community testing events.
 
 Want me to initiate a redistribution request?`,
     };

@@ -161,7 +161,7 @@ export default function InventoryPage() {
   };
 
   const summaryStats = useMemo(() => {
-    const ucsfRawValue = inventoryItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0);
+    const baseRawValue = inventoryItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0);
     if (selectedSite) {
       const siteShare = selectedSite.totalItems / tenant.inventoryBreakdown.total;
       return {
@@ -170,12 +170,12 @@ export default function InventoryPage() {
         lowStock: Math.round(tenant.inventoryBreakdown.lowStock * siteShare),
         critical: selectedSite.criticalAlerts,
         expiring: selectedSite.expiringSoon,
-        totalValue: ucsfRawValue * tenant.financialScale * siteShare,
+        totalValue: baseRawValue * tenant.financialScale * siteShare,
       };
     }
     return {
       ...tenant.inventoryBreakdown,
-      totalValue: ucsfRawValue * tenant.financialScale,
+      totalValue: baseRawValue * tenant.financialScale,
     };
   }, [tenant, selectedSite]);
 
@@ -373,11 +373,11 @@ export default function InventoryPage() {
                 ? selectedSite.totalItems / tenant.inventoryBreakdown.total
                 : 1;
               const scaledItemCount = Math.max(1, Math.round(dept.itemCount * tenant.financialScale * siteShare));
-              const ucsfTotalPars = 148;
+              const baselinePars = 148;
               const tenantTotalPars = selectedSite ? selectedSite.parLocations : parseInt(tenant.metrics.parLocationCount, 10);
-              const parScale = tenantTotalPars / ucsfTotalPars;
-              const ucsfDeptPars = parLocations.filter((p) => p.department === dept.name).length;
-              const scaledDeptPars = Math.max(1, Math.round(ucsfDeptPars * parScale));
+              const parScale = tenantTotalPars / baselinePars;
+              const baselineDeptPars = parLocations.filter((p) => p.department === dept.name).length;
+              const scaledDeptPars = Math.max(1, Math.round(baselineDeptPars * parScale));
               return (
                 <button
                   key={dept.id}
