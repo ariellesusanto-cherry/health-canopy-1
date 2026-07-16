@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Outfit, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/sidebar";
-import { AIAssistant } from "@/components/chat/ai-assistant";
+import { AppShell } from "@/components/layout/app-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { TenantProvider } from "@/lib/tenant-context";
+import { RoleProvider } from "@/lib/role-context";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -38,15 +38,13 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${fraunces.variable} ${geistMono.variable} antialiased`}
       >
-        <TenantProvider>
-          <ToastProvider>
-            <Sidebar />
-            <main className="ml-64 min-h-screen bg-background">
-              {children}
-            </main>
-            <AIAssistant />
-          </ToastProvider>
-        </TenantProvider>
+        <RoleProvider>
+          <TenantProvider>
+            <ToastProvider>
+              <AppShell>{children}</AppShell>
+            </ToastProvider>
+          </TenantProvider>
+        </RoleProvider>
       </body>
     </html>
   );
