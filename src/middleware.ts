@@ -45,7 +45,8 @@ export const config = {
   matcher: [
     // Skip Next internals and static files, run on everything else.
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes.
+    // Always run for API routes + Clerk's auto-proxy path.
     "/(api|trpc)(.*)",
+    "/__clerk/:path*",
   ],
 };
