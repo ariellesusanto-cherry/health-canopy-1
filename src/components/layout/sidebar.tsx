@@ -20,6 +20,7 @@ import {
   LogOut,
   Lock,
 } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useTenant } from "@/lib/tenant-context";
@@ -109,6 +110,7 @@ export function Sidebar() {
 
 function UserSlot() {
   const { role, logout } = useRole();
+  const { signOut } = useClerk();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -122,10 +124,18 @@ function UserSlot() {
     return () => window.removeEventListener("mousedown", onClick);
   }, [open]);
 
-  function leave() {
+  // Switch role: keep the Clerk session, drop the role -> role chooser.
+  function switchRole() {
     logout();
     setOpen(false);
     router.replace("/login");
+  }
+
+  // Log out: end the Clerk session and drop the role.
+  function logOut() {
+    logout();
+    setOpen(false);
+    signOut({ redirectUrl: "/sign-in" });
   }
 
   const persona = role?.persona ?? { name: "Demo User", title: "Contra Costa Health", initials: "CC" };
@@ -157,7 +167,7 @@ function UserSlot() {
           )}
           <button
             type="button"
-            onClick={leave}
+            onClick={switchRole}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left text-sidebar-text hover:bg-white/5 hover:text-white transition-colors"
           >
             <Repeat className="w-3.5 h-3.5" />
@@ -165,7 +175,7 @@ function UserSlot() {
           </button>
           <button
             type="button"
-            onClick={leave}
+            onClick={logOut}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left text-sidebar-text hover:bg-white/5 hover:text-white transition-colors border-t border-white/8"
           >
             <LogOut className="w-3.5 h-3.5" />

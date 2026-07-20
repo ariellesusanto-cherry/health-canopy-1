@@ -1,22 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { getRole, ROLE_COOKIE, roleCanAccessPath } from "@/lib/roles";
 
-// Route guard for mock role-based access:
-//  - no role cookie        -> /login
-//  - has role, on /login   -> their landing route
-//  - route not in role nav -> their landing route
-export function middleware(req: NextRequest) {
+// Clerk owns authentication; the role cookie owns in-app authorization.
+// Flow:
+//   not signed in            -> /sign-in (Clerk)
+//   signed in, no role       -> /login (role chooser)
+//   signed in, role set      -> enforce that role's allowed routes
+const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isPublicRoute(req)) return NextResponse.next();
+
+  const { userId } = await auth();
   const { pathname } = req.nextUrl;
+
+  if (!userId) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+
+  // Signed in — role selection is the second gate.
   const role = getRole(req.cookies.get(ROLE_COOKIE)?.value);
 
-  if (pathname === "/login") {
-    if (role) {
-      const url = req.nextUrl.clone();
-      url.pathname = role.landingRoute;
-      return NextResponse.redirect(url);
-    }
-    return NextResponse.next();
-  }
+  if (pathname === "/login") return NextResponse.next(); // role chooser
 
   if (!role) {
     const url = req.nextUrl.clone();
@@ -31,10 +39,13 @@ export function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
-  // Run on everything except Next internals, static assets, and files
-  // with an extension (images, fonts, etc.).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.[^/]+$).*)"],
+  matcher: [
+    // Skip Next internals and static files, run on everything else.
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes.
+    "/(api|trpc)(.*)",
+  ],
 };

@@ -12,7 +12,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { role } = useRole();
 
-  if (pathname === "/login") {
+  // Auth screens (Clerk sign-in/up + role chooser) are chromeless.
+  const chromeless =
+    pathname === "/login" ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up");
+
+  if (chromeless) {
     return <>{children}</>;
   }
 

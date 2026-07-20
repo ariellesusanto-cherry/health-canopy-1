@@ -2,31 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Leaf, Lock, Mail, ChevronDown, ArrowRight } from "lucide-react";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { Leaf, ChevronDown, ArrowRight, LogOut } from "lucide-react";
 import { useRole } from "@/lib/role-context";
 import { ROLE_LIST, type RoleId } from "@/lib/roles";
 
-export default function LoginPage() {
+// Step 2 of auth: Clerk has established identity; here the user picks
+// which role/persona to enter the demo as.
+export default function RoleChooserPage() {
   const router = useRouter();
   const { setRole } = useRole();
-  const [email, setEmail] = useState("demo@cchealth.org");
-  const [password, setPassword] = useState("demo-access");
+  const { user } = useUser();
+  const { signOut } = useClerk();
   const [roleId, setRoleId] = useState<RoleId>(ROLE_LIST[0].id);
-  const [submitting, setSubmitting] = useState(false);
 
   const selected = ROLE_LIST.find((r) => r.id === roleId)!;
+  const greetingName = user?.firstName || user?.primaryEmailAddress?.emailAddress || "there";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
-    // Mock auth — any input is accepted; the chosen role is the identity.
     setRole(roleId);
     router.replace(selected.landingRoute);
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      {/* soft brand backdrop */}
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 -right-24 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
@@ -39,46 +39,14 @@ export default function LoginPage() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-3">
               <Leaf className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-foreground font-display">
-              Health Canopy
-            </h1>
-            <p className="text-sm text-muted mt-1">Sign in to your workspace</p>
+            <h1 className="text-2xl font-semibold text-foreground font-display">Health Canopy</h1>
+            <p className="text-sm text-muted mt-1">Welcome, {greetingName} — choose your role</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-white text-sm text-foreground placeholder:text-muted/60 focus:border-primary focus:outline-none"
-                  placeholder="you@cchealth.org"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-white text-sm text-foreground focus:border-primary focus:outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
             {/* Role selector */}
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Sign in as</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">Continue as</label>
               <div className="relative">
                 <select
                   value={roleId}
@@ -86,9 +54,7 @@ export default function LoginPage() {
                   className="w-full appearance-none pl-3 pr-9 py-2.5 rounded-lg border border-border bg-white text-sm text-foreground focus:border-primary focus:outline-none cursor-pointer"
                 >
                   {ROLE_LIST.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.label}
-                    </option>
+                    <option key={r.id} value={r.id}>{r.label}</option>
                   ))}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
@@ -98,17 +64,24 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-70"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
             >
-              Sign in
+              Enter dashboard
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <p className="text-center text-[11px] text-muted mt-6">
-            Contra Costa Health · demo environment · synthetic data only
-          </p>
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-[11px] text-muted">Contra Costa Health · demo · synthetic data</p>
+            <button
+              type="button"
+              onClick={() => signOut({ redirectUrl: "/sign-in" })}
+              className="flex items-center gap-1 text-[11px] text-muted hover:text-foreground transition-colors"
+            >
+              <LogOut className="w-3 h-3" />
+              Sign out
+            </button>
+          </div>
         </div>
       </div>
     </div>
