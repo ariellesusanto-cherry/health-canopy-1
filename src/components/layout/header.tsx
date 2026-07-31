@@ -5,6 +5,7 @@ import { Bell, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlobalSearch } from "@/components/ui/global-search";
 import { recentActivity } from "@/lib/mock-data";
+import { DEMO_NOW } from "@/lib/demo-time";
 
 function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,7 +74,9 @@ function NotificationsDropdown() {
 }
 
 export function Header({ title, subtitle }: { title: string; subtitle?: string }) {
-  const today = new Date().toLocaleDateString("en-US", {
+  // The demo dataset is anchored to a fixed date — showing the real
+  // date would contradict every timestamp on screen.
+  const today = DEMO_NOW.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",

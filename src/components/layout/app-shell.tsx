@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AIAssistant } from "@/components/chat/ai-assistant";
+import { DemoDirector } from "@/components/demo/demo-director";
+import { GuidedTour } from "@/components/demo/guided-tour";
 import { useRole } from "@/lib/role-context";
 
 // Decides whether to show the app chrome (sidebar + AI Agent).
@@ -27,6 +29,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <main className="ml-64 min-h-screen bg-background">{children}</main>
       {role && !role.readOnly && <AIAssistant />}
+      <DemoDirector />
+      <GuidedTour />
     </>
   );
 }

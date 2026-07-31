@@ -21,10 +21,13 @@ import {
   FileText,
   ArrowRightLeft,
   Syringe,
+  Thermometer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/components/ui/count-up";
 import { useToast } from "@/components/ui/toast";
 import { useTenant } from "@/lib/tenant-context";
+import { useSimulation } from "@/lib/simulation";
 import type { Tenant } from "@/lib/tenants";
 import {
   aiInsights,
@@ -48,6 +51,12 @@ import {
 import Link from "next/link";
 
 function buildMetrics(tenant: Tenant) {
+  // Alert KPI is derived from the actual attention list so the number
+  // always matches what the cards below show.
+  const attention = tenant.itemsNeedingAttention;
+  const criticalCount = attention.filter(
+    (i) => i.status === "critical" || i.status === "out-of-stock"
+  ).length;
   return [
     {
       label: "Total SKUs Tracked",
@@ -67,8 +76,8 @@ function buildMetrics(tenant: Tenant) {
     },
     {
       label: "Active Alerts",
-      value: tenant.metrics.activeAlerts,
-      change: tenant.metrics.alertsContext,
+      value: String(attention.length),
+      change: `${criticalCount} critical`,
       trend: "down" as const,
       icon: AlertTriangle,
       color: "bg-amber-50 text-amber-600",
@@ -138,8 +147,15 @@ const poStatusLabels: Record<string, string> = {
 export default function Dashboard() {
   const { showToast } = useToast();
   const { tenant } = useTenant();
+  const { simInsights, simActivities, fridges } = useSimulation();
   const metrics = buildMetrics(tenant);
-  const topInsights = [tenant.surgeInsight, ...aiInsights.filter((i) => i.id !== "AI-001").slice(0, 2)];
+  // Live scenario insights (e.g. cold chain excursion) lead; then the
+  // tenant's surge insight and the general AI insights.
+  const topInsights = [
+    ...simInsights,
+    tenant.surgeInsight,
+    ...aiInsights.filter((i) => i.id !== "AI-001"),
+  ].slice(0, 3);
 
   const vfcActivities = tenant.vfcScans.map((s) => ({
     time: new Date(s.timestamp).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
@@ -147,7 +163,7 @@ export default function Dashboard() {
     detail: `${s.vaccine} (${s.brand}) → ${s.site} → Patient ${s.patientId}${s.registrySubmitted ? ` → ${tenant.vfcCompliance.registry} submitted` : ""}`,
     user: s.fridge === "VFC" ? "VFC fridge scan" : "Private fridge scan",
   }));
-  const activities = [...vfcActivities, ...recentActivity];
+  const activities = [...simActivities, ...vfcActivities, ...recentActivity];
 
   const pendingPOs = upcomingPurchaseOrders.filter(
     (po) => po.status === "pending-approval" || po.status === "ai-recommended"
@@ -160,15 +176,21 @@ export default function Dashboard() {
         subtitle={tenant.dashboardSubtitle}
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Metrics Row */}
-        <div className="grid grid-cols-4 gap-5">
-          {metrics.map((m) => (
-            <div key={m.label} className="bg-white rounded-xl border border-border p-5">
+        <div data-tour="kpis" className="grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
+          {metrics.map((m, i) => (
+            <div
+              key={m.label}
+              className="bg-white rounded-xl border border-border p-5 card-enter"
+              style={{ animationDelay: `${i * 70}ms`, animationFillMode: "backwards" }}
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted uppercase tracking-wide">{m.label}</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{m.value}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">
+                    <CountUp value={m.value} />
+                  </p>
                   <div className="flex items-center gap-1 mt-1.5">
                     {m.trend === "up" && <TrendingUp className="w-3.5 h-3.5 text-accent" />}
                     {m.trend === "down" && <TrendingDown className="w-3.5 h-3.5 text-amber-500" />}
@@ -184,9 +206,17 @@ export default function Dashboard() {
         </div>
 
         {/* Supply Chain Status */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {tenant.supplyChains.map((sc) => (
-            <div key={sc.chain} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+            <div
+              key={sc.chain}
+              className={cn(
+                "bg-white rounded-xl border p-4 flex items-center gap-3",
+                sc.status === "critical"
+                  ? "border-red-200 ring-1 ring-red-100 bg-red-50/30"
+                  : "border-border"
+              )}
+            >
               <div className={cn("w-3 h-3 rounded-full shrink-0", sc.status === "normal" ? "bg-accent" : sc.status === "low" ? "bg-amber-400" : "bg-red-500")} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -205,9 +235,9 @@ export default function Dashboard() {
         {/* Main Grid: Operational focus */}
         <div className="grid grid-cols-12 gap-6">
           {/* Left: Stock alerts + Pending orders */}
-          <div className="col-span-4 space-y-6">
+          <div className="col-span-12 lg:col-span-4 space-y-6">
             {/* Critical Items */}
-            <div className="bg-white rounded-xl border border-border p-5">
+            <div data-tour="attention" className="bg-white rounded-xl border border-border p-5">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <XCircle className="w-4 h-4 text-red-500" />
                 Items Needing Attention
@@ -324,27 +354,86 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Middle: AI Insights */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-accent" />
-                <h3 className="text-sm font-semibold text-foreground">AI Insights</h3>
-                <span className="w-2 h-2 rounded-full bg-accent-light pulse-dot" />
+          {/* Middle: AI Insights + live cold chain */}
+          <div className="col-span-12 lg:col-span-5 space-y-6">
+            <div className="bg-white rounded-xl border border-border p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-accent" />
+                  <h3 className="text-sm font-semibold text-foreground">AI Insights</h3>
+                  <span className="w-2 h-2 rounded-full bg-accent-light pulse-dot" />
+                </div>
+                <Link href="/ai-insights" className="text-xs text-primary hover:underline flex items-center gap-1">
+                  View all <ArrowRight className="w-3 h-3" />
+                </Link>
               </div>
-              <Link href="/ai-insights" className="text-xs text-primary hover:underline flex items-center gap-1">
-                View all <ArrowRight className="w-3 h-3" />
-              </Link>
+              <div className="space-y-3">
+                {topInsights.map((insight) => (
+                  <InsightCard key={insight.id} insight={insight} />
+                ))}
+              </div>
             </div>
-            <div className="space-y-3">
-              {topInsights.map((insight) => (
-                <InsightCard key={insight.id} insight={insight} />
-              ))}
+
+            {/* Live cold chain snapshot */}
+            <div data-tour="cold-chain-live" className="bg-white rounded-xl border border-border p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Thermometer className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Cold Chain — Live</h3>
+                  <span className="w-2 h-2 rounded-full bg-accent-light pulse-dot" />
+                </div>
+                <Link href="/cold-chain" className="text-xs text-primary hover:underline flex items-center gap-1">
+                  Live charts <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {fridges
+                  .filter((f) => f.kind !== "Freezer")
+                  .map((f) => {
+                    const latest = f.readings[f.readings.length - 1]?.tempF;
+                    return (
+                      <div
+                        key={f.key}
+                        className={cn(
+                          "flex items-center justify-between rounded-lg border px-3 py-2",
+                          f.status === "excursion"
+                            ? "border-red-200 bg-red-50"
+                            : f.status === "alert"
+                              ? "border-amber-200 bg-amber-50"
+                              : "border-border"
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={cn(
+                                "w-1.5 h-1.5 rounded-full shrink-0",
+                                f.status === "normal" ? "bg-accent" : f.status === "alert" ? "bg-amber-400" : "bg-red-500 pulse-dot"
+                              )}
+                            />
+                            <span className="text-[11px] font-semibold text-foreground truncate">
+                              {f.siteName.replace("Contra Costa Regional Medical Center", "CCRMC")}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-muted">{f.kind} · {f.doseCount} doses</span>
+                        </div>
+                        <span
+                          className={cn(
+                            "text-sm font-bold tabular-nums shrink-0",
+                            f.status === "excursion" ? "text-red-600" : f.status === "alert" ? "text-amber-600" : "text-foreground"
+                          )}
+                        >
+                          {latest?.toFixed(1)}°F
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
           </div>
 
           {/* Right: Incoming Deliveries + Activity */}
-          <div className="col-span-3 space-y-6">
+          <div className="col-span-12 lg:col-span-3 space-y-6">
             {/* Incoming Deliveries — delayed + on-track combined */}
             <div className="bg-white rounded-xl border border-border p-5">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -425,7 +514,7 @@ export default function Dashboard() {
         {/* Bottom Row */}
         <div className="grid grid-cols-12 gap-6">
           {/* Department Consumption */}
-          <div className="col-span-7 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">
@@ -463,7 +552,7 @@ export default function Dashboard() {
           </div>
 
           {/* Activity Feed */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted" />
               Recent Activity

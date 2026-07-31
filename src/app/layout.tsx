@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { TenantProvider } from "@/lib/tenant-context";
 import { RoleProvider } from "@/lib/role-context";
+import { SimulationProvider } from "@/lib/simulation";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -47,7 +48,9 @@ export default function RootLayout({
           <RoleProvider>
             <TenantProvider>
               <ToastProvider>
-                <AppShell>{children}</AppShell>
+                <SimulationProvider>
+                  <AppShell>{children}</AppShell>
+                </SimulationProvider>
               </ToastProvider>
             </TenantProvider>
           </RoleProvider>

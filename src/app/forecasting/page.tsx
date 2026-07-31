@@ -67,9 +67,9 @@ export default function ForecastingPage() {
         subtitle="What the hospital will need next week, next month, and how to prepare"
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Overview cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-xl border border-border p-5">
             <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-primary" /><span className="text-[11px] font-medium text-muted uppercase">Predicted Daily Consumption</span></div>
             <p className="text-2xl font-bold text-foreground">{tenant.forecastingOverview.predictedDailyConsumption} <span className="text-xs font-normal text-muted">{tenant.forecastingOverview.predictedDailyContext}</span></p>
@@ -110,20 +110,20 @@ export default function ForecastingPage() {
 
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={demandForecastData}>
+              <ComposedChart data={demandForecastData.map((d) => ({ ...d, band: [d.lower, d.upper] }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                 <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} label={{ value: "Items / day", angle: -90, position: "insideLeft", style: { fontSize: 11, fill: "#b8a898" }, offset: 10 }} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e6ddd0" }} formatter={(value, name) => {
-                  const labels: Record<string, string> = { actual: "Actual", predicted: "Forecast", upper: "Upper bound", lower: "Lower bound" };
+                  const labels: Record<string, string> = { actual: "Actual", predicted: "Forecast", band: "90% range" };
+                  if (name === "band" && Array.isArray(value)) return [`${Number(value[0]).toLocaleString()} – ${Number(value[1]).toLocaleString()} items`, labels.band];
                   return [value ? `${Number(value).toLocaleString()} items` : "—", labels[name as string] || name];
                 }} />
                 <ReferenceLine x="Mar 15" stroke="#c44840" strokeDasharray="4 4" label={{ value: "Today", position: "top", fontSize: 10, fill: "#c44840" }} />
-                <Area type="monotone" dataKey="upper" stackId="band" stroke="none" fill="#4a7a52" fillOpacity={0.08} />
-                <Area type="monotone" dataKey="lower" stackId="band" stroke="none" fill="#ffffff" fillOpacity={1} />
+                <Area type="monotone" dataKey="band" stroke="none" fill="#4a7a52" fillOpacity={0.1} name="band" />
                 <Line type="monotone" dataKey="predicted" stroke="#4a7a52" strokeWidth={2} strokeDasharray="6 3" dot={false} name="predicted" />
                 <Line type="monotone" dataKey="actual" stroke="#b5654a" strokeWidth={2.5} dot={{ r: 3, fill: "#b5654a" }} connectNulls={false} name="actual" />
-              </AreaChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
@@ -153,7 +153,12 @@ export default function ForecastingPage() {
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={monthlySpendForecast}>
+              <ComposedChart data={monthlySpendForecast.map((m) => ({
+                month: m.month,
+                actual: m.actual === null ? null : Math.round(m.actual * tenant.financialScale),
+                budget: Math.round(m.budget * tenant.financialScale),
+                forecast: m.forecast === null ? null : Math.round(m.forecast * tenant.financialScale),
+              }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                 <YAxis tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
@@ -180,7 +185,7 @@ export default function ForecastingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div data-tour="scenarios" className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {([
               { id: "baseline" as const, title: "Normal Operations", desc: "Current consumption continues. No disruptions.", icon: CheckCircle2, iconColor: "text-accent" },
               { id: "flu-surge" as const, title: tenant.surgeScenarioTitle, desc: tenant.surgeScenarioDesc, icon: Thermometer, iconColor: "text-red-600" },
@@ -198,7 +203,7 @@ export default function ForecastingPage() {
           {activeScenario === "baseline" && (
             <div className="rounded-xl border border-accent/20 bg-accent/5 p-5">
               <h4 className="text-sm font-semibold text-accent mb-4">Normal Operations — No Action Needed</h4>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
                 {[
                   { label: "PPE Burn Rate", value: "5,000", sub: "/week", note: "Stock covers 6.4 days" },
                   { label: "Medication Usage", value: "3,200", sub: "/week", note: "2 items below reorder" },
@@ -229,7 +234,7 @@ export default function ForecastingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                 {[
                   { label: "PPE Burn Rate", value: "7,800", extra: "+56%", note: "Stock drops to 4.1 days" },
                   { label: "Medication Usage", value: "4,100", extra: "+28%", note: "Tamiflu stockout in ~5 days" },
@@ -262,7 +267,7 @@ export default function ForecastingPage() {
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
               <h4 className="text-sm font-semibold text-amber-700 mb-2">If Medline + Cardinal Health delayed 5 days → here&apos;s what changes</h4>
               <p className="text-xs text-amber-600 mb-4">These two suppliers = 42% of supply volume. A 5-day delay pushes multiple items past safety stock.</p>
-              <div className="grid grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                 {[
                   { label: "PPE Burn Rate", value: "5,000", note: "Unchanged, but reorder point → 3,800" },
                   { label: "Below Safety Stock", value: "8", note: "Gloves, gowns, drapes hit zero by day 4" },

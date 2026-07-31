@@ -19,9 +19,14 @@ import {
   Repeat,
   LogOut,
   Lock,
+  Thermometer,
+  Sparkles,
 } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { overallReadinessScore } from "@/lib/mock-data";
+import { useSimulation } from "@/lib/simulation";
+import { startGuidedTour } from "@/components/demo/guided-tour";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useTenant } from "@/lib/tenant-context";
 import { useRole } from "@/lib/role-context";
@@ -33,6 +38,7 @@ const SECTION_ICONS: Record<NavSectionId, typeof Package> = {
   "executive-overview": Gauge,
   inventory: Package,
   "vaccine-management": Syringe,
+  "cold-chain": Thermometer,
   "ai-insights": Brain,
   forecasting: TrendingUp,
   financials: CircleDollarSign,
@@ -43,6 +49,7 @@ const SECTION_ICONS: Record<NavSectionId, typeof Package> = {
 export function Sidebar() {
   const pathname = usePathname();
   const { role } = useRole();
+  const { coldChainAlertCount, excursionActive } = useSimulation();
 
   const sections = role ? role.navSections : [];
 
@@ -88,10 +95,22 @@ export function Sidebar() {
               {item.id === "ai-insights" && (
                 <span className="ml-auto w-2 h-2 rounded-full bg-accent-light pulse-dot" />
               )}
+              {item.id === "cold-chain" && coldChainAlertCount > 0 && (
+                <span
+                  className={cn(
+                    "ml-auto text-[11px] font-bold px-1.5 py-0.5 rounded-full",
+                    excursionActive
+                      ? "bg-red-500/25 text-red-300 pulse-dot"
+                      : "bg-warning/20 text-warning"
+                  )}
+                >
+                  {coldChainAlertCount}
+                </span>
+              )}
               {item.id === "compliance" && (
                 <Tooltip content="Compliance readiness score" position="right" className="ml-auto">
                   <span className="text-[11px] font-bold bg-warning/20 text-warning px-1.5 py-0.5 rounded cursor-help">
-                    88%
+                    {overallReadinessScore}%
                   </span>
                 </Tooltip>
               )}
@@ -167,8 +186,19 @@ function UserSlot() {
           )}
           <button
             type="button"
-            onClick={switchRole}
+            onClick={() => {
+              setOpen(false);
+              startGuidedTour();
+            }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left text-sidebar-text hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Product tour
+          </button>
+          <button
+            type="button"
+            onClick={switchRole}
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left text-sidebar-text hover:bg-white/5 hover:text-white transition-colors border-t border-white/8"
           >
             <Repeat className="w-3.5 h-3.5" />
             Switch role

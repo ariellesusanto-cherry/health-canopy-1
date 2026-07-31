@@ -15,6 +15,7 @@ import {
   Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/components/ui/count-up";
 import { useTenant } from "@/lib/tenant-context";
 import { complianceChapters, overallReadinessScore, monthlyCostTrend } from "@/lib/mock-data";
 import {
@@ -66,16 +67,17 @@ const trendIcon = {
 export default function ExecutivePage() {
   const { tenant } = useTenant();
 
-  const kpis = [
-    { label: "Total SKUs Tracked", value: tenant.metrics.totalSKUs, sub: tenant.metrics.skuChange, icon: Package, color: "bg-primary/10 text-primary" },
-    { label: "PAR Locations", value: tenant.metrics.parLocationCount, sub: tenant.metrics.parLocationContext, icon: MapPin, color: "bg-primary/10 text-primary" },
-    { label: "Active Alerts", value: tenant.metrics.activeAlerts, sub: tenant.metrics.alertsContext, icon: AlertTriangle, color: "bg-amber-50 text-amber-600" },
-    { label: "Monthly Spend", value: tenant.metrics.monthlySpend, sub: tenant.metrics.spendChange, icon: CircleDollarSign, color: "bg-accent/10 text-accent" },
-  ];
-
   const criticalItems = tenant.itemsNeedingAttention.filter(
     (i) => i.status === "critical" || i.status === "out-of-stock"
   );
+
+  const kpis = [
+    { label: "Total SKUs Tracked", value: tenant.metrics.totalSKUs, sub: tenant.metrics.skuChange, icon: Package, color: "bg-primary/10 text-primary" },
+    { label: "PAR Locations", value: tenant.metrics.parLocationCount, sub: tenant.metrics.parLocationContext, icon: MapPin, color: "bg-primary/10 text-primary" },
+    { label: "Active Alerts", value: String(tenant.itemsNeedingAttention.length), sub: `${criticalItems.length} critical`, icon: AlertTriangle, color: "bg-amber-50 text-amber-600" },
+    { label: "Monthly Spend", value: tenant.metrics.monthlySpend, sub: tenant.metrics.spendChange, icon: CircleDollarSign, color: "bg-accent/10 text-accent" },
+  ];
+
   const expiringCount = tenant.itemsNeedingAttention.filter((i) => i.status === "expiring-soon").length;
 
   // Spend/savings trend, scaled to this facility's financial footprint.
@@ -89,10 +91,10 @@ export default function ExecutivePage() {
     <div className="min-h-screen">
       <Header
         title="Executive Overview"
-        subtitle={`${tenant.system} — cross-campus state of the system`}
+        subtitle={`${tenant.system} — cross-site state of the system`}
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Read-only banner */}
         <div className="flex items-center gap-2 text-[11px] text-muted">
           <Lock className="w-3.5 h-3.5" />
@@ -100,13 +102,19 @@ export default function ExecutivePage() {
         </div>
 
         {/* KPI tiles */}
-        <div className="grid grid-cols-4 gap-5">
-          {kpis.map((k) => (
-            <div key={k.label} className="bg-white rounded-xl border border-border p-5">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
+          {kpis.map((k, i) => (
+            <div
+              key={k.label}
+              className="bg-white rounded-xl border border-border p-5 card-enter"
+              style={{ animationDelay: `${i * 70}ms`, animationFillMode: "backwards" }}
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted uppercase tracking-wide">{k.label}</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{k.value}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">
+                    <CountUp value={k.value} />
+                  </p>
                   <p className="text-xs text-muted mt-1.5">{k.sub}</p>
                 </div>
                 <div className={cn("p-2.5 rounded-lg", k.color)}>
@@ -119,7 +127,7 @@ export default function ExecutivePage() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Compliance readiness */}
-          <div className="col-span-4 bg-white rounded-xl border border-border p-6">
+          <div data-tour="exec-readiness" className="col-span-12 lg:col-span-4 bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-accent" />
               Compliance Readiness
@@ -133,7 +141,7 @@ export default function ExecutivePage() {
           </div>
 
           {/* Chapter breakdown */}
-          <div className="col-span-8 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4">Department / Chapter Compliance</h3>
             <div className="space-y-2.5">
               {complianceChapters.map((c) => (
@@ -159,10 +167,13 @@ export default function ExecutivePage() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Campus-level status */}
-          <div className="col-span-7 bg-white rounded-xl border border-border p-6">
+          <div data-tour="exec-sites" className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-primary" />
-              Campus-Level Status
+              Site-Level Status
+              <span className="ml-auto text-[11px] font-normal text-muted">
+                3 live · 7 onboarding across Contra Costa County
+              </span>
             </h3>
             <div className="overflow-hidden rounded-lg border border-border">
               <table className="w-full text-xs">
@@ -179,23 +190,39 @@ export default function ExecutivePage() {
                   {tenant.sitesInventory.map((s) => (
                     <tr key={s.siteId} className="border-t border-border">
                       <td className="px-3 py-2.5 text-foreground font-medium">{s.siteName}</td>
-                      <td className="px-3 py-2.5 text-right text-muted">{s.totalItems.toLocaleString()}</td>
-                      <td className="px-3 py-2.5 text-right text-muted">{s.parLocations}</td>
+                      <td className="px-3 py-2.5 text-right text-muted tabular-nums">{s.totalItems.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-right text-muted tabular-nums">{s.parLocations}</td>
                       <td className="px-3 py-2.5 text-right">
-                        <span className={cn("font-bold", s.criticalAlerts > 0 ? "text-red-600" : "text-muted")}>
+                        <span className={cn("font-bold tabular-nums", s.criticalAlerts > 0 ? "text-red-600" : "text-muted")}>
                           {s.criticalAlerts}
                         </span>
                       </td>
-                      <td className="px-3 py-2.5 text-right text-amber-600">{s.expiringSoon}</td>
+                      <td className="px-3 py-2.5 text-right text-amber-600 tabular-nums">{s.expiringSoon}</td>
                     </tr>
                   ))}
+                  {tenant.sites
+                    .filter((s) => s.status === "onboarding")
+                    .map((s) => (
+                      <tr key={s.id} className="border-t border-border/60 opacity-60">
+                        <td className="px-3 py-2 text-muted">
+                          {s.name}
+                          <span className="ml-2 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">
+                            Onboarding
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-right text-muted">—</td>
+                        <td className="px-3 py-2 text-right text-muted">—</td>
+                        <td className="px-3 py-2 text-right text-muted">—</td>
+                        <td className="px-3 py-2 text-right text-muted">—</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
           </div>
 
           {/* Critical alerts summary */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-border p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-500" />
               Critical Alerts Summary

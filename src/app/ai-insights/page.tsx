@@ -88,9 +88,9 @@ export default function AIInsightsPage() {
         subtitle="Current inventory health, consumption patterns, anomaly detection, and cost optimization"
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Status Summary */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { label: "In Stock", value: inventoryItems.filter((i) => i.status === "in-stock").length, color: "bg-accent/10 text-accent", icon: CheckCircle2 },
             { label: "Low Stock", value: lowStockItems.length, color: "bg-amber-50 text-amber-600", icon: AlertTriangle },
@@ -170,7 +170,7 @@ export default function AIInsightsPage() {
         {/* SECTION 2: Department Usage Breakdown                         */}
         {/* ============================================================ */}
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-7 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border p-6">
             <div className="mb-5">
               <h3 className="text-base font-semibold text-foreground">Usage by Department</h3>
               <p className="text-xs text-muted mt-1">
@@ -201,7 +201,7 @@ export default function AIInsightsPage() {
           </div>
 
           {/* Inventory value by department */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-border p-6">
             <div className="mb-5">
               <h3 className="text-base font-semibold text-foreground">Inventory Value on Shelves</h3>
               <p className="text-xs text-muted mt-1">Dollar value of stock currently held by each department, with average days of supply on hand.</p>
@@ -237,7 +237,7 @@ export default function AIInsightsPage() {
         {/* ============================================================ */}
         {/* SECTION 3: Items needing attention                            */}
         {/* ============================================================ */}
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Critical / OOS */}
           <div className="bg-white rounded-xl border border-border p-5">
             <h3 className="text-sm font-semibold text-red-700 mb-3">Critical & Out of Stock ({criticalItems.length})</h3>

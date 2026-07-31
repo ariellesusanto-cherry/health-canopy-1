@@ -17,7 +17,9 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
 import { useTenant } from "@/lib/tenant-context";
 import { useRole } from "@/lib/role-context";
+import { useSimulation } from "@/lib/simulation";
 import { inventoryItems, upcomingDeliveries } from "@/lib/mock-data";
+import Link from "next/link";
 
 const statusMeta: Record<string, { label: string; badge: string; box: string }> = {
   "out-of-stock": { label: "OUT OF STOCK", badge: "bg-red-100 text-red-700", box: "bg-red-50 border-red-200" },
@@ -45,6 +47,7 @@ function tokens(name: string): string[] {
 export default function UnitPage() {
   const { showToast } = useToast();
   const { tenant } = useTenant();
+  const { fridges: simFridges } = useSimulation();
   const { unit, setUnit } = useRole();
 
   const units = useMemo(
@@ -80,16 +83,21 @@ export default function UnitPage() {
     d.items.some((it) => tokens(it.name).some((t) => unitTokens.has(t)))
   );
 
-  // Cold-chain snapshot (facility vaccine fridges) — contextual.
-  const fridges = tenant.coldChain.flatMap((site) =>
-    site.fridges.map((f) => ({ site: site.siteName, ...f }))
-  );
+  // Cold-chain snapshot — live simulated telemetry, matches /cold-chain.
+  const fridges = simFridges
+    .filter((f) => f.kind !== "Freezer")
+    .map((f) => ({
+      site: f.siteName,
+      type: f.kind,
+      tempF: f.readings[f.readings.length - 1].tempF,
+      status: f.status,
+    }));
 
   return (
     <div className="min-h-screen">
       <Header title="My Unit" subtitle={`${tenant.shortName} — point-of-use supply view`} />
 
-      <div className="p-8 max-w-5xl space-y-6">
+      <div className="p-4 md:p-8 max-w-5xl space-y-6">
         {/* Unit selector */}
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-muted uppercase tracking-wide">Unit</span>
@@ -108,7 +116,7 @@ export default function UnitPage() {
         </div>
 
         {/* Summary tiles */}
-        <div className="grid grid-cols-4 gap-4">
+        <div data-tour="unit-summary" className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {[
             { label: "Items Tracked", value: counts.total, icon: Package, color: "text-primary bg-primary/10" },
             { label: "Low Stock", value: counts.low, icon: AlertTriangle, color: "text-amber-600 bg-amber-50" },
@@ -127,7 +135,7 @@ export default function UnitPage() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Unit stock alerts + actions */}
-          <div className="col-span-7 bg-white rounded-xl border border-border p-5">
+          <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border p-5">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
               Needs Attention — {activeUnit}
@@ -174,7 +182,7 @@ export default function UnitPage() {
           </div>
 
           {/* Incoming deliveries + fridge status */}
-          <div className="col-span-5 space-y-6">
+          <div className="col-span-12 lg:col-span-5 space-y-6">
             <div className="bg-white rounded-xl border border-border p-5">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Truck className="w-4 h-4 text-accent" />
@@ -204,7 +212,7 @@ export default function UnitPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-border p-5">
+            <div data-tour="unit-fridges" className="bg-white rounded-xl border border-border p-5">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Snowflake className="w-4 h-4 text-primary" />
                 Vaccine Fridge Status
@@ -221,14 +229,20 @@ export default function UnitPage() {
                       />
                       <span className="text-muted truncate">{f.site} · {f.type}</span>
                     </div>
-                    <span className={cn("font-semibold shrink-0", f.status === "normal" ? "text-foreground" : "text-amber-600")}>
-                      {f.tempF}°F
+                    <span className={cn(
+                      "font-semibold shrink-0 tabular-nums",
+                      f.status === "normal" ? "text-foreground" : f.status === "alert" ? "text-amber-600" : "text-red-600"
+                    )}>
+                      {f.tempF.toFixed(1)}°F
                     </span>
                   </div>
                 ))}
               </div>
               <p className="text-[11px] text-muted mt-3 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Target range 36–46°F · logged twice daily
+                <Clock className="w-3 h-3" /> Target range 36–46°F · continuous DDL monitoring ·{" "}
+                <Link href="/cold-chain" className="text-primary hover:underline">
+                  view live charts
+                </Link>
               </p>
             </div>
           </div>

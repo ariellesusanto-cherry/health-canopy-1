@@ -759,7 +759,7 @@ export const aiInsights: AIInsight[] = [
     type: "cost-saving",
     severity: "info",
     title: "Vendor Consolidation Opportunity",
-    description: "Analysis shows 3 separate vendors supplying similar-spec nitrile gloves across 5 campuses at varying price points ($0.09–$0.15/unit). Consolidating to Medline's Vizient contract pricing would standardize at $0.10/unit.",
+    description: "Analysis shows 3 separate vendors supplying similar-spec nitrile gloves across all 3 sites at varying price points ($0.09–$0.15/unit). Consolidating to Medline's Vizient contract pricing would standardize at $0.10/unit.",
     timestamp: "2026-03-14T14:00:00",
     actionable: true,
     suggestedAction: "Initiate vendor consolidation review. Estimated annual savings: $23,400.",
@@ -781,11 +781,11 @@ export const aiInsights: AIInsight[] = [
     type: "prediction",
     severity: "low",
     title: "COVID Test Expiration — Action Needed",
-    description: "2,100 rapid COVID-19 antigen tests (lot LT-2026-0567) expire April 30, 2026. Current consumption rate: ~45 tests/day. At this rate, approximately 1,075 tests will expire unused.",
+    description: "4,200 rapid COVID-19 antigen tests (lot LT-2026-0567) expire April 30, 2026. Current consumption rate: ~45 tests/day. At this rate, approximately 2,175 tests will expire unused.",
     timestamp: "2026-03-13T16:00:00",
     actionable: true,
     suggestedAction: "Explore redistribution to Martinez Health Center and Martinez Wellness Center, or coordinate with Contra Costa Public Health for community testing events.",
-    impact: "Prevents $5,644 in waste from expired inventory",
+    impact: "Prevents $11,400 in waste from expired inventory",
   },
 ];
 
@@ -1178,7 +1178,7 @@ export const upcomingDeliveries: Delivery[] = [
     ],
     totalCost: 2_425,
     shippedDate: "2026-03-13",
-    estimatedArrival: "2026-03-15",
+    estimatedArrival: "2026-03-16",
     shippingCost: 65,
   },
 ];
@@ -1221,7 +1221,7 @@ export const delayedShipments: DelayedShipment[] = [
     carrierUpdate: "Shipment picked up Mar 15 — in transit via FedEx Freight. Revised ETA: Mar 18.",
     impactSeverity: "high",
     affectedDepartments: ["Med/Surg", "ICU"],
-    inventoryImpact: "Foley Catheter 16Fr stock at 210 units (PAR: 300). At current usage of 18/day, stock reaches zero by Mar 26 — but delayed arrival still covers need.",
+    inventoryImpact: "Foley Catheter 16Fr stock at 420 units (PAR: 600). At current usage of 18/day, stock hits the 240-unit reorder point around Mar 26 — delayed arrival still covers need.",
     mitigationOptions: [
       "Transfer 50 Foley 16Fr from Materials Management surplus to Med/Surg",
       "No emergency order needed — revised ETA still within safety window",
@@ -1270,7 +1270,7 @@ export const delayedShipments: DelayedShipment[] = [
     carrierUpdate: "Package in transit. Cleared Memphis hub Mar 15 AM. Updated ETA: Mar 17.",
     impactSeverity: "medium",
     affectedDepartments: ["Operating Rooms", "Materials Management"],
-    inventoryImpact: "Surgical Gown (L) at 540 units (PAR: 800). Sufficient for current OR schedule through Mar 19. If Mar 20 surgical volume spike proceeds as scheduled (18 cases), gowns may fall below minimum.",
+    inventoryImpact: "Surgical Gown (L) at 1,080 units (PAR: 1,600). Sufficient for current OR schedule through Mar 19. If the Mar 23 surgical volume spike proceeds as scheduled, gowns may fall below the 800-unit reorder point.",
     mitigationOptions: [
       "Monitor UPS tracking — likely to arrive Mar 17 as revised",
       "If Mar 17 delivery confirmed, no further action needed",
@@ -1287,7 +1287,7 @@ export const recentActivity = [
   { time: "07:30 AM", action: "Transfer completed", detail: "400 N95 Masks: CCRMC Warehouse → ED Supply Room & Martinez Health Center", user: "K. Patel" },
   { time: "07:00 AM", action: "Compliance scan", detail: "Daily TJC readiness check completed — Score: 88%", user: "System" },
   { time: "06:30 AM", action: "PO generated", detail: "Auto-generated PO #4521 for Heparin Sodium — Pfizer", user: "System" },
-  { time: "06:00 AM", action: "Expiration alert", detail: "Propofol 200mg — 180 units expiring Jun 15, 2026", user: "System" },
+  { time: "06:00 AM", action: "Expiration alert", detail: "Propofol 200mg — 360 units expiring Jun 15, 2026", user: "System" },
   { time: "05:45 AM", action: "Pyxis replenishment", detail: "Pyxis replenishment completed — CCRMC ICU Pyxis #3, CCRMC Family Birth Center Pyxis", user: "R. Nguyen" },
 ];
 

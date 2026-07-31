@@ -79,7 +79,7 @@ export default function AnalyticsPage() {
         subtitle="Cost optimization, vendor performance, and operational efficiency metrics"
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Time Range + Export */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {kpiCards.map((kpi) => (
             <div key={kpi.label} className="bg-white rounded-xl border border-border p-4">
               <div className="flex items-center justify-between mb-2">
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Cost Trend */}
-          <div className="col-span-7 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Monthly Spend vs. Budget</h3>
@@ -198,7 +198,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Waste Breakdown */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-border p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Waste & Loss Breakdown</h3>
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
         {/* Supplier Performance + Turnover */}
         <div className="grid grid-cols-12 gap-6">
           {/* Supplier Performance Table */}
-          <div className="col-span-7 bg-white rounded-xl border border-border overflow-hidden">
+          <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-border overflow-hidden">
             <div className="p-5 border-b border-border">
               <h3 className="text-sm font-semibold text-foreground">Vendor Performance Scorecard</h3>
               <p className="text-xs text-muted mt-0.5">Tracking on-time delivery, fill rate, and lead times across key suppliers</p>
@@ -300,7 +300,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Department Turnover */}
-          <div className="col-span-5 bg-white rounded-xl border border-border p-6">
+          <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-border p-6">
             <div className="mb-4">
               <h3 className="text-sm font-semibold text-foreground">Inventory Turnover by Department</h3>
               <p className="text-xs text-muted mt-0.5">Actual vs. industry benchmark — higher is more efficient</p>

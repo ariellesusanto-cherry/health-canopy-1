@@ -1,92 +1,91 @@
-# Health Canopy — 4-Minute Demo Script
-**Audience:** Allison, Director of Operations, UCSF Medical Center
+# Health Canopy — 5-Minute Demo Script (Contra Costa Health)
+
+**Audience:** Contra Costa Health leadership — supply chain, pharmacy, immunization program, and operations.
+**Setup before the room fills:** `npm run dev`, sign in, choose **Supply Chain Manager**, land on the Dashboard. Press `Shift+D` once to confirm the Demo Director opens, then close it. Reset simulation if you rehearsed.
 
 ---
 
-## Opening (15 sec)
+## Opening (20 sec)
 
-> "Allison, today UCSF manages supply chain across 5 campuses using multiple disconnected systems — one for med/surg, another for pharmacy, another for surgical. Health Canopy replaces all of them with a single AI-powered platform. Let me show you what that looks like."
-
----
-
-## 1. Dashboard — The Single Pane of Glass (60 sec)
-
-**Open:** `localhost:3000`
-
-> "This is your real-time operations view across all of UCSF Health."
-
-**Point to the KPI row:**
-> "41,000 SKUs tracked, 148 PAR locations across Parnassus, Mission Bay, Mount Zion, and both Benioff campuses — all in one view."
-
-**Point to Supply Chain Status strip:**
-> "You can instantly see which supply chains are healthy and which aren't. Right now Surgical/OR is at 76% — that's flagged critical because of a suture shortage and a spike in scheduled orthopedic cases next week."
-
-**Scroll to Cross-Location Imbalances:**
-> "This is something no existing system catches. Long 11th floor has nitrile gloves at 180% of PAR — they're hoarding after the flu alert — while Moffitt ICU is at 42%. The system recommends transferring 800 units to rebalance. One click to initiate."
+> "Today Contra Costa runs supply chain, vaccine cold chain, VFC compliance, and controlled-substance monitoring in separate systems — plus paper temperature logs in the clinics. Health Canopy is one platform for all of it, built for county health systems. Everything you're about to see is CCRMC and the Martinez clinics, with the other seven county health centers in the onboarding queue."
 
 ---
 
-## 2. AI Insights — Problems Before They Happen (60 sec)
+## 1. Dashboard — One Pane for the Whole System (60 sec)
 
-**Click:** `AI Insights` in sidebar
+**Stay on `/`.**
 
-> "This is where the AI earns its keep. It's not just tracking inventory — it's watching CDC surveillance data, scheduled procedures, and consumption patterns to predict what you'll need before you run out."
+> "18,470 SKUs across 34 PAR locations — the hospital and both Martinez clinics in one view."
 
-**Point to the flu surge alert (red):**
-> "Right now, CDC data shows a 34% week-over-week increase in flu activity across San Francisco. The AI predicts a 40 to 60% jump in ED respiratory visits within 7 to 10 days. It's already calculated exactly what to pre-order — N95s, Tamiflu, flu tests — with quantities, suppliers, and costs."
+**Point at the Surgical/OR chain (highlighted red):**
+> "The system is telling you where to look: Surgical/OR is at 74% fill because of a suture shortage — and there's already a PO pending approval for it."
 
-**Point to the fentanyl anomaly alert:**
-> "It also catches things humans miss. Fentanyl usage in the ICU spiked 47% over 5 days with no change in patient census. That's a potential diversion signal — flagged automatically for pharmacy review."
+**Point at Items Needing Attention:**
+> "Notice these aren't just med/surg items. Those VFC badges are short-dated vaccine lots — MMR at Martinez Wellness expiring April 18. The system's suggestion: use first per FIFO, or transfer to another VFC provider through MyCAVax. That's county-health-specific intelligence."
 
-**Click "Take Action" on an alert:**
-> "Every alert is actionable. One click assigns it to the right department."
-
----
-
-## 3. Forecasting — What-If Scenarios (60 sec)
-
-**Click:** `Forecasting` in sidebar
-
-**Point to the demand forecast chart:**
-> "This 14-day forecast combines historical usage, your scheduled surgeries, census projections, and the flu data. You can see consumption is projected to climb 10% by end of month."
-
-**Click the "Flu Surge" scenario button:**
-> "But the real power is scenario planning. If the flu surge hits — PPE burn rate jumps 56%, Tamiflu stocks out in 5 days, and you're looking at 11 items at risk. But if you pre-order now, using these 6 AI-recommended orders, you save $45,000 versus emergency procurement."
-
-**Click the "Supply Disruption" scenario:**
-> "Or what if Medline and Cardinal Health get delayed 5 days? That's 42% of your supply volume. The system shows exactly which OR cases are at risk and recommends backup vendors and cross-campus transfers from Mount Zion."
+**Point at Cross-Location Imbalances:**
+> "And it catches imbalances between sites — Wellness has 165% of PAR on MMR while the Health Center is at 35% with well-child visits scheduled. Suggested transfer: 12 doses. One click."
 
 ---
 
-## 4. Inventory + Compliance — Depth When You Need It (45 sec)
+## 2. Cold Chain — The Live Wire (75 sec)
 
-**Click:** `Inventory` in sidebar
+**Click `Cold Chain` in the sidebar.**
 
-> "Every SKU, every PAR location, every campus — searchable and filterable."
+> "Every vaccine storage unit in the county on continuous digital data loggers — this is live telemetry, not a twice-a-day paper log. The green band is the CDC range, 36 to 46."
 
-**Click on Fentanyl row to expand:**
-> "Click any item and you see exactly where it sits — Controlled Substance Vault on Moffitt 1st, OR Anesthesia Pyxis on Long 3rd, ICU Pyxis on Moffitt 8th, Mission Bay L&D. Each with quantities, storage type, and Vizient contract reference."
+**Select the Martinez Wellness VFC fridge:**
+> "This unit has been drifting warm for about sixteen hours — 43 degrees and climbing. Still in range, but watch what happens when it isn't."
 
-**Click:** `Compliance` in sidebar
+**Press `Shift+D` → Trigger fridge excursion. Narrate as it climbs (~20 sec):**
+> "The moment it crosses 46… there's the alarm. 198 VFC doses, eleven lots, about $14,000 at risk. And this isn't just a text message to whoever's on call — look at the sidebar badge, and the AI has already written the response plan: move stock to the backup unit, mark doses do-not-use, log the excursion in MyCAVax, dispatch the repair vendor."
 
-> "Joint Commission readiness is continuous, not annual. You're at 88% right now. Infection Prevention is declining at 78% — the system links that directly to the hand hygiene supply gaps and N95 fit-testing backlog it's already flagged."
+**Click "Move doses to backup unit":**
+> "One click executes it. Temperature recovering, transfer logged, excursion documented for CDPH. From alarm to protected doses in under a minute — that's the difference between continuous monitoring and finding a warm fridge Monday morning."
 
----
-
-## 5. AI Assistant — Ask Anything (15 sec)
-
-**Click the sparkle button (bottom-right):**
-
-**Click:** "How's our flu preparedness?"
-
-> "And your team can ask the system anything in plain English. It queries inventory, orders, compliance data, and CDC feeds in real time."
+**Click `Dashboard` briefly:** the excursion insight is at the top of AI Insights and in the activity feed.
+> "And the whole event is already on the operations dashboard and the audit trail."
 
 ---
 
-## Close (15 sec)
+## 3. Vaccine Mgmt — VFC Without the Binder (60 sec)
 
-> "Health Canopy gives UCSF one unified system across all 5 campuses, AI that predicts problems before they hit, and scenario planning that turns reactive procurement into proactive strategy. We'd love to set up a deeper dive with your supply chain and pharmacy leads."
+**Click `Vaccine Mgmt`.**
+
+> "Your VFC plan is usually a binder. Here it's a living system — coordinators, training status, equipment and data logger documentation with calibration countdowns, and the full task schedule from twice-daily temp checks to annual recertification."
+
+**Scroll to the Point-of-Care Scan Inspector, expand a scan:**
+> "This is the workflow that matters: a nurse scans the vial's barcode once. That one scan posts to ccLink, submits to CAIR2, decrements the right fridge, logs to MyCAVax, and writes the audit trail — five systems, zero double entry. And the scanner blocks the dose if the lot's expired or a VFC-eligible child was matched against private stock."
 
 ---
 
-**Total: ~4 minutes**
+## 4. AI — Forecasting + Ask Anything (75 sec)
+
+**Click `Forecasting`, then the "Respiratory Surge" scenario:**
+> "County surveillance shows respiratory illness up 28% week over week — East County highest, wastewater confirming. If the surge hits, here's the impact: PPE burn up 56%, Tamiflu stocks out, eleven items at risk. The AI's already built the pre-order list — vaccines, Tamiflu, rapid tests, N95s — with quantities split across the three sites. Ordering now versus emergency procurement saves about $18,000."
+
+**Open the AI assistant (sparkle button). Ask: "Which fridge should I be worried about right now?"** *(live mode)*
+> "This is the same AI your staff can just… ask. It's reading the actual telemetry — including the excursion we just ran — and answering with the numbers on screen."
+
+*(Fallback if no API key: click the "What items are critically low right now?" suggestion instead.)*
+
+---
+
+## 5. Close — Executive View (30 sec)
+
+**Switch role → Executive.**
+
+> "For leadership: read-only, one page — compliance readiness at 88, site-level status, spend against budget. And here's the rollout: three sites live today, seven health centers onboarding — Antioch, Pittsburg, Concord, San Pablo, Brentwood, North Richmond, Bay Point. Full-county coverage on one platform, priced for a county health system — not four separate vendors."
+
+> "We'd love to set up a working session with your supply chain, pharmacy, and immunization teams."
+
+---
+
+**Total: ~5 minutes.**
+
+## Rehearsal notes
+
+- `Shift+D` toggles the Demo Director; **Reset simulation** restores the baseline between run-throughs.
+- The excursion takes ~20–30 seconds to cross the alarm after triggering — start narrating the drift story while it climbs.
+- Demo clock is Mon Mar 16, 2026; don't mention today's real date.
+- If asked about integrations: ccLink (Epic) via HL7/FHIR, CAIR2 via HL7, MyCAVax via CDPH interfaces — the demo simulates the fan-out per scan.

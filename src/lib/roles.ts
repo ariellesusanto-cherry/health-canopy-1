@@ -26,6 +26,7 @@ export type NavSectionId =
   | "executive-overview"
   | "inventory"
   | "vaccine-management"
+  | "cold-chain"
   | "ai-insights"
   | "forecasting"
   | "financials"
@@ -49,6 +50,7 @@ export const NAV_SECTIONS: Record<NavSectionId, NavSection> = {
   "executive-overview": { id: "executive-overview", label: "Executive Overview", href: "/executive" },
   inventory: { id: "inventory", label: "Inventory", href: "/inventory" },
   "vaccine-management": { id: "vaccine-management", label: "Vaccine Mgmt", href: "/vaccine-management" },
+  "cold-chain": { id: "cold-chain", label: "Cold Chain", href: "/cold-chain" },
   "ai-insights": { id: "ai-insights", label: "AI Insights", href: "/ai-insights" },
   forecasting: { id: "forecasting", label: "Forecasting", href: "/forecasting" },
   financials: { id: "financials", label: "Financials", href: "/budget" },
@@ -81,12 +83,13 @@ export const ROLES: Record<RoleId, RoleConfig> = {
     id: "supply-chain-manager",
     label: "Supply Chain Manager",
     shortLabel: "Supply Chain",
-    description: "Operational control across all campuses — alerts, PAR, vendors, spend.",
+    description: "Operational control across all sites — alerts, PAR, vendors, spend.",
     landingRoute: "/",
     navSections: [
       "dashboard",
       "inventory",
       "vaccine-management",
+      "cold-chain",
       "ai-insights",
       "forecasting",
       "financials",
@@ -105,7 +108,7 @@ export const ROLES: Record<RoleId, RoleConfig> = {
     shortLabel: "Unit Coordinator",
     description: "Point-of-use view for a single unit — stock, alerts, deliveries.",
     landingRoute: "/unit",
-    navSections: ["unit-overview", "inventory", "vaccine-management"],
+    navSections: ["unit-overview", "inventory", "vaccine-management", "cold-chain"],
     dataScope: "unit",
     defaultUnit: "Med/Surg",
     readOnly: false,
@@ -117,7 +120,7 @@ export const ROLES: Record<RoleId, RoleConfig> = {
     id: "executive",
     label: "Executive",
     shortLabel: "Executive",
-    description: "Read-only, cross-campus state of the system for leadership.",
+    description: "Read-only, cross-site state of the system for leadership.",
     landingRoute: "/executive",
     navSections: ["executive-overview"],
     dataScope: "system",

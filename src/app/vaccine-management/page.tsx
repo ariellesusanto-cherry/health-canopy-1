@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { VfcTask } from "@/lib/tenants";
+import { DEMO_NOW } from "@/lib/demo-time";
 
 const cadenceLabels: Record<VfcTask["cadence"], string> = {
   daily: "Daily",
@@ -59,9 +60,9 @@ export default function VaccineManagementPage() {
         subtitle={`${tenant.name} — CDPH VFC compliance program`}
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Compliance overview strip */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <ComplianceCard
             label="VFC Enrollment"
             value="Active"
@@ -100,7 +101,7 @@ export default function VaccineManagementPage() {
           title="Important Contacts"
           subtitle="Practice staff and emergency contacts required by the VFC plan"
         >
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ContactGroup title="Practice Staff" contacts={tenant.vfcContacts.practice} />
             <ContactGroup
               title="Emergency Contacts"
@@ -136,7 +137,7 @@ export default function VaccineManagementPage() {
               <tbody>
                 {tenant.vfcEquipment.map((u) => {
                   const calDate = new Date(u.calibrationExpires);
-                  const today = new Date("2026-06-03");
+                  const today = DEMO_NOW;
                   const daysToExpiry = Math.round((calDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                   const calTone =
                     daysToExpiry < 30 ? "text-red-600" :
@@ -245,7 +246,7 @@ export default function VaccineManagementPage() {
           title="Initial Equipment Setup Guide"
           subtitle="VFC program requirements for storage units and digital data loggers"
         >
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-xl border border-border p-5 bg-stone-50/50">
               <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Thermometer className="w-4 h-4 text-accent" />
@@ -313,6 +314,7 @@ export default function VaccineManagementPage() {
         <Section
           number={null}
           icon={ScanLine}
+          tourId="scan-inspector"
           title="Point-of-Care Scan Inspector"
           subtitle={`Each scan fans out to 5 systems. Verify the data flow per dose — ${tenant.vfcScans[0]?.ehrSystem ?? "EHR"} → ${tenant.vfcCompliance.registry} → inventory → MyCAVax → audit log.`}
         >
@@ -423,16 +425,18 @@ function Section({
   icon: Icon,
   title,
   subtitle,
+  tourId,
   children,
 }: {
   number: number | null;
   icon?: typeof ShieldCheck;
   title: string;
   subtitle: string;
+  tourId?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-border p-6">
+    <div data-tour={tourId} className="bg-white rounded-xl border border-border p-6">
       <div className="flex items-start gap-3 mb-5">
         {number !== null ? (
           <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">

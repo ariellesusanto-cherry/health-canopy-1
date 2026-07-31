@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 import { inventoryItems, departments, itemLocations, parLocations, type InventoryItem } from "@/lib/mock-data";
 import { useTenant } from "@/lib/tenant-context";
+import { useRole } from "@/lib/role-context";
 import { MapPin } from "lucide-react";
 
 const categoryFilters = ["All", "PPE", "Medication", "Supplies", "Surgical", "Controlled Substance", "Respiratory", "Testing", "Laboratory"];
@@ -91,6 +92,16 @@ function StockBar({ current, par, reorder }: { current: number; par: number; reo
 export default function InventoryPage() {
   const { showToast } = useToast();
   const { tenant } = useTenant();
+  const { role, unit } = useRole();
+  // Unit-scoped personas (Nurse / Unit Supply Coordinator) only see their
+  // own unit's stock — no cross-site rollups, no other departments.
+  const unitScoped = role?.dataScope === "unit";
+  const scopeUnit = unitScoped ? (unit ?? role?.defaultUnit ?? "Med/Surg") : null;
+  const canManage = !!role && !role.readOnly && role.dataScope === "system";
+  const baseItems = useMemo(
+    () => (scopeUnit ? inventoryItems.filter((i) => i.department === scopeUnit) : inventoryItems),
+    [scopeUnit]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -107,7 +118,7 @@ export default function InventoryPage() {
   const [perPage, setPerPage] = useState(15);
 
   const filtered = useMemo(() => {
-    let items = [...inventoryItems];
+    let items = [...baseItems];
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -144,7 +155,7 @@ export default function InventoryPage() {
     });
 
     return items;
-  }, [searchQuery, selectedCategory, selectedStatus, selectedDepartment, selectedSupplyChain, sortField, sortDir]);
+  }, [baseItems, searchQuery, selectedCategory, selectedStatus, selectedDepartment, selectedSupplyChain, sortField, sortDir]);
 
   // Reset to page 1 when filters change
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -162,6 +173,17 @@ export default function InventoryPage() {
 
   const summaryStats = useMemo(() => {
     const baseRawValue = inventoryItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0);
+    if (unitScoped) {
+      // Point-of-use view: counts come straight from the unit's items.
+      return {
+        total: baseItems.length,
+        inStock: baseItems.filter((i) => i.status === "in-stock").length,
+        lowStock: baseItems.filter((i) => i.status === "low-stock").length,
+        critical: baseItems.filter((i) => i.status === "critical" || i.status === "out-of-stock").length,
+        expiring: baseItems.filter((i) => i.status === "expiring-soon").length,
+        totalValue: baseItems.reduce((sum, i) => sum + i.currentStock * i.unitCost, 0),
+      };
+    }
     if (selectedSite) {
       const siteShare = selectedSite.totalItems / tenant.inventoryBreakdown.total;
       return {
@@ -177,15 +199,15 @@ export default function InventoryPage() {
       ...tenant.inventoryBreakdown,
       totalValue: baseRawValue * tenant.financialScale,
     };
-  }, [tenant, selectedSite]);
+  }, [tenant, selectedSite, unitScoped, baseItems]);
 
   return (
     <div className="min-h-screen">
-      <Header title="Inventory Management" subtitle="Real-time stock tracking across all departments and locations" />
+      <Header title="Inventory Management" subtitle={unitScoped ? `Point-of-use stock for ${scopeUnit} — your unit only` : "Real-time stock tracking across all departments and locations"} />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div data-tour="inv-summary" className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
           {[
             { label: "Total SKUs", value: summaryStats.total.toLocaleString(), icon: Package, color: "text-primary bg-primary/10" },
             { label: "In Stock", value: summaryStats.inStock.toLocaleString(), icon: CheckCircle2, color: "text-accent bg-accent/10" },
@@ -193,7 +215,7 @@ export default function InventoryPage() {
             { label: "Critical / OOS", value: summaryStats.critical.toLocaleString(), icon: XCircle, color: "text-red-600 bg-red-50", tooltip: "Critical stock or completely Out of Stock" },
             { label: "Expiring Soon", value: summaryStats.expiring.toLocaleString(), icon: Clock, color: "text-amber-600 bg-amber-50" },
             { label: "Inventory Value", value: `$${(summaryStats.totalValue / 1000).toFixed(0)}K`, icon: FileBarChart, color: "text-primary bg-primary/10" },
-            { label: "PAR Locations", value: selectedSite ? selectedSite.parLocations : tenant.metrics.parLocationCount, icon: MapPin, color: "text-primary bg-primary/10" },
+            { label: "PAR Locations", value: unitScoped ? String(Math.max(2, parLocations.filter((p) => p.department === scopeUnit).length)) : selectedSite ? selectedSite.parLocations : tenant.metrics.parLocationCount, icon: MapPin, color: "text-primary bg-primary/10" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
               <div className={cn("p-2 rounded-lg", s.color)}>
@@ -214,7 +236,8 @@ export default function InventoryPage() {
         </div>
 
         {/* Department Quick View */}
-        {/* Site Overview — click a site to filter the view */}
+        {/* Site Overview — click a site to filter the view (system scope only) */}
+        {!unitScoped && (
         <div className="bg-white rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">
@@ -362,9 +385,12 @@ export default function InventoryPage() {
           </div>
         </div>
 
+        )}
+
+        {!unitScoped && (
         <div className="bg-white rounded-xl border border-border p-5">
           <h3 className="text-sm font-semibold text-foreground mb-3">Department Overview</h3>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
             {departments.map((dept) => {
               const DeptIcon = deptIcons[dept.name] || Package;
               const isSelected = selectedDepartment === dept.name;
@@ -400,6 +426,8 @@ export default function InventoryPage() {
             })}
           </div>
         </div>
+
+        )}
 
         {/* Filters + Search */}
         <div className="bg-white rounded-xl border border-border p-5">
@@ -477,10 +505,12 @@ export default function InventoryPage() {
           </div>
 
           <p className="text-xs text-muted mb-3">
-            Showing {filtered.length} of {selectedSite ? selectedSite.totalItems.toLocaleString() : tenant.metrics.totalSKUs} items
+            Showing {filtered.length} of {unitScoped ? baseItems.length.toLocaleString() : selectedSite ? selectedSite.totalItems.toLocaleString() : tenant.metrics.totalSKUs} items
             {selectedDepartment !== "All" && <span className="font-medium"> in {selectedDepartment}</span>}
             <span className="text-muted ml-1">
-              — {selectedSite
+              — {unitScoped
+                ? <>scoped to <span className="font-medium text-primary">{scopeUnit} (your unit)</span></>
+                : selectedSite
                 ? <>scoped to <span className="font-medium text-primary">{selectedSite.siteName}</span></>
                 : <>across {tenant.campusCount} {tenant.shortName} {tenant.campusLabel}</>}
             </span>
@@ -502,7 +532,7 @@ export default function InventoryPage() {
                     { field: "status" as const, label: "Status", width: "w-[110px]" },
                   ].map((col) => (
                     <th
-                      key={col.field}
+                      key={col.label}
                       className={cn("text-left text-[11px] font-semibold text-muted uppercase tracking-wider px-3 py-3 cursor-pointer hover:text-foreground", col.width)}
                       onClick={() => handleSort(col.field)}
                     >
@@ -631,6 +661,15 @@ export default function InventoryPage() {
                     <p className="text-xs text-muted mt-0.5">SKU: {item.sku} | Lot: {item.lotNumber}</p>
                   </div>
                   <div className="flex gap-2">
+                    {canManage && (
+                      <ParAdjuster
+                        itemName={item.name}
+                        parLevel={item.parLevel}
+                        onSave={(newPar) =>
+                          showToast(`PAR level for ${item.name} updated to ${newPar.toLocaleString()} — replenishment targets recalculated`)
+                        }
+                      />
+                    )}
                     <button
                       onClick={() => showToast(`Reorder request initiated for ${item.name} — PO draft created for ${item.supplier}`)}
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5"
@@ -651,7 +690,7 @@ export default function InventoryPage() {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                   {[
                     { label: "Current Stock", value: item.currentStock.toLocaleString() },
                     { label: "PAR Level", value: item.parLevel.toLocaleString(), tooltip: "Periodic Automatic Replenishment — the target stock level to maintain" },
@@ -775,6 +814,72 @@ export default function InventoryPage() {
           })()}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ---- PAR adjustment (Supply Chain Manager mock action) ----
+
+function ParAdjuster({
+  itemName,
+  parLevel,
+  onSave,
+}: {
+  itemName: string;
+  parLevel: number;
+  onSave: (newPar: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(parLevel);
+  const step = Math.max(10, Math.round(parLevel * 0.05 / 10) * 10);
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => {
+          setValue(parLevel);
+          setOpen(true);
+        }}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5"
+        title={`Adjust PAR level for ${itemName}`}
+      >
+        <ArrowUpDown className="w-3.5 h-3.5" /> Adjust PAR
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 px-2 py-1 border border-primary/30 rounded-lg bg-primary/5">
+      <button
+        onClick={() => setValue((v) => Math.max(step, v - step))}
+        className="w-6 h-6 rounded text-primary font-bold hover:bg-primary/10"
+      >
+        −
+      </button>
+      <span className="text-xs font-bold text-foreground tabular-nums w-14 text-center">
+        {value.toLocaleString()}
+      </span>
+      <button
+        onClick={() => setValue((v) => v + step)}
+        className="w-6 h-6 rounded text-primary font-bold hover:bg-primary/10"
+      >
+        +
+      </button>
+      <button
+        onClick={() => {
+          setOpen(false);
+          onSave(value);
+        }}
+        className="ml-1 px-2 py-1 text-[11px] font-semibold rounded bg-primary text-white hover:bg-primary-dark"
+      >
+        Save
+      </button>
+      <button
+        onClick={() => setOpen(false)}
+        className="px-1.5 py-1 text-[11px] text-muted hover:text-foreground"
+      >
+        Cancel
+      </button>
     </div>
   );
 }

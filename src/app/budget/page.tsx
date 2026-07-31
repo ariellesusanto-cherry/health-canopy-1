@@ -91,8 +91,8 @@ export default function BudgetPage() {
   const totalYtdBudget = budgetAllocation.reduce((s, b) => s + b.ytdBudget, 0) * scale;
   const totalForecast = budgetAllocation.reduce((s, b) => s + b.forecast, 0) * scale;
   const totalInventoryValue = inventoryValuation.reduce((s, v) => s + v.totalValue, 0) * scale;
-  const pendingPOTotal = upcomingPurchaseOrders.reduce((s, po) => s + po.totalCost, 0) * scale;
-  const inTransitTotal = upcomingDeliveries.reduce((s, d) => s + d.totalCost, 0) * scale;
+  const pendingPOTotal = upcomingPurchaseOrders.reduce((s, po) => s + po.totalCost, 0);
+  const inTransitTotal = upcomingDeliveries.reduce((s, d) => s + d.totalCost, 0);
 
   const budgetVariance = totalYtdSpend - totalYtdBudget;
   const budgetVariancePct = ((budgetVariance / totalYtdBudget) * 100);
@@ -104,9 +104,9 @@ export default function BudgetPage() {
         subtitle="Inventory budget tracking, purchase orders, and delivery cost forecasting"
       />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Top KPI Cards */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {[
             {
               label: "Annual Inventory Budget",
@@ -213,7 +213,12 @@ export default function BudgetPage() {
               </div>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={monthlySpendForecast}>
+                  <ComposedChart data={monthlySpendForecast.map((m) => ({
+                    month: m.month,
+                    actual: m.actual === null ? null : Math.round(m.actual * scale),
+                    budget: Math.round(m.budget * scale),
+                    forecast: m.forecast === null ? null : Math.round(m.forecast * scale),
+                  }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f5efe6" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6057" }} axisLine={{ stroke: "#e6ddd0" }} />
                     <YAxis
@@ -353,7 +358,7 @@ export default function BudgetPage() {
         {/* ============================================ */}
         {activeTab === "orders" && (
           <div className="space-y-6">
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
               {[
                 { label: "AI Recommended", count: upcomingPurchaseOrders.filter(p => p.status === "ai-recommended").length, cost: upcomingPurchaseOrders.filter(p => p.status === "ai-recommended").reduce((s, p) => s + p.totalCost, 0), color: "bg-red-50 text-red-600 border-red-200" },
                 { label: "Pending Approval", count: upcomingPurchaseOrders.filter(p => p.status === "pending-approval").length, cost: upcomingPurchaseOrders.filter(p => p.status === "pending-approval").reduce((s, p) => s + p.totalCost, 0), color: "bg-amber-50 text-amber-600 border-amber-200" },
@@ -463,7 +468,7 @@ export default function BudgetPage() {
         {activeTab === "deliveries" && (
           <div className="space-y-6">
             {/* Summary stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl bg-accent/10 border border-accent/20 flex items-center gap-3">
                 <Truck className="w-5 h-5 text-accent shrink-0" />
                 <div>
@@ -694,7 +699,7 @@ export default function BudgetPage() {
               <p className="text-xs text-muted mb-4">
                 Based on current consumption rates, PAR levels, and scheduled procedures, these orders will need to be placed this week
               </p>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { supplier: "Ethicon (J&J)", items: "Vicryl 3-0 + 2-0 Sutures", qty: "300 units", estCost: "$2,980", estShipping: "$45", deliveryEta: "Mar 19-20", reason: "Suture stock critically low (15 units). OR schedule requires ~80 units by Mar 20." },
                   { supplier: "Fisher & Paykel", items: "Ventilator Circuits + Humidifier Chambers", qty: "75 units", estCost: "$1,225", estShipping: "$35", deliveryEta: "Mar 22-23", reason: "Current stock: 0 ventilator circuits. ICU has 4 ventilated patients." },

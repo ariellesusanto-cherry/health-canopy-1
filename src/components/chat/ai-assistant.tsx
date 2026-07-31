@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTenant } from "@/lib/tenant-context";
+import { useSimulation } from "@/lib/simulation";
 import type { Tenant } from "@/lib/tenants";
 
 // ---------------------------------------------------------------------------
@@ -41,6 +42,22 @@ type TypingPhase =
   | { stage: "thinking" }
   | { stage: "tool-call"; label: string }
   | { stage: "generating" };
+
+/** Whether responses come from the live Claude API or the scripted engine. */
+type AssistantMode = "unknown" | "live" | "scripted";
+
+// Friendly progress labels for the live API's tool names.
+const LIVE_TOOL_LABELS: Record<string, string> = {
+  query_inventory: "Searching inventory database...",
+  get_attention_items: "Checking items needing attention...",
+  get_item_locations: "Locating stock across PAR locations...",
+  get_procurement: "Querying purchase orders & deliveries...",
+  get_cold_chain: "Reading cold chain telemetry...",
+  get_vfc_program: "Pulling VFC program records...",
+  get_compliance: "Pulling compliance engine data...",
+  get_financials: "Analyzing budget & vendor data...",
+  get_forecast_and_insights: "Running forecast models...",
+};
 
 // ---------------------------------------------------------------------------
 // Suggestion chips
@@ -86,15 +103,17 @@ function matchResponse(input: string, tenant: Tenant): MockResponse {
       content: `I found **5 items** that need attention right now:
 
 **CRITICAL** (below 25% of PAR level):
-- **Vicryl 3-0 Suture** \u2014 15 units remaining (PAR: 200). Supplier: Ethicon (J&J). A PO (PO-4522) for 200 units is pending approval, expected delivery Mar 19.
-- **Heparin Sodium 5000U/mL** \u2014 45 units remaining (PAR: 200). Supplier: Pfizer. PO-4521 for 200 units was submitted today, expected Mar 20.
+- **Vicryl 3-0 Suture** \u2014 30 units remaining (PAR: 400). Supplier: Ethicon (J&J). PO-4522 for 200 units is pending approval, expected delivery Mar 19.
+- **Heparin Sodium 5000U/mL** \u2014 90 units remaining (PAR: 400). Supplier: Pfizer. PO-4521 for 200 units was submitted today, expected Mar 20.
 
 **OUT OF STOCK:**
-- **Ventilator Circuit (Adult)** \u2014 0 units (PAR: 50). Last received Feb 15 from Fisher & Paykel. AI-recommended PO-4523 has been generated for 50 units.
+- **Ventilator Circuit (Adult)** \u2014 0 units (PAR: 100). Last received Feb 15 from Fisher & Paykel. AI-recommended PO-4523 has been generated for 50 units.
 
 **LOW STOCK** (below reorder point):
-- **N95 Respirator Masks** \u2014 3,200 units (reorder point: 2,500). With flu surge predicted, AI has recommended PO-4524 for 3,000 additional units from 3M Healthcare.
-- **Sterile Surgical Gown (L)** \u2014 540 units (reorder point: 400, PAR: 800). PO-4526 for 300 units approved, delivery expected Mar 17.
+- **N95 Respirator Masks** \u2014 6,400 units (PAR: 10,000, reorder point: 5,000). With the respiratory surge predicted, AI has recommended PO-4524 for 3,000 additional units from 3M Healthcare.
+- **Sterile Surgical Gown (L)** \u2014 1,080 units (PAR: 1,600, reorder point: 800). PO-4526 for 300 units approved, delivery expected Mar 17.
+
+There are also **3 VFC vaccine lots flagged as short-dated** \u2014 MMR at Martinez Wellness (expires Apr 18), Tdap at Martinez Health Center (Apr 26), and pediatric Hep B at CCRMC Peds (May 8). The MMR surplus has a suggested transfer to Martinez Health Center.
 
 Would you like me to fast-track any of these purchase orders?`,
     };
@@ -165,17 +184,18 @@ ${tenant.localHealthDept} and CDC ILINet data show a sharp week-over-week increa
 **Current Respiratory Supply Status:**
 | Item | On Hand | PAR | Status |
 |---|---|---|---|
-| N95 Respirator Masks | 3,200 | 5,000 | Low |
-| Rapid COVID-19 Antigen Test | 2,100 | 3,000 | Expiring Apr 30 |
-| Endotracheal Tube 7.5mm | 120 | 150 | Adequate |
-| Ventilator Circuit (Adult) | 0 | 50 | Out of Stock |
+| N95 Respirator Masks | 6,400 | 10,000 | Low |
+| Rapid Flu Test Kits | 0 | 400 | Out at all 3 sites |
+| Tamiflu (Oseltamivir 75mg) | 18 | 120 | Critical |
+| Rapid COVID-19 Antigen Test | 4,200 | 6,000 | Expiring Apr 30 |
+| Ventilator Circuit (Adult) | 0 | 100 | Out of Stock |
 
 **AI Recommendations (auto-generated):**
 1. PO-4524: 3,000 N95 masks + 10 fit-test kits from 3M Healthcare ($6,000)
 2. PO-4523: 50 ventilator circuits + 25 humidifier chambers from Fisher & Paykel ($1,225)
-3. Pre-order 200 units of Tamiflu and 1,500 rapid flu tests (not yet generated)
+3. Expedited Tamiflu PO to McKesson (est. 120 units) and Abbott rapid flu tests (600 units) \u2014 flagged on the dashboard
 
-**Estimated savings vs. emergency procurement:** $45,000
+**Estimated savings vs. emergency procurement:** $18,000
 
 The Emergency Management compliance chapter (EM) currently scores 84%. Approving these POs would help close the 96-hour sustainability gap identified in finding FND-006.
 
@@ -201,35 +221,33 @@ Want me to generate the additional POs for Tamiflu and flu tests?`,
       toolMs: 1300,
       content: `**Equipment Maintenance Summary**
 
-Found **4 items with overdue preventive maintenance:**
+Found **3 items with overdue preventive maintenance:**
 
-| Equipment | Model | Dept / Site | Last PM | Overdue By | Risk |
+| Equipment | Model | Dept | Last PM | Overdue By | Risk |
 |---|---|---|---|---|---|
-| **VFC Vaccine Refrigerator** | Follett REF-VAC-25 | Martinez Wellness \u00b7 Vaccine Rm | Dec 14, 2025 | 22 days | **High** \u2014 calibration expired, blocks ${tenant.vfcCompliance.registry} dose reporting |
-| Infusion Pump | Alaris 8015 | Med/Surg | Nov 10, 2025 | 33 days | High |
+| Infusion Pump | Alaris 8015 | Med/Surg | Nov 10, 2025 | 34 days | High |
 | Ultrasound System | LOGIQ E10s | ED | Oct 15, 2025 | 60 days | Medium |
-| Fetal Monitor | Series 700 | L&D | Dec 1, 2025 | 14 days | High |
+| Fetal Monitor | Series 700 | L&D | Dec 1, 2025 | 15 days | High |
 
-**VFC Refrigerator Detail:**
-- Data logger (LogTag UTRIX-16, serial LT-88311) calibration certificate **expired** \u2014 CDPH requires NIST-traceable calibration before continued vaccine storage
-- Authorized service vendor: **Follett Service (800-523-9361)** \u2014 see Section 1 emergency contacts
-- Risk to compliance: a CDPH Field Representative unannounced visit during this window would flag the unit. Vaccines must be moved to the backup VFC fridge until recalibration is confirmed.
+**Vaccine Storage Watch Items:**
+- **Martinez Wellness VFC fridge (VFC-FR-MWC-01)** is reading **43\u00b0F** \u2014 inside the 36\u201346\u00b0F range but trending toward the high alarm. 198 doses on hand.
+- Its data logger (LogTag UTRIX-16, serial LT-88311) calibration expires **Apr 12** \u2014 27 days out. CDPH requires a current NIST-traceable certificate; schedule recalibration now.
+- Authorized service vendor: **Follett Service (800-523-9361)** \u2014 see Vaccine Mgmt Section 1 emergency contacts.
 
 **Compliance Impact:**
 - Finding FND-001: 3 infusion pumps not in equipment inventory registry (Biomed Engineering, due Mar 22)
 - Finding FND-002: Ultrasound PM overdue 60 days (due Mar 20)
 - Finding FND-007: Fetal Monitor not classified as high-risk despite continuous intrapartum use (due Mar 23)
-- Finding FND-VFC-01: VFC fridge calibration overdue \u2014 escalate to Vaccine Coordinator (${tenant.vfcCompliance.vaccineCoordinator})
 
 **Due Soon (next 30 days):**
-- VFC Freezer Calibration (CCRMC Pharmacy) \u2014 due in 9 days
 - Patient Monitor (IntelliVue MX800) \u2014 ICU, due Mar 20
 - Anesthesia Machine (Aisys CS2) \u2014 OR, due Apr 5
+- MWC VFC fridge data logger recalibration \u2014 due Apr 12
 - Ventilator (Puritan Bennett 980) \u2014 ICU, due Apr 15
 
-The 4 overdue items pull the Environment of Care (EC) score down to 87%. Resolving the VFC refrigerator alone also protects the VFC enrollment status.
+The 3 overdue items pull the Environment of Care (EC) score down to 87%. Escalation contact: Vaccine Coordinator ${tenant.vfcCompliance.vaccineCoordinator}.
 
-Should I generate work orders + page Follett Service for the VFC fridge?`,
+Should I generate work orders and schedule the data logger recalibration?`,
     };
   }
 
@@ -291,7 +309,7 @@ Want me to drill into any specific chapter or finding?`,
       toolMs: 900,
       content: `**Upcoming Deliveries:**
 
-**Out for Delivery Today (Mar 15):**
+**Out for Delivery Today (Mar 16):**
 - **DEL-8903** from BD Medical via UPS Ground
   - IV Catheter 20G (300 units)
   - IV Catheter 18G (200 units)
@@ -331,18 +349,18 @@ Want me to set up receiving alerts for any of these?`,
       toolMs: 1100,
       content: `**Budget Overview \u2014 FY 2026 YTD**
 
-Total annual budget: **$11.4M** across all categories.
-YTD spend through March: **$4.87M** (42.7% of annual budget, 5 months in = on track).
+Total annual budget: **$11.2M** across all categories.
+YTD spend through mid-March: **$5.4M** (48% of annual budget, ~5.5 months into the fiscal year \u2014 on track).
 
 **Categories Over Budget YTD:**
-- PPE & Safety: $642K spent vs. $592K budgeted (+$50K / 8.4% over)
-- Controlled Substances: $295K vs. $283K (+$12K / 4.2% over)
-- Surgical Supplies: $1.38M vs. $1.33M (+$47K / 3.5% over)
+- PPE & Safety: $211K spent vs. $194K budgeted (+$17K / 8.4% over)
+- Controlled Substances: $97K vs. $93K (+$4K / 4.2% over)
+- Surgical Supplies: $452K vs. $437K (+$15K / 3.5% over)
 
 **AI Cost-Saving Opportunity:**
-Vendor consolidation for nitrile gloves across 4 locations could save **$23,400/year**. Currently using 3 vendors at $0.09\u2013$0.15/unit; consolidating to Medline at $0.10/unit.
+Vendor consolidation for nitrile gloves across all 3 sites could save **$23,400/year**. Currently using 3 vendors at $0.09\u2013$0.15/unit; consolidating to Medline's Vizient contract at $0.10/unit.
 
-March spend so far: $568K with a forecast of $895K (under the $915K budget).
+March spend so far: $520K with a forecast of $842K (under the $870K budget).
 
 Would you like a breakdown by department or supplier?`,
     };
@@ -379,8 +397,8 @@ Would you like a breakdown by department or supplier?`,
 Fentanyl usage in ICU has increased **47% over 5 days** without corresponding census/acuity increase. Flagged for pharmacy review and controlled substance audit.
 
 **Supply Projections at Risk:**
-- Vicryl 3-0 Sutures: Current stock (15) will be depleted by Mar 17 at projected OR consumption. PO-4522 delivery (Mar 19) may not arrive in time.
-- Sterile Surgical Gowns: 540 units vs. projected need of 680 for next week.
+- Vicryl 3-0 Sutures: Current stock (30) will be depleted by Mar 18 at projected OR consumption. PO-4522 delivery (Mar 19) may not arrive in time.
+- Sterile Surgical Gowns (L): 1,080 units vs. projected need of 1,360 for the next two weeks.
 
 Want me to model an alternative scenario or drill into a specific department?`,
     };
@@ -404,13 +422,15 @@ Want me to model an alternative scenario or drill into a specific department?`,
 **Expiring Within 90 Days:**
 | Item | Qty | Lot | Expires | Dept |
 |---|---|---|---|---|
-| Propofol 200mg/20mL | 180 | LT-2026-0198 | Jun 15, 2026 | Pharmacy |
-| Rapid COVID-19 Antigen Test | 2,100 | LT-2026-0567 | Apr 30, 2026 | ED |
+| Propofol 200mg/20mL | 360 | LT-2026-0198 | Jun 15, 2026 | Pharmacy |
+| Rapid COVID-19 Antigen Test | 4,200 | LT-2026-0567 | Apr 30, 2026 | ED |
+| MMR (M-M-R II) \u2014 VFC | 14 doses | MR-1198-A | Apr 18, 2026 | Martinez Wellness |
+| Tdap (Adacel) \u2014 VFC | 22 doses | AD-0274-B | Apr 26, 2026 | Martinez Health Ctr |
 
 **COVID Test Waste Risk:**
-At current consumption (~45 tests/day), approximately **1,075 tests will expire unused**. Potential waste: $5,644.
+At current consumption (~45 tests/day), approximately **2,175 tests will expire unused**. Potential waste: $11,400.
 
-**AI Recommendation:** Redistribute excess COVID tests to Martinez Health Center and Martinez Wellness Center, or coordinate with Contra Costa Public Health for community testing events.
+**AI Recommendation:** Redistribute excess COVID tests across the Martinez clinics or coordinate with Contra Costa Public Health for community testing events. For the short-dated VFC MMR doses, transfer 12 to Martinez Health Center (well-child schedule needs them within 2 weeks) or arrange a MyCAVax transfer to another VFC provider.
 
 Want me to initiate a redistribution request?`,
     };
@@ -474,13 +494,18 @@ Try asking me something specific, like "What items are critically low?" or "Show
 
 export function AIAssistant() {
   const { tenant } = useTenant();
+  const { fridges } = useSimulation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState<TypingPhase | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [mode, setMode] = useState<AssistantMode>("unknown");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Live snapshot for the API without re-creating callbacks per tick.
+  const fridgesRef = useRef(fridges);
+  fridgesRef.current = fridges;
 
   // scroll to bottom whenever messages or typing changes
   useEffect(() => {
@@ -493,6 +518,99 @@ export function AIAssistant() {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
+
+  // ---- Live path: Claude with tool use over the demo dataset ----
+  const liveResponse = useCallback(
+    async (userText: string, history: Message[]) => {
+      setTyping({ stage: "thinking" });
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            ...history.map((m) => ({ role: m.role, content: m.content })),
+            { role: "user", content: userText },
+          ],
+          fridges: fridgesRef.current.map((f) => ({
+            unitId: f.unitId,
+            siteName: f.siteName,
+            kind: f.kind,
+            tempF: f.readings[f.readings.length - 1]?.tempF,
+            status: f.status,
+            doseCount: f.doseCount,
+            lotCount: f.lotCount,
+          })),
+        }),
+      });
+      if (!res.ok || !res.body) throw new Error(`chat api ${res.status}`);
+
+      const msgId = crypto.randomUUID();
+      const toolCalls: ToolCall[] = [];
+      let content = "";
+      let created = false;
+
+      const upsert = () => {
+        setMessages((prev) => {
+          if (!created) return prev;
+          return prev.map((m) =>
+            m.id === msgId ? { ...m, content, toolCalls: [...toolCalls] } : m
+          );
+        });
+      };
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let sawText = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let evt: { type: string; name?: string; delta?: string; message?: string };
+          try {
+            evt = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (evt.type === "tool" && evt.name) {
+            const label = LIVE_TOOL_LABELS[evt.name] ?? `Running ${evt.name}...`;
+            toolCalls.push({ name: evt.name, label });
+            setTyping({ stage: "tool-call", label });
+          } else if (evt.type === "text" && evt.delta) {
+            if (!sawText) {
+              sawText = true;
+              created = true;
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: msgId,
+                  role: "assistant",
+                  content: "",
+                  toolCalls: [...toolCalls],
+                  timestamp: new Date(),
+                },
+              ]);
+              setTyping(null);
+            }
+            content += evt.delta;
+            upsert();
+          } else if (evt.type === "error") {
+            throw new Error(evt.message ?? "stream error");
+          }
+        }
+      }
+      if (!sawText) throw new Error("empty response");
+      setMode("live");
+      setTyping(null);
+    },
+    []
+  );
 
   const simulateResponse = useCallback(async (userText: string) => {
     const mock = matchResponse(userText, tenant);
@@ -515,6 +633,7 @@ export function AIAssistant() {
 
     // Done
     setTyping(null);
+    setMode("scripted");
     setMessages((prev) => [
       ...prev,
       {
@@ -533,6 +652,7 @@ export function AIAssistant() {
       if (!msg || typing) return;
 
       setShowSuggestions(false);
+      const history = messages;
       setMessages((prev) => [
         ...prev,
         {
@@ -543,9 +663,22 @@ export function AIAssistant() {
         },
       ]);
       setInput("");
-      simulateResponse(msg);
+
+      // Prefer the live Claude API; fall back to the scripted engine when
+      // no API key is configured (or the request fails mid-demo).
+      (async () => {
+        if (mode !== "scripted") {
+          try {
+            await liveResponse(msg, history);
+            return;
+          } catch {
+            // fall through to scripted
+          }
+        }
+        await simulateResponse(msg);
+      })();
     },
-    [input, typing, simulateResponse],
+    [input, typing, messages, mode, liveResponse, simulateResponse],
   );
 
   return (
@@ -554,6 +687,7 @@ export function AIAssistant() {
       <button
         onClick={() => setIsOpen(true)}
         aria-label="Open AI Agent"
+        data-tour="ai-assistant"
         className={cn(
           "fixed bottom-6 right-6 z-50 flex items-center justify-center",
           "w-14 h-14 rounded-full shadow-lg",
@@ -691,7 +825,14 @@ export function AIAssistant() {
             </button>
           </div>
           <p className="text-[11px] text-muted text-center mt-2">
-            Scripted demo — responses reflect {tenant.shortName} inventory data
+            {mode === "live" ? (
+              <>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent mr-1 align-middle" />
+                Live AI · grounded in {tenant.shortName} operational data
+              </>
+            ) : (
+              <>Responses reflect {tenant.shortName} inventory data</>
+            )}
           </p>
         </div>
       </div>
@@ -772,6 +913,15 @@ function ToolBadge({ tool }: { tool: ToolCall }) {
     scan_expiration_dates: AlertTriangle,
     query_supplier_metrics: Database,
     search_knowledge_base: Search,
+    // Live API tools
+    get_attention_items: AlertTriangle,
+    get_item_locations: Package,
+    get_procurement: Truck,
+    get_cold_chain: Database,
+    get_vfc_program: ClipboardCheck,
+    get_compliance: ClipboardCheck,
+    get_financials: Database,
+    get_forecast_and_insights: TrendingUp,
   };
   const Icon = IconMap[tool.name] ?? Search;
 

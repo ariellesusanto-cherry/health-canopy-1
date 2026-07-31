@@ -170,10 +170,10 @@ export default function CompliancePage() {
     <div className="min-h-screen">
       <Header title="Joint Commission Compliance" subtitle="Continuous readiness monitoring mapped to TJC standards (EC, MM, IC, EM, IM, LD, NPSG)" />
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         {/* Top Section — Score + Key Stats */}
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-4 bg-white rounded-xl border border-border p-6 flex flex-col items-center justify-center">
+          <div className="col-span-12 lg:col-span-4 bg-white rounded-xl border border-border p-6 flex flex-col items-center justify-center">
             <LargeScoreGauge score={overallReadinessScore} />
             <div className="w-full mt-6 grid grid-cols-2 gap-3">
               <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-center">
@@ -187,9 +187,9 @@ export default function CompliancePage() {
             </div>
           </div>
 
-          <div className="col-span-8 space-y-4">
+          <div className="col-span-12 lg:col-span-8 space-y-4">
             {/* Quick Actions */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
               {[
                 { label: "Run Mock Survey", icon: Play, desc: "Simulate TJC tracer", color: "bg-primary text-white hover:bg-primary-dark", toast: "Mock survey initiated — simulating EC tracer walkthrough...", toastType: "info" as const },
                 { label: "Generate Audit Report", icon: FileText, desc: "One-click compliance export", color: "bg-white text-foreground border border-border hover:bg-stone-50", toast: "Audit report generated — 7 chapters, 8 findings documented", toastType: "success" as const },
@@ -218,7 +218,7 @@ export default function CompliancePage() {
                   Equipment & Preventive Maintenance — EC.02.04.01
                 </h3>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {[
                   { label: "Total Equipment", value: pmStats.total, color: "text-foreground" },
                   { label: "PM Current", value: pmStats.current, color: "text-accent" },
@@ -404,7 +404,7 @@ export default function CompliancePage() {
 
         {activeTab === "findings" && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-xl border border-border p-5 flex items-center gap-4">
                 <div className="p-3 rounded-lg bg-red-50">
                   <XCircle className="w-6 h-6 text-red-500" />
@@ -489,7 +489,7 @@ export default function CompliancePage() {
         )}
 
         {activeTab === "reports" && (
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
               { title: "Complete Equipment Inventory", desc: "Full medical equipment registry with risk classification per EC.02.04.01 EP 2", format: "PDF / Excel", icon: ClipboardCheck },
               { title: "High-Risk Device Registry", desc: "All life-support and high-risk equipment per EC.02.04.01 EP 3", format: "PDF", icon: AlertCircle },
