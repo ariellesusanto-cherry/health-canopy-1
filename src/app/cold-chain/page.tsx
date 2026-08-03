@@ -10,6 +10,7 @@ import {
   EXCURSION_UNIT_ID,
   type FridgeSim,
 } from "@/lib/simulation";
+import { ExcursionReportModal } from "@/components/demo/excursion-report";
 import { daysFromNow } from "@/lib/demo-time";
 import {
   Thermometer,
@@ -22,6 +23,7 @@ import {
   ArrowRightLeft,
   ClipboardCheck,
   Radio,
+  FileText,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -76,8 +78,9 @@ export default function ColdChainPage() {
     simNow,
     excursionPhase,
     resolveExcursion,
-    coldChainAlertCount,
+    excursionReport,
   } = useSimulation();
+  const [reportOpen, setReportOpen] = useState(false);
 
   const [selectedKey, setSelectedKey] = useState<string>(
     // Default to the most interesting unit (the drifting MWC VFC fridge)
@@ -154,15 +157,31 @@ export default function ColdChainPage() {
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 flex items-center gap-3">
+          <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
-            <p className="text-sm text-foreground">
+            <p className="text-sm text-foreground flex-1">
               All {fridges.length} storage units in range.{" "}
               <span className="text-muted">
                 Last reading {simNow.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · logging every 10 minutes
               </span>
             </p>
+            {excursionReport && (
+              <button
+                onClick={() => setReportOpen(true)}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-xs font-medium text-foreground hover:bg-stone-50 transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5 text-red-600" />
+                Excursion report {excursionReport.id}
+              </button>
+            )}
           </div>
+        )}
+
+        {reportOpen && excursionReport && (
+          <ExcursionReportModal
+            report={excursionReport}
+            onClose={() => setReportOpen(false)}
+          />
         )}
 
         {/* KPI strip */}
@@ -187,9 +206,14 @@ export default function ColdChainPage() {
             label="Excursions (24h)"
             value={String(excursions24h)}
             sub={
-              excursions24h > 0
-                ? "MyCAVax excursion report required"
+              excursionReport
+                ? `${excursionReport.id} — ${excursionReport.status === "resolved" ? "resolved" : "active"}`
                 : "No excursions in reporting window"
+            }
+            action={
+              excursionReport
+                ? { label: "View report", onClick: () => setReportOpen(true) }
+                : undefined
             }
           />
           <KpiCard
@@ -311,12 +335,14 @@ function KpiCard({
   label,
   value,
   sub,
+  action,
 }: {
   icon: typeof Thermometer;
   tone: "accent" | "amber" | "red" | "primary";
   label: string;
   value: string;
   sub: string;
+  action?: { label: string; onClick: () => void };
 }) {
   const tones = {
     accent: "bg-accent/10 text-accent",
@@ -335,6 +361,14 @@ function KpiCard({
             {value}
           </p>
           <p className="text-xs text-muted mt-1.5 truncate">{sub}</p>
+          {action && (
+            <button
+              onClick={action.onClick}
+              className="mt-1.5 text-xs font-medium text-primary hover:underline"
+            >
+              {action.label} →
+            </button>
+          )}
         </div>
         <div className={cn("p-2.5 rounded-lg shrink-0", tones[tone])}>
           <Icon className="w-5 h-5" />

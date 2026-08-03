@@ -138,6 +138,26 @@ body {
   animation: toast-in 0.3s ease-out forwards;
 }
 
+/* Excursion report: print only the report, on white */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .excursion-report-print,
+  .excursion-report-print * {
+    visibility: visible;
+  }
+  .excursion-report-print {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
 /* Search modal fade-in */
 @keyframes modal-backdrop {
   from { opacity: 0; }

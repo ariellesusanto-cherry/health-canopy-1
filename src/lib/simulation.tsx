@@ -76,6 +76,31 @@ export type SimInsight = {
 
 export type ExcursionPhase = "idle" | "rising" | "excursion" | "resolving" | "resolved";
 
+export type ExcursionReportAction = {
+  /** sim-time ms */
+  tMs: number;
+  text: string;
+};
+
+export type ExcursionReport = {
+  id: string;
+  status: "active" | "resolved";
+  unitId: string;
+  siteName: string;
+  loggerModel: string;
+  loggerSerial: string;
+  calibrationExpires: string;
+  alarmHighF: number;
+  startedAtMs: number;
+  resolvedAtMs: number | null;
+  peakTempF: number;
+  doseCount: number;
+  lotCount: number;
+  estValueUsd: number;
+  actions: ExcursionReportAction[];
+  reportedToMyCAVax: boolean;
+};
+
 type SimulationContextValue = {
   /** Current simulated wall-clock. */
   simNow: Date;
@@ -91,6 +116,8 @@ type SimulationContextValue = {
   /** Items injected by scenarios, for merging into page feeds. */
   simActivities: SimActivity[];
   simInsights: SimInsight[];
+  /** Formal record of the current/last excursion (CDPH/MyCAVax-style). */
+  excursionReport: ExcursionReport | null;
 };
 
 // ---- Seeded PRNG so SSR + client agree --------------------------------
@@ -258,6 +285,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [excursionPhase, setExcursionPhase] = useState<ExcursionPhase>("idle");
   const [simActivities, setSimActivities] = useState<SimActivity[]>([]);
   const [simInsights, setSimInsights] = useState<SimInsight[]>([]);
+  const [excursionReport, setExcursionReport] = useState<ExcursionReport | null>(null);
 
   // Refs so the tick interval sees current values without re-subscribing.
   const phaseRef = useRef<ExcursionPhase>("idle");
@@ -276,6 +304,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         phase: ExcursionPhase;
         activities: SimActivity[];
         insights: SimInsight[];
+        report?: ExcursionReport | null;
       };
       if (stored.phase && stored.phase !== "idle") {
         // Past the alarm crossing? Don't re-fire the toast/insight.
@@ -283,6 +312,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         setExcursionPhase(stored.phase);
         setSimActivities(stored.activities ?? []);
         setSimInsights(stored.insights ?? []);
+        setExcursionReport(stored.report ?? null);
       }
     } catch {
       // ignore corrupt storage
@@ -298,12 +328,13 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
           phase: excursionPhase,
           activities: simActivities,
           insights: simInsights,
+          report: excursionReport,
         })
       );
     } catch {
       // storage full/unavailable — nonfatal
     }
-  }, [excursionPhase, simActivities, simInsights]);
+  }, [excursionPhase, simActivities, simInsights, excursionReport]);
 
   const fmtSimTime = useCallback((ms: number) => {
     return new Date(ms).toLocaleTimeString("en-US", {
@@ -363,10 +394,41 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (targetTemp === undefined || !targetFridge) return;
 
+    // Track the peak temperature for the excursion report.
+    if (
+      (excursionPhase === "excursion" || excursionPhase === "resolving") &&
+      excursionReport &&
+      targetTemp > excursionReport.peakTempF
+    ) {
+      setExcursionReport((r) => (r ? { ...r, peakTempF: targetTemp } : r));
+    }
+
     // Rising → crossed the high alarm: fire the excursion event once.
     if (excursionPhase === "rising" && targetTemp > targetFridge.alarmHighF && !crossedRef.current) {
       crossedRef.current = true;
       setExcursionPhase("excursion");
+      const nowMs = simNowRef.current;
+      setExcursionReport({
+        id: "EXC-2026-CC-001",
+        status: "active",
+        unitId: targetFridge.unitId,
+        siteName: targetFridge.siteName,
+        loggerModel: targetFridge.dataLoggerModel,
+        loggerSerial: targetFridge.dataLoggerSerial,
+        calibrationExpires: targetFridge.calibrationExpires,
+        alarmHighF: targetFridge.alarmHighF,
+        startedAtMs: nowMs,
+        resolvedAtMs: null,
+        peakTempF: targetTemp,
+        doseCount: targetFridge.doseCount,
+        lotCount: targetFridge.lotCount,
+        estValueUsd: 14200,
+        reportedToMyCAVax: false,
+        actions: [
+          { tMs: nowMs, text: `Continuous data logger recorded ${targetTemp.toFixed(1)}°F — high alarm (${targetFridge.alarmHighF}°F) exceeded` },
+          { tMs: nowMs, text: "AI response plan issued: relocate VFC stock to backup unit, mark doses DO NOT USE pending viability review, dispatch Follett Service for door seal" },
+        ],
+      });
       const at = fmtSimTime(simNowRef.current);
       showToast(
         `TEMP EXCURSION — Martinez Wellness VFC fridge at ${targetTemp.toFixed(1)}°F (limit 46°F)`,
@@ -402,6 +464,23 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     if (excursionPhase === "resolving" && targetTemp <= targetFridge.alarmHighF - 3) {
       setExcursionPhase("resolved");
       const at = fmtSimTime(simNowRef.current);
+      const nowMs = simNowRef.current;
+      setExcursionReport((r) =>
+        r
+          ? {
+              ...r,
+              status: "resolved",
+              resolvedAtMs: nowMs,
+              reportedToMyCAVax: true,
+              actions: [
+                ...r.actions,
+                { tMs: nowMs, text: `All ${r.doseCount} VFC doses relocated to Martinez Health Center backup unit (VFC-FR-MHC-01)` },
+                { tMs: nowMs, text: "Unit back within range — excursion closed; temperatures verified by continuous logger" },
+                { tMs: nowMs, text: "Excursion reported in MyCAVax · viability review opened per CDPH storage & handling guidance" },
+              ],
+            }
+          : r
+      );
       showToast("Excursion resolved — doses relocated, unit recovering", "success");
       setSimActivities((prev) => [
         {
@@ -425,7 +504,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         )
       );
     }
-  }, [targetTemp, excursionPhase, targetFridge, showToast, fmtSimTime]);
+  }, [targetTemp, excursionPhase, targetFridge, excursionReport, showToast, fmtSimTime]);
 
   // ---- Scenario controls ----
   const triggerExcursion = useCallback(() => {
@@ -436,6 +515,18 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
 
   const resolveExcursion = useCallback(() => {
     setExcursionPhase("resolving");
+    const nowMs = simNowRef.current;
+    setExcursionReport((r) =>
+      r
+        ? {
+            ...r,
+            actions: [
+              ...r.actions,
+              { tMs: nowMs, text: "Transfer to backup unit initiated by M. Gutierrez, RN (Vaccine Coordinator)" },
+            ],
+          }
+        : r
+    );
   }, []);
 
   const resetSimulation = useCallback(() => {
@@ -443,6 +534,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     setExcursionPhase("idle");
     setSimActivities([]);
     setSimInsights([]);
+    setExcursionReport(null);
     setFridges(initialFridges);
     setSimNowMs(DEMO_NOW.getTime());
     try {
@@ -463,6 +555,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     resetSimulation,
     simActivities,
     simInsights,
+    excursionReport,
   };
 
   return (
