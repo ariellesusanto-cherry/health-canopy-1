@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Header } from "@/components/layout/header";
 import { useToast } from "@/components/ui/toast";
+import { useRole } from "@/lib/role-context";
 import {
   DollarSign,
   TrendingUp,
@@ -25,6 +26,7 @@ import {
   Timer,
   ArrowRightLeft,
   ExternalLink,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip as InfoTooltip } from "@/components/ui/tooltip";
@@ -83,6 +85,10 @@ export default function BudgetPage() {
   const [approvedPOs, setApprovedPOs] = useState<Set<string>>(new Set());
   const { showToast } = useToast();
   const { tenant } = useTenant();
+  const { role } = useRole();
+  // Read-only personas (Executive) get full financial visibility but no
+  // operational actions — approvals stay with the supply chain team.
+  const readOnly = !!role?.readOnly;
   const scale = tenant.financialScale;
 
   // Summary calculations — scaled to active tenant so headline numbers match the dashboard
@@ -105,8 +111,14 @@ export default function BudgetPage() {
       />
 
       <div className="p-4 md:p-8 space-y-6">
+        {readOnly && (
+          <div className="flex items-center gap-2 text-[11px] text-muted">
+            <Lock className="w-3.5 h-3.5" />
+            Read-only financial view — PO approvals and order actions stay with the supply chain team
+          </div>
+        )}
         {/* Top KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div data-tour="fin-kpis" className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {[
             {
               label: "Annual Inventory Budget",
@@ -430,7 +442,7 @@ export default function BudgetPage() {
                       </table>
                     </div>
 
-                    {(po.status === "ai-recommended" || po.status === "pending-approval") && !approvedPOs.has(po.id) && (
+                    {!readOnly && (po.status === "ai-recommended" || po.status === "pending-approval") && !approvedPOs.has(po.id) && (
                       <div className="flex gap-3 mt-3">
                         <button
                           onClick={() => {
@@ -585,7 +597,7 @@ export default function BudgetPage() {
                               </li>
                             ))}
                           </ul>
-                          {ds.impactSeverity === "critical" && (
+                          {!readOnly && ds.impactSeverity === "critical" && (
                             <div className="flex gap-3 mt-3">
                               <button
                                 onClick={() => showToast(`Emergency PO drafted for ${ds.supplier} — backup supplier order initiated`, "warning")}

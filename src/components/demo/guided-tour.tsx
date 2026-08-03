@@ -126,7 +126,13 @@ const TOURS: Record<RoleId, TourStep[]> = {
       route: "/executive",
       target: "exec-sites",
       title: "The path to full-county coverage",
-      body: "Three sites live today; seven county health centers onboarding — Antioch, Pittsburg, Concord, San Pablo, Brentwood, North Richmond, and Bay Point. That's the tour.",
+      body: "Three sites live today; seven county health centers onboarding — Antioch, Pittsburg, Concord, San Pablo, Brentwood, North Richmond, and Bay Point.",
+    },
+    {
+      route: "/budget",
+      target: "fin-kpis",
+      title: "Financials — visibility without the levers",
+      body: "Budget vs. actual, inventory value, pending POs, and delivery costs — full transparency, but approvals and order actions stay with the supply chain team. Read-only by design. That's the tour.",
     },
   ],
 };
