@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
-import { inventoryItems, departments, itemLocations, parLocations, type InventoryItem } from "@/lib/mock-data";
+import { inventoryItems, departments, itemLocations, parLocations, custodyLogs, usageAnomalies, type InventoryItem } from "@/lib/mock-data";
 import { useTenant } from "@/lib/tenant-context";
 import { useRole } from "@/lib/role-context";
 import { MapPin } from "lucide-react";
@@ -679,6 +679,9 @@ export default function InventoryPage() {
 
 function ItemDetailPanel({ item, canManage }: { item: InventoryItem; canManage: boolean }) {
   const { showToast } = useToast();
+  const anomaly = usageAnomalies[item.id];
+  const custody = custodyLogs[item.id];
+  const [showAnomaly, setShowAnomaly] = useState(false);
   return (
               <div className="p-5 bg-stone-50/70 border-t-2 border-primary/30">
                 <div className="flex items-start justify-between mb-4">
@@ -686,7 +689,21 @@ function ItemDetailPanel({ item, canManage }: { item: InventoryItem; canManage: 
                     <h4 className="text-base font-semibold text-foreground">{item.name}</h4>
                     <p className="text-xs text-muted mt-0.5">SKU: {item.sku} | Lot: {item.lotNumber}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    {anomaly && (
+                      <button
+                        onClick={() => setShowAnomaly((v) => !v)}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors",
+                          showAnomaly
+                            ? "bg-red-600 text-white border-red-600"
+                            : "bg-red-50 text-red-700 border-red-300 hover:bg-red-100"
+                        )}
+                      >
+                        <AlertTriangle className={cn("w-3.5 h-3.5", !showAnomaly && "pulse-dot")} />
+                        Usage up {anomaly.change} — review
+                      </button>
+                    )}
                     {canManage && (
                       <ParAdjuster
                         itemName={item.name}
@@ -716,6 +733,64 @@ function ItemDetailPanel({ item, canManage }: { item: InventoryItem; canManage: 
                     </button>
                   </div>
                 </div>
+                {anomaly && showAnomaly && (
+                  <div className="mb-4 rounded-xl border border-red-200 bg-red-50/70 p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h5 className="text-sm font-semibold text-red-800">
+                            AI Anomaly: {anomaly.headline}
+                          </h5>
+                          <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-red-200 text-red-800">
+                            {anomaly.change} · {anomaly.window}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mt-3 text-xs">
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-red-400">Baseline</p>
+                            <p className="text-foreground font-medium mt-0.5">{anomaly.baseline}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-red-400">Current</p>
+                            <p className="text-red-700 font-bold mt-0.5">{anomaly.current}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-red-400">Clinical context</p>
+                            <p className="text-foreground font-medium mt-0.5">{anomaly.context}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-red-800 leading-relaxed mt-3">{anomaly.assessment}</p>
+                        <div className="mt-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-red-400 mb-1">Recommended actions</p>
+                          <ul className="space-y-1">
+                            {anomaly.recommendedActions.map((a) => (
+                              <li key={a} className="text-xs text-foreground flex items-start gap-1.5">
+                                <span className="text-red-400 mt-0.5">•</span>
+                                {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => showToast("Flagged for pharmacy supervisor review — investigation case opened", "warning")}
+                            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+                          >
+                            Flag for pharmacy review
+                          </button>
+                          <button
+                            onClick={() => showToast("Cross-referencing Pyxis dispenses against MAR records…", "info")}
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 text-red-700 hover:bg-red-100 transition-colors"
+                          >
+                            Cross-reference MAR
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                   {[
                     { label: "Current Stock", value: item.currentStock.toLocaleString() },
@@ -744,15 +819,44 @@ function ItemDetailPanel({ item, canManage }: { item: InventoryItem; canManage: 
                   ))}
                 </div>
                 {item.category === "Controlled Substance" && (
-                  <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
-                    <div className="flex items-center gap-2">
-                      <ShieldAlert className="w-4 h-4 text-red-600" />
-                      <span className="text-xs font-semibold text-red-700">Controlled Substance — Chain of Custody Active</span>
+                  <div className="mt-4 rounded-xl bg-white border border-red-200 overflow-hidden">
+                    <div className="p-3 bg-red-50 border-b border-red-200">
+                      <div className="flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-red-600" />
+                        <span className="text-xs font-semibold text-red-700">Controlled Substance — Chain of Custody Active</span>
+                      </div>
+                      <p className="text-[11px] text-red-600 mt-1">
+                        Full receipt/disposition tracking per MM 13.01.01. Last audit: Mar 13, 2026.
+                        DSCSA serial verification: Verified.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-red-600 mt-1">
-                      Full receipt/disposition tracking per MM 13.01.01. Last audit: Mar 13, 2026.
-                      DSCSA serial verification: Verified.
-                    </p>
+                    {custody && (
+                      <div className="p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted mb-2">
+                          Custody trail — every touch, witnessed
+                        </p>
+                        <div className="space-y-2">
+                          {custody.map((e, i) => (
+                            <div key={i} className="flex items-start gap-3 text-xs">
+                              <span className="text-muted shrink-0 w-28 tabular-nums">{e.time}</span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-foreground">
+                                  <span className="font-semibold">{e.action}</span>
+                                  {" — "}{e.person}, {e.role}
+                                  {e.witness && (
+                                    <span className="text-muted"> · witness: {e.witness}</span>
+                                  )}
+                                </p>
+                                <p className="text-[11px] text-muted mt-0.5">
+                                  {e.location}
+                                  {e.detail && <> · {e.detail}</>}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

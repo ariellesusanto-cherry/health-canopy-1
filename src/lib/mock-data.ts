@@ -1547,3 +1547,57 @@ export const locationImbalances: LocationImbalance[] = [
     suggestedTransfer: { from: "OR Anesthesia Cart — Room 4", to: "ED Pyxis MedStation #1", qty: 20, reason: "OR Anesthesia at 200% of typical par while ED Pyxis critically low at 25% — rebalance to avoid ED procedural sedation delays" },
   },
 ];
+
+// ============================================================
+// Controlled-substance chain of custody + AI usage anomalies
+// (keyed by inventory item id; shown in the item detail panel)
+// ============================================================
+
+export type CustodyEvent = {
+  time: string;          // display time
+  action: string;
+  person: string;
+  role: string;
+  location: string;
+  witness?: string;
+  detail?: string;
+};
+
+export const custodyLogs: Record<string, CustodyEvent[]> = {
+  "INV-009": [ // Fentanyl
+    { time: "Today 11:32 AM", action: "Dispensed — 2 units", person: "R. Torres", role: "RN", location: "ICU Pyxis Station · CCRMC 3rd Floor", witness: "Pyxis bio-ID", detail: "Patient MRN ····4821 · order verified" },
+    { time: "Today 10:15 AM", action: "Dispensed — 1 unit", person: "M. Okafor", role: "CRNA", location: "OR Anesthesia Pyxis · CCRMC 2nd Floor", witness: "Pyxis bio-ID", detail: "Case #OR-0316-04" },
+    { time: "Today 9:02 AM", action: "Cycle count verified — 80/80", person: "J. Lee", role: "Pharm Tech", location: "ICU Pyxis Station", witness: "K. Patel, RPh" },
+    { time: "Today 7:45 AM", action: "Restock — +20 units vault → Pyxis", person: "K. Patel", role: "RPh", location: "CS Vault → ICU Pyxis", witness: "M. Chen, RPh" },
+    { time: "Mar 15 4:30 PM", action: "Received — 200 units from Akorn", person: "M. Chen", role: "RPh", location: "Receiving → Controlled Substance Vault", witness: "D. Whitfield", detail: "DSCSA serials verified · invoice 88412" },
+    { time: "Mar 15 8:00 AM", action: "Vault count verified — dual signature", person: "M. Chen", role: "RPh", location: "Controlled Substance Vault", witness: "K. Patel, RPh" },
+  ],
+};
+
+export type UsageAnomaly = {
+  headline: string;
+  change: string;
+  window: string;
+  baseline: string;
+  current: string;
+  context: string;
+  assessment: string;
+  recommendedActions: string[];
+};
+
+export const usageAnomalies: Record<string, UsageAnomaly> = {
+  "INV-009": { // Fentanyl — mirrors AI insight AI-002
+    headline: "Unusual consumption — ICU",
+    change: "+47%",
+    window: "past 5 days",
+    baseline: "11.2 units/day (90-day ICU average)",
+    current: "16.5 units/day",
+    context: "ICU patient census unchanged (−2%) · acuity scores stable · no new standing orders",
+    assessment: "Usage pattern deviates significantly from historical norms without a clinical explanation. Consistent with a potential diversion signal — requires pharmacy review.",
+    recommendedActions: [
+      "Flag for pharmacy supervisor review",
+      "Cross-reference Pyxis dispenses against medication administration records (MAR)",
+      "Audit wastage documentation for the affected shifts",
+    ],
+  },
+};
