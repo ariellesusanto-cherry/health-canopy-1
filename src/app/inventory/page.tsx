@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Fragment, useState, useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -549,16 +549,28 @@ export default function InventoryPage() {
                   const sc = statusConfig[item.status];
                   const isExpiringSoon = item.expirationDate && new Date(item.expirationDate) < new Date("2026-07-01");
 
+                  const isOpen = showDetail === item.id;
                   return (
+                    <Fragment key={item.id}>
                     <tr
-                      key={item.id}
-                      className="border-b border-border/50 hover:bg-stone-50/50 transition-colors cursor-pointer"
-                      onClick={() => setShowDetail(showDetail === item.id ? null : item.id)}
+                      className={cn(
+                        "border-b border-border/50 transition-colors cursor-pointer",
+                        isOpen ? "bg-primary/[0.04]" : "hover:bg-stone-50/50"
+                      )}
+                      onClick={() => setShowDetail(isOpen ? null : item.id)}
                     >
                       <td className="px-3 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{item.name}</p>
-                          <p className="text-[11px] text-muted font-mono">{item.sku}</p>
+                        <div className="flex items-center gap-2">
+                          <ChevronDown
+                            className={cn(
+                              "w-3.5 h-3.5 text-muted shrink-0 transition-transform",
+                              isOpen && "rotate-180 text-primary"
+                            )}
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{item.name}</p>
+                            <p className="text-[11px] text-muted font-mono">{item.sku}</p>
+                          </div>
                         </div>
                       </td>
                       <td className="px-3 py-3">
@@ -600,6 +612,14 @@ export default function InventoryPage() {
                         </span>
                       </td>
                     </tr>
+                    {isOpen && (
+                      <tr>
+                        <td colSpan={8} className="p-0">
+                          <ItemDetailPanel item={item} canManage={canManage} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
               </tbody>
@@ -649,12 +669,18 @@ export default function InventoryPage() {
             </select>
           </div>
 
-          {/* Detail Panel */}
-          {showDetail && (() => {
-            const item = inventoryItems.find((i) => i.id === showDetail);
-            if (!item) return null;
-            return (
-              <div className="mt-4 p-5 rounded-xl bg-stone-50 border border-border">
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- Inline item detail (expands directly under the clicked row) ----
+
+function ItemDetailPanel({ item, canManage }: { item: InventoryItem; canManage: boolean }) {
+  const { showToast } = useToast();
+  return (
+              <div className="p-5 bg-stone-50/70 border-t-2 border-primary/30">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h4 className="text-base font-semibold text-foreground">{item.name}</h4>
@@ -810,11 +836,6 @@ export default function InventoryPage() {
                   );
                 })()}
               </div>
-            );
-          })()}
-        </div>
-      </div>
-    </div>
   );
 }
 
