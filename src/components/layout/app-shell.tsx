@@ -28,7 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <>
       <Sidebar />
       <main className="ml-64 min-h-screen bg-background">{children}</main>
-      {role && !role.readOnly && <AIAssistant />}
+      {role && <AIAssistant />}
       <DemoDirector />
       <GuidedTour />
     </>

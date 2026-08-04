@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTenant } from "@/lib/tenant-context";
 import { useSimulation } from "@/lib/simulation";
+import { useRole } from "@/lib/role-context";
 import type { Tenant } from "@/lib/tenants";
 
 // ---------------------------------------------------------------------------
@@ -63,12 +64,27 @@ const LIVE_TOOL_LABELS: Record<string, string> = {
 // Suggestion chips
 // ---------------------------------------------------------------------------
 
-const SUGGESTIONS = [
-  { text: "What items are critically low right now?", icon: AlertTriangle },
-  { text: "Show me the flu surge impact on our supplies", icon: TrendingUp },
-  { text: "What equipment has overdue maintenance?", icon: Wrench },
-  { text: "How's our Joint Commission readiness?", icon: Package },
-];
+const SUGGESTIONS_BY_ROLE: Record<string, { text: string; icon: typeof Search }[]> = {
+  "supply-chain-manager": [
+    { text: "What items are critically low right now?", icon: AlertTriangle },
+    { text: "Show me the flu surge impact on our supplies", icon: TrendingUp },
+    { text: "What equipment has overdue maintenance?", icon: Wrench },
+    { text: "How's our Joint Commission readiness?", icon: Package },
+  ],
+  "nurse-unit-coordinator": [
+    { text: "What's running low right now?", icon: AlertTriangle },
+    { text: "When are my deliveries arriving?", icon: Truck },
+    { text: "What's expiring soon?", icon: ClipboardCheck },
+    { text: "Show me the flu surge impact on our supplies", icon: TrendingUp },
+  ],
+  executive: [
+    { text: "How's our Joint Commission readiness?", icon: Package },
+    { text: "Are we over or under budget this year?", icon: Database },
+    { text: "What items are critically low right now?", icon: AlertTriangle },
+    { text: "Show me the flu surge impact on our supplies", icon: TrendingUp },
+  ],
+};
+const DEFAULT_SUGGESTIONS = SUGGESTIONS_BY_ROLE["supply-chain-manager"];
 
 // ---------------------------------------------------------------------------
 // Mock response engine
@@ -494,7 +510,9 @@ Try asking me something specific, like "What items are critically low?" or "Show
 
 export function AIAssistant() {
   const { tenant } = useTenant();
+  const { roleId } = useRole();
   const { fridges } = useSimulation();
+  const suggestions = (roleId && SUGGESTIONS_BY_ROLE[roleId]) || DEFAULT_SUGGESTIONS;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -772,7 +790,7 @@ export function AIAssistant() {
         {showSuggestions && messages.length === 0 && !typing && (
           <div className="px-4 pb-2">
             <div className="grid grid-cols-2 gap-2">
-              {SUGGESTIONS.map((s) => (
+              {suggestions.map((s) => (
                 <button
                   key={s.text}
                   onClick={() => handleSend(s.text)}
