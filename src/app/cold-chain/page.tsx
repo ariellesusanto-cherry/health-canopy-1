@@ -11,6 +11,7 @@ import {
   type FridgeSim,
 } from "@/lib/simulation";
 import { ExcursionReportModal } from "@/components/demo/excursion-report";
+import Link from "next/link";
 import { daysFromNow } from "@/lib/demo-time";
 import {
   Thermometer,
@@ -24,6 +25,7 @@ import {
   ClipboardCheck,
   Radio,
   FileText,
+  ArrowRight,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -174,6 +176,13 @@ export default function ColdChainPage() {
                 Excursion report {excursionReport.id}
               </button>
             )}
+            <Link
+              href="/vaccine-management#scan-inspector"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-colors"
+            >
+              Point-of-care scans
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         )}
 

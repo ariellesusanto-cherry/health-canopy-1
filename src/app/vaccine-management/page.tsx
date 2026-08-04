@@ -436,7 +436,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div data-tour={tourId} className="bg-white rounded-xl border border-border p-6">
+    <div id={tourId} data-tour={tourId} className="bg-white rounded-xl border border-border p-6 scroll-mt-24">
       <div className="flex items-start gap-3 mb-5">
         {number !== null ? (
           <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
